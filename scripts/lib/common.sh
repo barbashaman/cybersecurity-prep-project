@@ -13,6 +13,11 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
+# Git Bash on Windows converts leading-/ args (e.g. /reports) into
+# C:/Program Files/Git/... before docker.exe sees them. Disable that.
+export MSYS_NO_PATHCONV="${MSYS_NO_PATHCONV:-1}"
+export MSYS2_ARG_CONV_EXCL="${MSYS2_ARG_CONV_EXCL:-*}"
+
 # --- Resolve repo root regardless of caller CWD -----------------------------
 COMMON_SH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "${COMMON_SH_DIR}/../.." && pwd)"
