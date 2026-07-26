@@ -107,3 +107,22 @@ def can_manage_order_receipt(actor: User, order: Order) -> bool:
     if actor.role is UserRole.CUSTOMER:
         return actor.id == order.customer_user_id
     return False
+
+
+def can_grant_credits(actor: User) -> bool:
+    """Mock credit grants: admin or the customer themselves (demo purchase)."""
+    return actor.role in {UserRole.ADMIN, UserRole.CUSTOMER}
+
+
+def can_manage_coupons(actor: User, store_id: int) -> bool:
+    """Coupon create: admin or the owning store owner."""
+    return can_write_store_catalog(actor, store_id)
+
+
+def can_place_order(actor: User, store_id: int) -> bool:
+    """Checkout: customers of the store (or admin acting for demos)."""
+    if actor.role is UserRole.ADMIN:
+        return True
+    if actor.role is UserRole.CUSTOMER:
+        return actor.store_id == store_id
+    return False

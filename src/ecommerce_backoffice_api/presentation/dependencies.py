@@ -17,6 +17,12 @@ from ecommerce_backoffice_api.application.use_cases.authentication import (
     GetCurrentUserProfile,
     LogoutUser,
 )
+from ecommerce_backoffice_api.application.use_cases.checkout import (
+    ApplyCouponToOrder,
+    CreateCoupon,
+    GrantCredits,
+    PlaceOrder,
+)
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
@@ -44,6 +50,8 @@ from ecommerce_backoffice_api.domain.exceptions import AuthenticationError
 from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyAuditEventRepository,
+    SqlAlchemyCouponRepository,
+    SqlAlchemyCreditRepository,
     SqlAlchemyOrderRepository,
     SqlAlchemyPasswordResetTokenRepository,
     SqlAlchemyProductRepository,
@@ -268,4 +276,34 @@ def get_load_order_receipt(session: Annotated[Session, Depends(get_session)]) ->
     return LoadOrderReceipt(
         SqlAlchemyReceiptRepository(session),
         SqlAlchemyOrderRepository(session),
+    )
+
+
+def get_grant_credits(session: Annotated[Session, Depends(get_session)]) -> GrantCredits:
+    return GrantCredits(SqlAlchemyCreditRepository(session))
+
+
+def get_create_coupon(session: Annotated[Session, Depends(get_session)]) -> CreateCoupon:
+    return CreateCoupon(
+        SqlAlchemyCouponRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_place_order(session: Annotated[Session, Depends(get_session)]) -> PlaceOrder:
+    return PlaceOrder(
+        order_repository=SqlAlchemyOrderRepository(session),
+        product_repository=SqlAlchemyProductRepository(session),
+        credit_repository=SqlAlchemyCreditRepository(session),
+        coupon_repository=SqlAlchemyCouponRepository(session),
+        store_repository=SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_apply_coupon_to_order(
+    session: Annotated[Session, Depends(get_session)],
+) -> ApplyCouponToOrder:
+    return ApplyCouponToOrder(
+        order_repository=SqlAlchemyOrderRepository(session),
+        coupon_repository=SqlAlchemyCouponRepository(session),
     )

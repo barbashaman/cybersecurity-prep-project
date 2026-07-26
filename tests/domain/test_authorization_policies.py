@@ -42,6 +42,9 @@ def test_admin_can_read_any_store_and_order() -> None:
     assert authorization.can_read_order(admin, order)
     assert authorization.can_update_order_status(admin, order)
     assert not authorization.must_anonymize_order_for(admin)
+    assert authorization.can_grant_credits(admin)
+    assert authorization.can_manage_coupons(admin, 2)
+    assert authorization.can_place_order(admin, 2)
 
 
 def test_store_owner_is_tenant_scoped() -> None:
@@ -65,6 +68,10 @@ def test_customer_reads_own_orders_only() -> None:
     assert authorization.can_read_order(customer, own_order)
     assert not authorization.can_read_order(customer, other_order)
     assert not authorization.can_update_order_status(customer, own_order)
+    assert authorization.can_grant_credits(customer)
+    assert authorization.can_place_order(customer, 1)
+    assert not authorization.can_place_order(customer, 2)
+    assert not authorization.can_manage_coupons(customer, 1)
 
 
 def test_delivery_manager_sees_anonymized_orders() -> None:

@@ -1,0 +1,18 @@
+{
+  "iteration": "iter-05",
+  "owasp_risk": "A06 Insecure Design",
+  "owasp_api_cross_reference": "API6:2023 Unrestricted Access to Sensitive Business Flows (coupon abuse, inventory integrity, missing business invariants)",
+  "summary": "Checkout allows reusable coupons, negative line quantities, and race-condition stock overselling because business invariants, redemption tracking, idempotency, and DB constraints are missing.",
+  "failing_tests": [
+    "tests/security/test_a06_insecure_design.py::test_coupon_must_not_be_reusable_after_redemption",
+    "tests/security/test_a06_insecure_design.py::test_checkout_must_reject_negative_quantity",
+    "tests/security/test_a06_insecure_design.py::test_checkout_must_reject_ordering_beyond_stock"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a06_insecure_design.py",
+      "description": "Detection suite asserting single-use coupons, positive quantities, and atomic stock constraints; fails on vulnerable red-phase checkout."
+    }
+  ]
+}

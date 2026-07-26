@@ -73,6 +73,8 @@ class ProductModel(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # PLAN FIX (A06): add CHECK (stock_quantity >= 0) at the database layer.
+    stock_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     store: Mapped[StoreModel] = relationship(back_populates="products")
 
@@ -174,3 +176,52 @@ class PasswordResetTokenModel(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     token: Mapped[str] = mapped_column(String(255), nullable=False)
+
+
+class CustomerCreditModel(Base):
+    """Persisted mock customer credit balance (iter-05)."""
+
+    __tablename__ = "customer_credits"
+    __table_args__ = (UniqueConstraint("user_id", name="uq_customer_credits_user_id"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    balance_cents: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class CouponModel(Base):
+    """Persisted store discount coupon (iter-05)."""
+
+    __tablename__ = "coupons"
+    __table_args__ = (UniqueConstraint("store_id", "code", name="uq_coupons_store_id_code"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    store_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
+    )
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
+    discount_percent: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+class CouponRedemptionModel(Base):
+    """Persisted coupon redemption ledger row (iter-05).
+
+    PLAN FIX (A06): enforce uniqueness on coupon_id (single-use) so reuse
+    cannot succeed even if application checks are bypassed.
+    """
+
+    __tablename__ = "coupon_redemptions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    coupon_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("coupons.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    order_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+    )

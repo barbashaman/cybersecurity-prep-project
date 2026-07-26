@@ -24,6 +24,8 @@ from database.seeding.constants import (
 )
 from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
 from ecommerce_backoffice_api.infrastructure.persistence.models import (
+    CouponModel,
+    CustomerCreditModel,
     OrderLineModel,
     OrderModel,
     ProductModel,
@@ -129,18 +131,40 @@ def seed_database(session: Session) -> bool:
     products_by_store: dict[int, list[ProductModel]] = {}
     for store in (store_one, store_two):
         products: list[ProductModel] = []
-        for name, description, price_cents in _product_catalog(store.name):
+        for index, (name, description, price_cents) in enumerate(_product_catalog(store.name)):
+            # First SKU per store has stock=1 to exercise oversell demos.
+            stock = 1 if index == 0 else 25
             product = ProductModel(
                 store_id=store.id,
                 name=name,
                 description=description,
                 price_cents=price_cents,
                 is_active=True,
+                stock_quantity=stock,
             )
             products.append(product)
         session.add_all(products)
         session.flush()
         products_by_store[store.id] = products
+
+    session.add_all(
+        [
+            CustomerCreditModel(user_id=customer_one.id, balance_cents=500_000),
+            CustomerCreditModel(user_id=customer_two.id, balance_cents=500_000),
+            CouponModel(
+                store_id=store_one.id,
+                code="SAVE10",
+                discount_percent=10,
+                is_active=True,
+            ),
+            CouponModel(
+                store_id=store_two.id,
+                code="SAVE10",
+                discount_percent=10,
+                is_active=True,
+            ),
+        ]
+    )
 
     staged_statuses = (
         OrderStatus.PENDING,

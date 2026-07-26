@@ -42,6 +42,7 @@ class Product:
     description: str
     price_cents: int
     is_active: bool = True
+    stock_quantity: int = 0
     id: int | None = None
 
 
@@ -113,4 +114,39 @@ class PasswordResetToken:
 
     user_id: int
     token: str
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class CustomerCredit:
+    """Mock customer credit balance used for demo checkout (iter-05 A06)."""
+
+    user_id: int
+    balance_cents: int
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class Coupon:
+    """A store-scoped discount coupon (iter-05 A06)."""
+
+    store_id: int
+    code: str
+    discount_percent: int
+    is_active: bool = True
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class CouponRedemption:
+    """A recorded coupon redemption (intended single-use ledger).
+
+    PLAN FIX (A06): persist redemptions with a unique constraint on
+    ``(coupon_id, user_id)`` (or global single-use on ``coupon_id``) so reuse
+    is rejected at the database boundary.
+    """
+
+    coupon_id: int
+    user_id: int
+    order_id: int
     id: int | None = None

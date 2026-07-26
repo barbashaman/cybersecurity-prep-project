@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session, selectinload
 
 from ecommerce_backoffice_api.domain.entities import (
     AuditEvent,
+    Coupon,
+    CouponRedemption,
+    CustomerCredit,
     Order,
     OrderLine,
     OrderReceipt,
@@ -20,6 +23,9 @@ from ecommerce_backoffice_api.domain.enums import AuditOutcome, OrderStatus, Use
 from ecommerce_backoffice_api.domain.exceptions import NotFoundError
 from ecommerce_backoffice_api.infrastructure.persistence.models import (
     AuditEventModel,
+    CouponModel,
+    CouponRedemptionModel,
+    CustomerCreditModel,
     OrderLineModel,
     OrderModel,
     OrderReceiptModel,
@@ -54,6 +60,34 @@ def _product_from_model(model: ProductModel) -> Product:
         description=model.description,
         price_cents=model.price_cents,
         is_active=model.is_active,
+        stock_quantity=model.stock_quantity,
+    )
+
+
+def _credit_from_model(model: CustomerCreditModel) -> CustomerCredit:
+    return CustomerCredit(
+        id=model.id,
+        user_id=model.user_id,
+        balance_cents=model.balance_cents,
+    )
+
+
+def _coupon_from_model(model: CouponModel) -> Coupon:
+    return Coupon(
+        id=model.id,
+        store_id=model.store_id,
+        code=model.code,
+        discount_percent=model.discount_percent,
+        is_active=model.is_active,
+    )
+
+
+def _coupon_redemption_from_model(model: CouponRedemptionModel) -> CouponRedemption:
+    return CouponRedemption(
+        id=model.id,
+        coupon_id=model.coupon_id,
+        user_id=model.user_id,
+        order_id=model.order_id,
     )
 
 
@@ -241,6 +275,7 @@ class SqlAlchemyProductRepository:
             description=product.description,
             price_cents=product.price_cents,
             is_active=product.is_active,
+            stock_quantity=product.stock_quantity,
         )
         self._session.add(model)
         self._session.flush()
@@ -256,6 +291,7 @@ class SqlAlchemyProductRepository:
         model.description = product.description
         model.price_cents = product.price_cents
         model.is_active = product.is_active
+        model.stock_quantity = product.stock_quantity
         self._session.flush()
         return _product_from_model(model)
 
@@ -413,3 +449,75 @@ class SqlAlchemyReceiptRepository:
             model.payload_blob = receipt.payload_blob
         self._session.flush()
         return _order_receipt_from_model(model)
+
+
+class SqlAlchemyCreditRepository:
+    """Customer-credit repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def get_for_user(self, user_id: int) -> CustomerCredit | None:
+        model = self._session.scalars(
+            select(CustomerCreditModel).where(CustomerCreditModel.user_id == user_id)
+        ).first()
+        return _credit_from_model(model) if model is not None else None
+
+    def save(self, credit: CustomerCredit) -> CustomerCredit:
+        existing = self._session.scalars(
+            select(CustomerCreditModel).where(CustomerCreditModel.user_id == credit.user_id)
+        ).first()
+        if existing is None:
+            model = CustomerCreditModel(
+                user_id=credit.user_id,
+                balance_cents=credit.balance_cents,
+            )
+            self._session.add(model)
+        else:
+            existing.balance_cents = credit.balance_cents
+            model = existing
+        self._session.flush()
+        return _credit_from_model(model)
+
+
+class SqlAlchemyCouponRepository:
+    """Coupon + redemption repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add(self, coupon: Coupon) -> Coupon:
+        model = CouponModel(
+            store_id=coupon.store_id,
+            code=coupon.code,
+            discount_percent=coupon.discount_percent,
+            is_active=coupon.is_active,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _coupon_from_model(model)
+
+    def get_by_code(self, store_id: int, code: str) -> Coupon | None:
+        model = self._session.scalars(
+            select(CouponModel).where(
+                CouponModel.store_id == store_id,
+                CouponModel.code == code.strip().upper(),
+            )
+        ).first()
+        return _coupon_from_model(model) if model is not None else None
+
+    def record_redemption(self, redemption: CouponRedemption) -> CouponRedemption:
+        model = CouponRedemptionModel(
+            coupon_id=redemption.coupon_id,
+            user_id=redemption.user_id,
+            order_id=redemption.order_id,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _coupon_redemption_from_model(model)
+
+    def has_been_redeemed(self, coupon_id: int) -> bool:
+        model = self._session.scalars(
+            select(CouponRedemptionModel).where(CouponRedemptionModel.coupon_id == coupon_id)
+        ).first()
+        return model is not None
