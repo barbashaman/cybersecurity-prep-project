@@ -1,0 +1,140 @@
+database-1  | The files belonging to this database system will be owned by user "postgres".
+database-1  | This user must also own the server process.
+database-1  | 
+database-1  | The database cluster will be initialized with locale "en_US.utf8".
+database-1  | The default database encoding has accordingly been set to "UTF8".
+database-1  | The default text search configuration will be set to "english".
+database-1  | 
+database-1  | Data page checksums are disabled.
+database-1  | 
+database-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+database-1  | creating subdirectories ... ok
+database-1  | selecting dynamic shared memory implementation ... posix
+database-1  | selecting default max_connections ... 100
+database-1  | selecting default shared_buffers ... 128MB
+database-1  | selecting default time zone ... UTC
+database-1  | creating configuration files ... ok
+database-1  | running bootstrap script ... ok
+database-1  | sh: locale: not found
+database-1  | 2026-07-26 15:09:16.390 UTC [36] WARNING:  no usable system locales were found
+database-1  | performing post-bootstrap initialization ... ok
+database-1  | syncing data to disk ... ok
+database-1  | 
+database-1  | 
+database-1  | Success. You can now start the database server using:
+database-1  | 
+database-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+database-1  | 
+database-1  | initdb: warning: enabling "trust" authentication for local connections
+database-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+database-1  | waiting for server to start....2026-07-26 15:09:16.880 UTC [42] LOG:  starting PostgreSQL 16.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+database-1  | 2026-07-26 15:09:16.881 UTC [42] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+database-1  | 2026-07-26 15:09:16.883 UTC [45] LOG:  database system was shut down at 2026-07-26 15:09:16 UTC
+database-1  | 2026-07-26 15:09:16.887 UTC [42] LOG:  database system is ready to accept connections
+database-1  |  done
+database-1  | server started
+database-1  | CREATE DATABASE
+database-1  | 
+database-1  | 
+database-1  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+database-1  | 
+database-1  | waiting for server to shut down....2026-07-26 15:09:17.017 UTC [42] LOG:  received fast shutdown request
+database-1  | 2026-07-26 15:09:17.018 UTC [42] LOG:  aborting any active transactions
+database-1  | 2026-07-26 15:09:17.023 UTC [42] LOG:  background worker "logical replication launcher" (PID 48) exited with exit code 1
+database-1  | 2026-07-26 15:09:17.024 UTC [43] LOG:  shutting down
+database-1  | 2026-07-26 15:09:17.024 UTC [43] LOG:  checkpoint starting: shutdown immediate
+database-1  | 2026-07-26 15:09:17.032 UTC [43] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.008 s, sync=0.001 s, total=0.009 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4283 kB, estimate=4283 kB; lsn=0/1925D68, redo lsn=0/1925D68
+database-1  | 2026-07-26 15:09:17.039 UTC [42] LOG:  database system is shut down
+database-1  |  done
+database-1  | server stopped
+database-1  | 
+database-1  | PostgreSQL init process complete; ready for start up.
+database-1  | 
+database-1  | 2026-07-26 15:09:17.141 UTC [1] LOG:  starting PostgreSQL 16.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+database-1  | 2026-07-26 15:09:17.142 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+database-1  | 2026-07-26 15:09:17.142 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+database-1  | 2026-07-26 15:09:17.142 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+database-1  | 2026-07-26 15:09:17.145 UTC [58] LOG:  database system was shut down at 2026-07-26 15:09:17 UTC
+database-1  | 2026-07-26 15:09:17.150 UTC [1] LOG:  database system is ready to accept connections
+api-1       | INFO:     Started server process [6]
+api-1       | INFO:     Waiting for application startup.
+api-1       | INFO:     Application startup complete.
+api-1       | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+api-1       | INFO:     127.0.0.1:41214 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.1:50938 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.1:50942 - "GET /openapi.json HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:39122 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:56608 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:54516 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:45990 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:42468 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:44754 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:52396 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:53280 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:53292 - "GET /sitemap.xml HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:53286 - "GET /robots.txt HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:53280 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     127.0.0.1:54790 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:34092 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:37166 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     127.0.0.1:36620 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:59696 - "GET /openapi.json HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:59696 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:59696 - "GET /3870734114233608339 HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /latest/meta-data/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /latest/meta-data/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /computeMetadata/v1/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /computeMetadata/v1/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /opc/v1/instance/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /opc/v1/instance/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /opc/v2/instance/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /opc/v2/instance/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /latest/meta-data/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /latest/meta-data/ HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /metadata/instance HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /metadata/v1 HTTP/1.1" 404 Not Found
+web-1       | INFO:     Started server process [6]
+web-1       | INFO:     Waiting for application startup.
+web-1       | INFO:     Application startup complete.
+web-1       | INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+web-1       | INFO:     127.0.0.1:56772 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:55000 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:38372 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:37920 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:39294 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:46874 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:52924 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:47076 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:57802 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:56316 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:42584 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:39618 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:59696 - "GET /openstack/latest/meta_data.json HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /openapi.json/ HTTP/1.1" 307 Temporary Redirect
+api-1       | INFO:     172.18.0.5:59698 - "GET /health/ HTTP/1.1" 307 Temporary Redirect
+api-1       | INFO:     172.18.0.5:59696 - "GET /openapi.json HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:59698 - "GET /health HTTP/1.1" 200 OK
+api-1       | INFO:     172.18.0.5:59698 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59698 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59698 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59698 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59698 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59698 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /actuator/health HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET /actuator/health HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
+api-1       | INFO:     172.18.0.5:59696 - "GET / HTTP/1.1" 404 Not Found
