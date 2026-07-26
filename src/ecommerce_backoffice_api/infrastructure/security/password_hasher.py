@@ -38,8 +38,8 @@ class Md5PasswordHasher:
     """
 
     def hash_password(self, plain_password: str) -> str:
-        # nosec B324 - intentional weak digest for iter-07 red-phase narrative
-        return hashlib.md5(plain_password.encode("utf-8")).hexdigest()  # noqa: S324
+        # Intentional weak KDF for iter-07 red phase (see class docstring).
+        return hashlib.md5(plain_password.encode("utf-8")).hexdigest()  # nosec B324  # noqa: S324
 
     def verify_password(self, plain_password: str, password_hash: str) -> bool:
         return self.hash_password(plain_password) == password_hash
