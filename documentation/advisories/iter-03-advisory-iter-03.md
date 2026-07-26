@@ -31,8 +31,8 @@ tests/security/test_a08_integrity.py::test_receipt_load_must_reject_pickle_paylo
 
 ## Remediation
 
-*(Planned — not applied in this red-phase commit.)*
-
-- Verify an HMAC-SHA256 (`X-Artifact-Signature`) over theme artifact bytes before persistence; reject missing or invalid signatures.
-- Persist receipt payloads as JSON only; reject pickle protocol magic / non-JSON blobs.
-- Require a checksum (or HMAC) manifest for receipt payloads before accept/load.
+- Theme uploads require an HMAC-SHA256 hex signature (`X-Artifact-Signature` /
+  `signature_hex`) over the artifact bytes; missing or invalid signatures raise
+  `ConflictError` and nothing is persisted.
+- Receipts are stored as UTF-8 JSON with an embedded `checksum_sha256` of the
+  canonical payload; pickle protocol magic and non-JSON blobs are rejected on load.

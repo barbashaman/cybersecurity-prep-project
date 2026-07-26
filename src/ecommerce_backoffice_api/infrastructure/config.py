@@ -46,6 +46,7 @@ class Settings:
     jwt_algorithm: str
     jwt_expire_minutes: int
     seed_on_startup: bool
+    theme_hmac_secret: str
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -55,6 +56,10 @@ class Settings:
         jwt_secret = os.environ.get(
             "JWT_SECRET",
             "phase1b-demo-only-jwt-secret-change-me",
+        )
+        theme_hmac_secret = os.environ.get(
+            "THEME_HMAC_SECRET",
+            "phase1b-demo-only-theme-hmac-secret-change-me",
         )
         return cls(
             version=_read_version(),
@@ -71,4 +76,5 @@ class Settings:
             jwt_algorithm=os.environ.get("JWT_ALGORITHM", "HS256"),
             jwt_expire_minutes=int(os.environ.get("JWT_EXPIRE_MINUTES", str(60 * 24 * 7))),
             seed_on_startup=_read_bool("SEED_ON_STARTUP", default=True),
+            theme_hmac_secret=theme_hmac_secret,
         )

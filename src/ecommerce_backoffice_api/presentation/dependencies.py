@@ -205,10 +205,15 @@ def get_list_audit_events(
     return ListAuditEvents(SqlAlchemyAuditEventRepository(session), admin_audit_trail)
 
 
-def get_upload_store_theme(session: Annotated[Session, Depends(get_session)]) -> UploadStoreTheme:
+def get_upload_store_theme(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+) -> UploadStoreTheme:
+    settings = cast(Settings, request.app.state.settings)
     return UploadStoreTheme(
         SqlAlchemyThemeRepository(session),
         SqlAlchemyStoreRepository(session),
+        hmac_secret=settings.theme_hmac_secret,
     )
 
 
