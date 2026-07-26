@@ -149,6 +149,7 @@ class PlaceOrder:
         store_id: int,
         lines: list[tuple[int, int]],
         shipping_address: str,
+        customer_phone: str = "",
         coupon_code: str | None = None,
         idempotency_key: str | None = None,
     ) -> CheckoutResultView:
@@ -228,6 +229,8 @@ class PlaceOrder:
                 customer_email=actor.email,
                 customer_full_name=actor.full_name,
                 shipping_address=shipping_address.strip(),
+                # VULNERABLE (A04): plaintext phone persisted without encryption.
+                customer_phone=customer_phone.strip(),
                 lines=[
                     OrderLine(
                         product_id=product.id if product.id is not None else 0,

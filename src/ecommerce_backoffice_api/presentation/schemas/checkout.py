@@ -61,6 +61,9 @@ class CheckoutRequest(BaseModel):
 
     lines: list[CheckoutLineRequest] = Field(min_length=1)
     shipping_address: str = Field(min_length=1)
+    # VULNERABLE (A04): accepted and persisted as plaintext at rest.
+    # PLAN FIX (A04): encrypt before persistence; never log the cleartext value.
+    customer_phone: str = Field(default="", max_length=64)
     coupon_code: str | None = None
     # PLAN FIX (A06): require and honour idempotency_key for safe retries.
     idempotency_key: str | None = None

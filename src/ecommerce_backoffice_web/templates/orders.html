@@ -31,6 +31,9 @@
         <td class="muted">
           {% if order.customer_full_name is defined and order.customer_full_name %}
             {{ order.customer_full_name }}<br>{{ order.customer_email }}
+            {% if order.customer_phone is defined and order.customer_phone %}
+              <br>{{ order.customer_phone }}
+            {% endif %}
           {% else %}
             (anonymized)
           {% endif %}

@@ -16,6 +16,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+from ecommerce_backoffice_api.infrastructure.persistence.encrypted_types import (
+    EncryptedText,
+)
+
 
 class Base(DeclarativeBase):
     """Declarative base for all ORM models."""
@@ -95,8 +99,8 @@ class OrderModel(Base):
     customer_email: Mapped[str] = mapped_column(String(320), nullable=False)
     customer_full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     shipping_address: Mapped[str] = mapped_column(Text, nullable=False)
-    # VULNERABLE (A05): unsanitized notes are rendered with Jinja2 ``|safe``.
-    # PLAN FIX (A05): keep as Text but encode on output; validate length/content in API.
+    # Remediated (A04): Fernet ciphertext at rest (transparent decrypt on load).
+    customer_phone: Mapped[str] = mapped_column(EncryptedText(), nullable=False, default="")
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
     store: Mapped[StoreModel] = relationship(back_populates="orders")

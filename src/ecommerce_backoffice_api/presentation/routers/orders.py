@@ -78,6 +78,7 @@ def _serialize_order(view: OrderDetailView | AnonymizedOrderView) -> dict[str, A
         customer_email=view.customer_email,
         customer_full_name=view.customer_full_name,
         shipping_address=view.shipping_address,
+        customer_phone=view.customer_phone,
         lines=lines,
         notes=view.notes,
     ).model_dump()

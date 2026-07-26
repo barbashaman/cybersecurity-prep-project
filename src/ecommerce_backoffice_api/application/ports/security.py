@@ -8,7 +8,11 @@ from ecommerce_backoffice_api.domain.enums import UserRole
 
 
 class PasswordHasher(Protocol):
-    """Hashes and verifies passwords (bcrypt in Phase 1b)."""
+    """Hashes and verifies passwords.
+
+    Phase 1b used bcrypt; iter-07 red intentionally wires MD5. Remediation
+    restores Argon2id (preferred) or strong bcrypt.
+    """
 
     def hash_password(self, plain_password: str) -> str:
         """Return a one-way hash of ``plain_password``."""

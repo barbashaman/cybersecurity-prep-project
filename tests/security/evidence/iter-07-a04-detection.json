@@ -1,0 +1,18 @@
+{
+  "iteration": "iter-07",
+  "owasp_risk": "A04 Cryptographic Failures",
+  "owasp_api_cross_reference": "API8:2023 Security Misconfiguration / cryptographic failures — weak password hashing (MD5), plaintext PII at rest, session cookies without Secure",
+  "summary": "Password hashing uses unsalted MD5, order customer_phone (and other shipping PII) is stored plaintext without encryption at rest, and the web session cookie is issued without the Secure flag (https_only=False).",
+  "failing_tests": [
+    "tests/security/test_a04_cryptographic_failures.py::test_password_hashes_must_use_strong_kdf_not_md5",
+    "tests/security/test_a04_cryptographic_failures.py::test_sensitive_pii_at_rest_must_not_be_plaintext",
+    "tests/security/test_a04_cryptographic_failures.py::test_session_cookies_must_include_secure_and_httponly"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a04_cryptographic_failures.py",
+      "description": "Detection suite asserting Argon2/bcrypt password digests, encrypted PII at rest, and Secure (+ HttpOnly) session cookies; fails on vulnerable red-phase MD5 hashing, plaintext phone storage, and https_only=False."
+    }
+  ]
+}

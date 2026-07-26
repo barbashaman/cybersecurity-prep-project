@@ -47,6 +47,7 @@ class Settings:
     jwt_expire_minutes: int
     seed_on_startup: bool
     theme_hmac_secret: str
+    pii_encryption_key: str
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -61,6 +62,7 @@ class Settings:
             "THEME_HMAC_SECRET",
             "phase1b-demo-only-theme-hmac-secret-change-me",
         )
+        pii_encryption_key = os.environ.get("PII_ENCRYPTION_KEY", "")
         return cls(
             version=_read_version(),
             debug=_read_bool("DEBUG", default=True),
@@ -77,4 +79,5 @@ class Settings:
             jwt_expire_minutes=int(os.environ.get("JWT_EXPIRE_MINUTES", str(60 * 24 * 7))),
             seed_on_startup=_read_bool("SEED_ON_STARTUP", default=True),
             theme_hmac_secret=theme_hmac_secret,
+            pii_encryption_key=pii_encryption_key,
         )

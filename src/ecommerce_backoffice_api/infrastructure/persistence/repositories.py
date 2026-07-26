@@ -110,6 +110,7 @@ def _order_from_model(model: OrderModel) -> Order:
         customer_email=model.customer_email,
         customer_full_name=model.customer_full_name,
         shipping_address=model.shipping_address,
+        customer_phone=model.customer_phone,
         notes=model.notes,
         lines=lines,
     )
@@ -354,6 +355,8 @@ class SqlAlchemyOrderRepository:
             customer_email=order.customer_email,
             customer_full_name=order.customer_full_name,
             shipping_address=order.shipping_address,
+            # VULNERABLE (A04): written as plaintext; no field-level encryption.
+            customer_phone=order.customer_phone,
             notes=order.notes,
             lines=[
                 OrderLineModel(
