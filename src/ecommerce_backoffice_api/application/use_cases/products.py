@@ -55,6 +55,7 @@ class CreateProduct:
         description: str,
         price_cents: int,
         is_active: bool = True,
+        stock_quantity: int = 0,
     ) -> Product:
         if not authorization.can_write_store_catalog(actor, store_id):
             raise AuthorizationError("Not permitted to write this store catalog.")
@@ -66,6 +67,7 @@ class CreateProduct:
             description=description.strip(),
             price_cents=price_cents,
             is_active=is_active,
+            stock_quantity=stock_quantity,
         )
         return self._product_repository.add(product)
 
@@ -105,6 +107,7 @@ class UpdateProduct:
         description: str | None = None,
         price_cents: int | None = None,
         is_active: bool | None = None,
+        stock_quantity: int | None = None,
         access_token: str | None = None,
     ) -> Product:
         product = self._product_repository.get_by_id(product_id)
@@ -127,6 +130,8 @@ class UpdateProduct:
             product.price_cents = price_cents
         if is_active is not None:
             product.is_active = is_active
+        if stock_quantity is not None:
+            product.stock_quantity = stock_quantity
         saved = self._product_repository.save(product)
         if actor.role is UserRole.ADMIN:
             self._admin_audit_trail.record_success(

@@ -6,6 +6,9 @@ from typing import Protocol
 
 from ecommerce_backoffice_api.domain.entities import (
     AuditEvent,
+    Coupon,
+    CouponRedemption,
+    CustomerCredit,
     Order,
     OrderReceipt,
     PasswordResetToken,
@@ -150,4 +153,36 @@ class ReceiptRepository(Protocol):
 
     def save(self, receipt: OrderReceipt) -> OrderReceipt:
         """Upsert the receipt for an order and return it with an assigned id."""
+        ...
+
+
+class CreditRepository(Protocol):
+    """Read/write access to mock customer credit balances."""
+
+    def get_for_user(self, user_id: int) -> CustomerCredit | None:
+        """Return the credit row for ``user_id``, or None."""
+        ...
+
+    def save(self, credit: CustomerCredit) -> CustomerCredit:
+        """Upsert a credit balance and return it with an assigned id."""
+        ...
+
+
+class CouponRepository(Protocol):
+    """Read/write access to discount coupons and redemptions."""
+
+    def add(self, coupon: Coupon) -> Coupon:
+        """Persist a new coupon and return it with an assigned id."""
+        ...
+
+    def get_by_code(self, store_id: int, code: str) -> Coupon | None:
+        """Return the coupon for ``store_id`` + ``code``, or None."""
+        ...
+
+    def record_redemption(self, redemption: CouponRedemption) -> CouponRedemption:
+        """Persist a coupon redemption ledger entry."""
+        ...
+
+    def has_been_redeemed(self, coupon_id: int) -> bool:
+        """Return True when ``coupon_id`` already has a redemption row."""
         ...

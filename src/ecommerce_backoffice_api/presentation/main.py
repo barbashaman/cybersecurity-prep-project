@@ -18,7 +18,16 @@ from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.startup import prepare_database
 from ecommerce_backoffice_api.infrastructure.security.jwt_token_service import JwtTokenService
 from ecommerce_backoffice_api.presentation.exception_handlers import register_exception_handlers
-from ecommerce_backoffice_api.presentation.routers import admin, auth, orders, products, stores
+from ecommerce_backoffice_api.presentation.routers import (
+    admin,
+    auth,
+    checkout,
+    coupons,
+    credits,
+    orders,
+    products,
+    stores,
+)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -77,6 +86,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(stores.router, prefix="/api/v1")
     app.include_router(products.router, prefix="/api/v1")
     app.include_router(orders.router, prefix="/api/v1")
+    app.include_router(credits.router, prefix="/api/v1")
+    app.include_router(coupons.router, prefix="/api/v1")
+    app.include_router(checkout.router, prefix="/api/v1")
 
     return app
 

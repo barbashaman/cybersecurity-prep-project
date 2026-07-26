@@ -53,6 +53,7 @@ def _product_response(product: Product) -> ProductResponse:
         description=product.description,
         price_cents=product.price_cents,
         is_active=product.is_active,
+        stock_quantity=product.stock_quantity,
     )
 
 
@@ -88,6 +89,7 @@ def create_product(
             description=payload.description,
             price_cents=payload.price_cents,
             is_active=payload.is_active,
+            stock_quantity=payload.stock_quantity,
         )
     except DomainError as error:
         raise http_error_from_domain(error) from error
@@ -123,6 +125,7 @@ def patch_product(
             description=payload.description,
             price_cents=payload.price_cents,
             is_active=payload.is_active,
+            stock_quantity=payload.stock_quantity,
             access_token=_access_token(credentials),
         )
     except DomainError as error:

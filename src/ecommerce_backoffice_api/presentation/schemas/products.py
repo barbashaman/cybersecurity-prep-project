@@ -14,6 +14,7 @@ class ProductCreateRequest(BaseModel):
     description: str = ""
     price_cents: int = Field(ge=0)
     is_active: bool = True
+    stock_quantity: int = 0
 
 
 class ProductUpdateRequest(BaseModel):
@@ -25,6 +26,7 @@ class ProductUpdateRequest(BaseModel):
     description: str | None = None
     price_cents: int | None = Field(default=None, ge=0)
     is_active: bool | None = None
+    stock_quantity: int | None = None
 
 
 class ProductResponse(BaseModel):
@@ -36,6 +38,7 @@ class ProductResponse(BaseModel):
     description: str
     price_cents: int
     is_active: bool
+    stock_quantity: int = 0
 
 
 class ProductImportResponse(BaseModel):
