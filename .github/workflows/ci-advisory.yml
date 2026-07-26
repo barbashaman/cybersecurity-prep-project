@@ -65,6 +65,13 @@ jobs:
           match = re.match(r"(iter-\d+)", iteration_ref)
           iteration = match.group(1) if match else iteration_ref
           risk = os.environ["OWASP_RISK"]
+          out_dir = Path("documentation/advisories")
+          existing = sorted(out_dir.glob(f"{iteration}-advisory-*.md"))
+          if existing:
+              # Do not rewrite: Creation Date would change every run and [skip ci]
+              # advisory commits leave the PR tip without required status checks.
+              print(f"Advisory already present ({existing[0]}); leaving unchanged.")
+              raise SystemExit(0)
 
           evidence_dir = Path("tests/security/evidence")
           candidates = sorted(evidence_dir.glob(f"{iteration}-*-detection.json"))
@@ -85,7 +92,7 @@ jobs:
               for item in payload.get("evidence", [])
           ] or [ScannerEvidence(tool="pending", identifier="-", description="attached in Red phase")]
 
-          gen = AdvisoryGenerator(template_dir=Path("documentation/advisories"))
+          gen = AdvisoryGenerator(template_dir=out_dir)
           advisory = AdvisoryInput(
               document_name=f"Advisory {iteration}",
               covered_elements=payload.get(
@@ -105,7 +112,7 @@ jobs:
               failing_test=failing_test,
               evidence=evidence_items,
           )
-          out = gen.write(advisory, Path("documentation/advisories"))
+          out = gen.write(advisory, out_dir)
           print(f"Wrote {out}")
           PY
 
@@ -117,6 +124,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No advisory changes to commit."
           else
-            git commit -m "docs(advisory): generate advisory for ${GITHUB_REF_NAME} [skip ci]"
+            # Do not use [skip ci]: branch protection requires quality-gate on the tip.
+            git commit -m "docs(advisory): generate advisory for ${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
