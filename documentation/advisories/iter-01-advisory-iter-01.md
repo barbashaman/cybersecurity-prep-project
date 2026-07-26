@@ -1,6 +1,6 @@
 Document Name: Advisory iter-01
-Covered Elements: Feature and detection for iter-01 — CSV bulk product import and order-status state machine (A10)
-Creation Date: 26/07/2026-17:30:00.000
+Covered Elements: CSV bulk product import leaks Python stack traces when DEBUG=true, and the order-status state machine fails open on illegal transitions (e.g. delivered → pending).
+Creation Date: 26/07/2026-16:36:25.585
 
 # Security Advisory — A10 Mishandling of Exceptional Conditions
 
@@ -31,7 +31,4 @@ tests/security/test_a10_exceptional_conditions.py::test_invalid_order_status_tra
 
 ## Remediation
 
-- Global unhandled-exception handler returns RFC 9457 `application/problem+json`
-  with a generic detail string; FastAPI/Starlette debug error pages are disabled.
-- Order-status transitions fail closed: illegal moves raise `ConflictError` (HTTP 409).
-- Stack frames and exception type names are logged server-side only.
+_Pending — populated in the Green phase of this iteration._
