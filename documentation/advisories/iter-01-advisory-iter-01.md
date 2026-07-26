@@ -31,4 +31,7 @@ tests/security/test_a10_exceptional_conditions.py::test_invalid_order_status_tra
 
 ## Remediation
 
-_Pending — populated in the Green phase of this iteration._
+- Global unhandled-exception handler returns RFC 9457 `application/problem+json`
+  with a generic detail string; FastAPI/Starlette debug error pages are disabled.
+- Order-status transitions fail closed: illegal moves raise `ConflictError` (HTTP 409).
+- Stack frames and exception type names are logged server-side only.

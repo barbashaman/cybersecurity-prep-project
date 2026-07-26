@@ -47,8 +47,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "Phase 1b baseline application: JWT auth, RBAC, store/product/order "
             "CRUD against PostgreSQL. OWASP Top 10:2025 countdown iterations follow."
         ),
-        # DEBUG enables the iter-01 A10 traceback-leak path via exception handlers.
-        debug=resolved.debug,
+        # Never enable framework debug pages — they leak stack frames to clients.
+        # Application DEBUG still drives server-side logging verbosity (iter-09).
+        debug=False,
         # Per-environment Swagger exposure policy (tightened in iter-09).
         docs_url="/docs" if resolved.expose_docs else None,
         redoc_url="/redoc" if resolved.expose_docs else None,

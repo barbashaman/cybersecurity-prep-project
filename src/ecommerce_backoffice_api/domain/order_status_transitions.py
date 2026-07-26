@@ -1,13 +1,13 @@
 """Order status transition table (iter-01 A10 vehicle).
 
-The table describes the intended lifecycle. The vulnerable resolver fails open:
-invalid transitions are accepted so detection tests can prove the flaw.
-Remediation will fail closed (reject with a domain conflict).
+The table describes the intended lifecycle. Remediated behaviour fails closed:
+invalid transitions raise :class:`ConflictError`.
 """
 
 from __future__ import annotations
 
 from ecommerce_backoffice_api.domain.enums import OrderStatus
+from ecommerce_backoffice_api.domain.exceptions import ConflictError
 
 ALLOWED_ORDER_STATUS_TRANSITIONS: dict[OrderStatus, frozenset[OrderStatus]] = {
     OrderStatus.PENDING: frozenset({OrderStatus.CONFIRMED, OrderStatus.CANCELLED}),
@@ -33,13 +33,10 @@ def resolve_order_status_transition(
     current_status: OrderStatus,
     target_status: OrderStatus,
 ) -> OrderStatus:
-    """Resolve a requested status change.
-
-    VULNERABLE (iter-01 A10): invalid transitions fail open — the target status
-    is returned even when the transition table forbids it. Detection tests assert
-    the secure fail-closed behaviour and therefore fail against this code.
-    """
+    """Resolve a requested status change, failing closed on illegal transitions."""
     if is_allowed_order_status_transition(current_status, target_status):
         return target_status
-    # Fail open: accept the illegal transition instead of raising ConflictError.
-    return target_status
+    raise ConflictError(
+        f"Order status transition from {current_status.value} to {target_status.value} "
+        "is not permitted."
+    )

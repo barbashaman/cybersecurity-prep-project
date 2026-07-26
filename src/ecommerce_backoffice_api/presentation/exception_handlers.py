@@ -1,36 +1,50 @@
-"""HTTP exception handlers.
+"""HTTP exception handlers (RFC 9457 Problem Details).
 
-iter-01 (A10) deliberately ships a DEBUG path that echoes full Python
-tracebacks into the response body. Remediation replaces this with a global
-RFC 9457 problem-details handler that never leaks stack frames.
+iter-01 (A10) remediation: unhandled exceptions never echo Python stack frames
+or exception type names to clients. Responses use ``application/problem+json``.
 """
 
 from __future__ import annotations
 
-import traceback
+import logging
 from typing import cast
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.responses import JSONResponse, Response
 
 from ecommerce_backoffice_api.infrastructure.config import Settings
 
+_LOGGER = logging.getLogger(__name__)
+
+_PROBLEM_CONTENT_TYPE = "application/problem+json"
+
 
 def build_unhandled_error_response(exc: BaseException, *, debug: bool) -> Response:
-    """Build the HTTP body for an unhandled exception.
+    """Build a safe RFC 9457 problem-details body for an unhandled exception.
 
-    VULNERABLE when ``debug`` is True: returns a plain-text traceback including
-    the exception type. Secure behaviour (asserted by detection tests) must not
-    expose ``Traceback`` markers or exception class names to clients.
+    ``debug`` may enrich *server-side* logging only; it must never change the
+    client-visible payload to include traceback markers or exception class names.
     """
-    if debug:
-        formatted = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
-        return PlainTextResponse(content=formatted, status_code=500)
-    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
+    _LOGGER.exception(
+        "Unhandled exception (debug=%s): %s",
+        debug,
+        type(exc).__name__,
+        exc_info=exc,
+    )
+    return JSONResponse(
+        status_code=500,
+        media_type=_PROBLEM_CONTENT_TYPE,
+        content={
+            "type": "about:blank",
+            "title": "Internal Server Error",
+            "status": 500,
+            "detail": "An unexpected error occurred while processing the request.",
+        },
+    )
 
 
 def register_exception_handlers(application: FastAPI) -> None:
-    """Attach the iter-01 DEBUG-leaky unhandled-exception handler."""
+    """Attach the fail-closed unhandled-exception handler."""
 
     @application.exception_handler(Exception)
     async def unhandled_exception_handler(

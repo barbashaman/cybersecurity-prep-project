@@ -121,10 +121,8 @@ class ImportProductsFromCsv:
     Expected columns: ``name``, ``description``, ``price_cents``, ``is_active``,
     ``quantity_hint``.
 
-    VULNERABLE (iter-01 A10): row fields are read without defensive validation.
-    Missing columns raise ``KeyError``; a zero ``quantity_hint`` raises
-    ``ZeroDivisionError``. Those exceptions are intentionally left unhandled so
-    the presentation layer's DEBUG path can leak stack traces.
+    Malformed rows may still raise ``KeyError`` / ``ZeroDivisionError``; the
+    presentation layer's RFC 9457 handler must never echo those stack frames.
     """
 
     def __init__(
