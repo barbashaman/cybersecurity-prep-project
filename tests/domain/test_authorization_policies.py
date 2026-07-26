@@ -75,3 +75,17 @@ def test_delivery_manager_sees_anonymized_orders() -> None:
     assert authorization.can_update_order_status(delivery, order)
     assert authorization.must_anonymize_order_for(delivery)
     assert not authorization.can_write_store_catalog(delivery, 1)
+
+
+def test_only_admin_may_list_users_and_audit_events() -> None:
+    admin = _user(UserRole.ADMIN, store_id=None)
+    owner = _user(UserRole.STORE_OWNER, store_id=1)
+    customer = _user(UserRole.CUSTOMER, store_id=1)
+    delivery = _user(UserRole.DELIVERY_MANAGER, store_id=None)
+
+    assert authorization.can_list_users(admin)
+    assert authorization.can_list_audit_events(admin)
+    assert not authorization.can_list_users(owner)
+    assert not authorization.can_list_audit_events(owner)
+    assert not authorization.can_list_users(customer)
+    assert not authorization.can_list_audit_events(delivery)

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ecommerce_backoffice_api.application.dto.orders import AnonymizedOrderView, OrderDetailView
 from ecommerce_backoffice_api.application.use_cases.orders import (
@@ -29,6 +30,13 @@ from ecommerce_backoffice_api.presentation.schemas.orders import (
 )
 
 router = APIRouter(tags=["orders"])
+_bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def _access_token(credentials: HTTPAuthorizationCredentials | None) -> str | None:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        return None
+    return credentials.credentials
 
 
 def _serialize_order(view: OrderDetailView | AnonymizedOrderView) -> dict[str, Any]:
@@ -78,9 +86,14 @@ def read_order(
     order_id: int,
     actor: Annotated[User, Depends(get_current_user)],
     use_case: Annotated[GetOrder, Depends(get_get_order)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_scheme)],
 ) -> dict[str, Any]:
     try:
-        order = use_case.execute(actor=actor, order_id=order_id)
+        order = use_case.execute(
+            actor=actor,
+            order_id=order_id,
+            access_token=_access_token(credentials),
+        )
     except DomainError as error:
         raise http_error_from_domain(error) from error
     return _serialize_order(order)

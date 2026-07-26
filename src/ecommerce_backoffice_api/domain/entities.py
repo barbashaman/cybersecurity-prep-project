@@ -7,8 +7,9 @@ the vehicle for the IDOR work in a later iteration.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 
-from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
+from ecommerce_backoffice_api.domain.enums import AuditOutcome, OrderStatus, UserRole
 
 
 @dataclass(slots=True)
@@ -70,4 +71,18 @@ class Order:
     customer_full_name: str
     shipping_address: str
     lines: list[OrderLine] = field(default_factory=list)
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class AuditEvent:
+    """A persisted admin audit-trail record for a security-relevant action."""
+
+    actor_user_id: int
+    action: str
+    resource_type: str
+    resource_id: str | None
+    outcome: AuditOutcome
+    detail: str
+    created_at: datetime
     id: int | None = None

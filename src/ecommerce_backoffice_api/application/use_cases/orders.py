@@ -8,6 +8,7 @@ from ecommerce_backoffice_api.application.dto.orders import (
     OrderLineView,
 )
 from ecommerce_backoffice_api.application.ports.repositories import OrderRepository, StoreRepository
+from ecommerce_backoffice_api.application.use_cases.audit import AdminAuditTrail
 from ecommerce_backoffice_api.domain import authorization
 from ecommerce_backoffice_api.domain.entities import Order, User
 from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
@@ -91,15 +92,46 @@ class ListOrdersForStore:
 class GetOrder:
     """Fetch one order with role-appropriate projection."""
 
-    def __init__(self, order_repository: OrderRepository) -> None:
+    def __init__(
+        self,
+        order_repository: OrderRepository,
+        admin_audit_trail: AdminAuditTrail,
+    ) -> None:
         self._order_repository = order_repository
+        self._admin_audit_trail = admin_audit_trail
 
-    def execute(self, *, actor: User, order_id: int) -> OrderDetailView | AnonymizedOrderView:
+    def execute(
+        self,
+        *,
+        actor: User,
+        order_id: int,
+        access_token: str | None = None,
+    ) -> OrderDetailView | AnonymizedOrderView:
         order = self._order_repository.get_by_id(order_id)
         if order is None:
             raise NotFoundError(f"Order {order_id} was not found.")
         if not authorization.can_read_order(actor, order):
+            self._admin_audit_trail.record_authorization_failure(
+                actor=actor,
+                action="order.read",
+                resource_type="order",
+                resource_id=str(order_id),
+                detail="Not permitted to read this order.",
+            )
             raise AuthorizationError("Not permitted to read this order.")
+        if actor.role is UserRole.ADMIN:
+            # VULNERABLE (A09): success path logs order PII via the audit trail.
+            self._admin_audit_trail.record_success(
+                actor=actor,
+                action="order.read",
+                resource_type="order",
+                resource_id=str(order_id),
+                detail=f"Read order {order_id}.",
+                access_token=access_token,
+                subject_email=order.customer_email,
+                subject_full_name=order.customer_full_name,
+                shipping_address=order.shipping_address,
+            )
         if authorization.must_anonymize_order_for(actor):
             return to_anonymized_order_view(order)
         return to_order_detail_view(order)

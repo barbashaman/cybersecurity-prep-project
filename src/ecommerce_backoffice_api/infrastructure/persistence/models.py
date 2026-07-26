@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -106,3 +108,20 @@ class OrderLineModel(Base):
     unit_price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
 
     order: Mapped[OrderModel] = relationship(back_populates="lines")
+
+
+class AuditEventModel(Base):
+    """Persisted admin audit-trail row (iter-02)."""
+
+    __tablename__ = "audit_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    actor_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    action: Mapped[str] = mapped_column(String(128), nullable=False)
+    resource_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    resource_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    outcome: Mapped[str] = mapped_column(String(64), nullable=False)
+    detail: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

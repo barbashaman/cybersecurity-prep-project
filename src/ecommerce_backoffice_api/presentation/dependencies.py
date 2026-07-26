@@ -10,6 +10,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session, sessionmaker
 
 from ecommerce_backoffice_api.application.ports.security import TokenService
+from ecommerce_backoffice_api.application.use_cases.admin import ListAuditEvents, ListUsers
+from ecommerce_backoffice_api.application.use_cases.audit import AdminAuditTrail
 from ecommerce_backoffice_api.application.use_cases.authentication import (
     AuthenticateUser,
     GetCurrentUserProfile,
@@ -31,6 +33,7 @@ from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import AuthenticationError
 from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
+    SqlAlchemyAuditEventRepository,
     SqlAlchemyOrderRepository,
     SqlAlchemyProductRepository,
     SqlAlchemyStoreRepository,
@@ -145,8 +148,15 @@ def get_get_product(session: Annotated[Session, Depends(get_session)]) -> GetPro
     return GetProduct(SqlAlchemyProductRepository(session))
 
 
-def get_update_product(session: Annotated[Session, Depends(get_session)]) -> UpdateProduct:
-    return UpdateProduct(SqlAlchemyProductRepository(session))
+def get_admin_audit_trail(session: Annotated[Session, Depends(get_session)]) -> AdminAuditTrail:
+    return AdminAuditTrail(SqlAlchemyAuditEventRepository(session))
+
+
+def get_update_product(
+    session: Annotated[Session, Depends(get_session)],
+    admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
+) -> UpdateProduct:
+    return UpdateProduct(SqlAlchemyProductRepository(session), admin_audit_trail)
 
 
 def get_import_products(session: Annotated[Session, Depends(get_session)]) -> ImportProductsFromCsv:
@@ -163,9 +173,26 @@ def get_list_orders(session: Annotated[Session, Depends(get_session)]) -> ListOr
     )
 
 
-def get_get_order(session: Annotated[Session, Depends(get_session)]) -> GetOrder:
-    return GetOrder(SqlAlchemyOrderRepository(session))
+def get_get_order(
+    session: Annotated[Session, Depends(get_session)],
+    admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
+) -> GetOrder:
+    return GetOrder(SqlAlchemyOrderRepository(session), admin_audit_trail)
 
 
 def get_update_order_status(session: Annotated[Session, Depends(get_session)]) -> UpdateOrderStatus:
     return UpdateOrderStatus(SqlAlchemyOrderRepository(session))
+
+
+def get_list_users(
+    session: Annotated[Session, Depends(get_session)],
+    admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
+) -> ListUsers:
+    return ListUsers(SqlAlchemyUserRepository(session), admin_audit_trail)
+
+
+def get_list_audit_events(
+    session: Annotated[Session, Depends(get_session)],
+    admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
+) -> ListAuditEvents:
+    return ListAuditEvents(SqlAlchemyAuditEventRepository(session), admin_audit_trail)

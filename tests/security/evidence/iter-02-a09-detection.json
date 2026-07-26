@@ -1,0 +1,20 @@
+{
+  "iteration": "iter-02",
+  "owasp_risk": "A09 Security Logging and Alerting Failures",
+  "owasp_api_cross_reference": "API8:2023 Security Misconfiguration (insufficient logging) / API security logging failures",
+  "summary": "Admin audit trail persists successful admin actions but skips authorization failures, and plaintext application logs include bearer tokens plus PII (emails, names, shipping addresses).",
+  "failing_tests": [
+    "tests/security/test_a09_logging_alerting.py::test_authorization_failure_must_produce_audit_event",
+    "tests/security/test_a09_logging_alerting.py::test_list_users_authorization_failure_must_produce_audit_event",
+    "tests/security/test_a09_logging_alerting.py::test_sensitive_admin_logging_must_not_contain_bearer_tokens",
+    "tests/security/test_a09_logging_alerting.py::test_sensitive_admin_logging_must_not_contain_emails_or_names",
+    "tests/security/test_a09_logging_alerting.py::test_sensitive_order_logging_must_not_contain_shipping_address"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a09_logging_alerting.py",
+      "description": "Detection suite asserting secure audit logging; fails on vulnerable red-phase code."
+    }
+  ]
+}
