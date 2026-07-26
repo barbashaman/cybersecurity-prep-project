@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "8/merge",
+  "commit": "614e7f6453a9ccf99d40b1fee8386da7baae3c98",
+  "workflow": "ci-dast",
+  "run_id": "30207406146",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-26T15:11:03Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
