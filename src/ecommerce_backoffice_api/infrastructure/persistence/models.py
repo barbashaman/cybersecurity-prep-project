@@ -161,3 +161,16 @@ class OrderReceiptModel(Base):
         Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
     )
     payload_blob: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+
+class PasswordResetTokenModel(Base):
+    """Persisted password-reset token row (iter-04)."""
+
+    __tablename__ = "password_reset_tokens"
+    __table_args__ = (UniqueConstraint("token", name="uq_password_reset_tokens_token"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    token: Mapped[str] = mapped_column(String(255), nullable=False)

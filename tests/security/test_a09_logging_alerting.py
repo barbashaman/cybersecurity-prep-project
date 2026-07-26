@@ -68,6 +68,13 @@ class _FakeUserRepository:
         self._users.append(user)
         return user
 
+    def update_password(self, user_id: int, password_hash: str) -> User:
+        for user in self._users:
+            if user.id == user_id:
+                user.password_hash = password_hash
+                return user
+        raise LookupError(user_id)
+
 
 class _FakeProductRepository:
     def __init__(self, product: Product) -> None:

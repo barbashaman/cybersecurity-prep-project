@@ -1,0 +1,20 @@
+{
+  "iteration": "iter-04",
+  "owasp_risk": "A07 Authentication Failures",
+  "owasp_api_cross_reference": "API2:2023 Broken Authentication (credential stuffing, weak tokens, session fixation / missing invalidation)",
+  "summary": "Password-reset tokens are predictable and reusable, login/reset flows lack rate limiting, logout does not revoke bearer tokens, and password-reset confirmation issues a non-expiring session JWT.",
+  "failing_tests": [
+    "tests/security/test_a07_authentication.py::test_reset_token_must_not_be_predictable",
+    "tests/security/test_a07_authentication.py::test_logout_must_invalidate_access_token",
+    "tests/security/test_a07_authentication.py::test_password_reset_request_must_rate_limit_after_burst",
+    "tests/security/test_a07_authentication.py::test_login_must_rate_limit_after_failed_attempts",
+    "tests/security/test_a07_authentication.py::test_reset_confirm_must_issue_short_lived_session_token"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a07_authentication.py",
+      "description": "Detection suite asserting secure reset-token entropy, logout revocation, auth rate limiting, and short-lived post-reset JWTs; fails on vulnerable red-phase code."
+    }
+  ]
+}

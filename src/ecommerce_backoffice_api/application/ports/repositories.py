@@ -8,6 +8,7 @@ from ecommerce_backoffice_api.domain.entities import (
     AuditEvent,
     Order,
     OrderReceipt,
+    PasswordResetToken,
     Product,
     Store,
     StoreTheme,
@@ -33,6 +34,26 @@ class UserRepository(Protocol):
 
     def add(self, user: User) -> User:
         """Persist a new user and return it with an assigned id."""
+        ...
+
+    def update_password(self, user_id: int, password_hash: str) -> User:
+        """Replace the password hash for ``user_id`` and return the user."""
+        ...
+
+
+class PasswordResetTokenRepository(Protocol):
+    """Read/write access to password-reset tokens."""
+
+    def save(self, reset_token: PasswordResetToken) -> PasswordResetToken:
+        """Persist a reset token and return it with an assigned id."""
+        ...
+
+    def get_by_token(self, token: str) -> PasswordResetToken | None:
+        """Return the reset token row for ``token``, or None."""
+        ...
+
+    def delete_for_user(self, user_id: int) -> None:
+        """Remove all reset tokens belonging to ``user_id``."""
         ...
 
 
