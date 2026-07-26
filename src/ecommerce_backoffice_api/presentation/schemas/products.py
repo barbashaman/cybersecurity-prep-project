@@ -36,3 +36,10 @@ class ProductResponse(BaseModel):
     description: str
     price_cents: int
     is_active: bool
+
+
+class ProductImportResponse(BaseModel):
+    """Result envelope for a CSV bulk product import."""
+
+    imported_count: int
+    products: list[ProductResponse]

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from starlette.datastructures import UploadFile
 
 from ecommerce_backoffice_api.application.use_cases.products import (
     CreateProduct,
     GetProduct,
+    ImportProductsFromCsv,
     ListProductsForStore,
     UpdateProduct,
 )
@@ -18,12 +20,14 @@ from ecommerce_backoffice_api.presentation.dependencies import (
     get_create_product,
     get_current_user,
     get_get_product,
+    get_import_products,
     get_list_products,
     get_update_product,
 )
 from ecommerce_backoffice_api.presentation.error_mapping import http_error_from_domain
 from ecommerce_backoffice_api.presentation.schemas.products import (
     ProductCreateRequest,
+    ProductImportResponse,
     ProductResponse,
     ProductUpdateRequest,
 )
@@ -114,3 +118,48 @@ def patch_product(
     except DomainError as error:
         raise http_error_from_domain(error) from error
     return _product_response(product)
+
+
+async def _read_csv_payload(request: Request) -> str:
+    """Read CSV bytes from multipart ``file`` or a raw request body."""
+    content_type = request.headers.get("content-type", "")
+    if content_type.startswith("multipart/form-data"):
+        form = await request.form()
+        upload = form.get("file")
+        if not isinstance(upload, UploadFile):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Multipart import requires a 'file' field.",
+            )
+        csv_bytes = await upload.read()
+        return csv_bytes.decode("utf-8")
+    return (await request.body()).decode("utf-8")
+
+
+@router.post(
+    "/stores/{store_id}/products/import",
+    response_model=ProductImportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def import_products(
+    store_id: int,
+    request: Request,
+    actor: Annotated[User, Depends(get_current_user)],
+    use_case: Annotated[ImportProductsFromCsv, Depends(get_import_products)],
+) -> ProductImportResponse:
+    """Bulk-import products from CSV (multipart file or raw ``text/csv`` body).
+
+    Domain errors are mapped to HTTP. All other exceptions (``KeyError``,
+    ``ZeroDivisionError``, ...) propagate unhandled so the DEBUG exception
+    handler can leak stack traces — the iter-01 A10 flaw.
+    """
+    csv_text = await _read_csv_payload(request)
+
+    try:
+        products = use_case.execute(actor=actor, store_id=store_id, csv_text=csv_text)
+    except DomainError as error:
+        raise http_error_from_domain(error) from error
+    return ProductImportResponse(
+        imported_count=len(products),
+        products=[_product_response(product) for product in products if product.id is not None],
+    )

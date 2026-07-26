@@ -22,6 +22,7 @@ from ecommerce_backoffice_api.application.use_cases.orders import (
 from ecommerce_backoffice_api.application.use_cases.products import (
     CreateProduct,
     GetProduct,
+    ImportProductsFromCsv,
     ListProductsForStore,
     UpdateProduct,
 )
@@ -146,6 +147,13 @@ def get_get_product(session: Annotated[Session, Depends(get_session)]) -> GetPro
 
 def get_update_product(session: Annotated[Session, Depends(get_session)]) -> UpdateProduct:
     return UpdateProduct(SqlAlchemyProductRepository(session))
+
+
+def get_import_products(session: Annotated[Session, Depends(get_session)]) -> ImportProductsFromCsv:
+    return ImportProductsFromCsv(
+        SqlAlchemyProductRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
 
 
 def get_list_orders(session: Annotated[Session, Depends(get_session)]) -> ListOrdersForStore:

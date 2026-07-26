@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import csv
+import io
+
 from ecommerce_backoffice_api.application.ports.repositories import (
     ProductRepository,
     StoreRepository,
@@ -110,3 +113,51 @@ class UpdateProduct:
         if is_active is not None:
             product.is_active = is_active
         return self._product_repository.save(product)
+
+
+class ImportProductsFromCsv:
+    """Bulk-create products from a CSV payload for a store catalog.
+
+    Expected columns: ``name``, ``description``, ``price_cents``, ``is_active``,
+    ``quantity_hint``.
+
+    Malformed rows may still raise ``KeyError`` / ``ZeroDivisionError``; the
+    presentation layer's RFC 9457 handler must never echo those stack frames.
+    """
+
+    def __init__(
+        self,
+        product_repository: ProductRepository,
+        store_repository: StoreRepository,
+    ) -> None:
+        self._product_repository = product_repository
+        self._store_repository = store_repository
+
+    def execute(self, *, actor: User, store_id: int, csv_text: str) -> list[Product]:
+        if not authorization.can_write_store_catalog(actor, store_id):
+            raise AuthorizationError("Not permitted to write this store catalog.")
+        if self._store_repository.get_by_id(store_id) is None:
+            raise NotFoundError(f"Store {store_id} was not found.")
+
+        reader = csv.DictReader(io.StringIO(csv_text))
+        created: list[Product] = []
+        for row in reader:
+            # Deliberately brittle access — missing keys propagate as KeyError.
+            name = row["name"].strip()
+            description = row["description"].strip()
+            price_cents = int(row["price_cents"])
+            is_active = row["is_active"].strip().lower() in {"1", "true", "yes", "on"}
+            quantity_hint = int(row["quantity_hint"])
+            # Division by zero when quantity_hint is 0 — exceptional-condition vehicle.
+            unit_share_cents = price_cents // quantity_hint
+
+            product = Product(
+                store_id=store_id,
+                name=name,
+                # Retain the computed share so the exceptional division is not DCE'd.
+                description=f"{description} (unit_share_cents={unit_share_cents})",
+                price_cents=price_cents,
+                is_active=is_active,
+            )
+            created.append(self._product_repository.add(product))
+        return created
