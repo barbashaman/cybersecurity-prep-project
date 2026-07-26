@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "iter-06-a05-vulnerable",
+  "commit": "0214f869d12f2588ddbc7d2c24ebea5fc124dd41",
+  "workflow": "ci-dast",
+  "run_id": "30212543548",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-26T17:27:40Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
