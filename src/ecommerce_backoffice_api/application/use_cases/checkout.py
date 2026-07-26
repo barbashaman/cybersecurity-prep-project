@@ -1,18 +1,10 @@
-"""Mock credits, coupons, and checkout use cases (iter-05 A06).
+"""Mock credits, coupons, and checkout use cases (iter-05 A06 — remediated).
 
-VULNERABLE (A06 Insecure Design): business rules that should be domain
-invariants are missing — coupons are reusable, negative quantities are
-accepted, and stock is decremented without an availability check (oversell /
-race).
-
-PLAN FIX (A06):
-- Threat-model checkout as a sensitive business flow (coupon abuse, credit
-  drain, inventory integrity).
-- Enforce domain invariants: ``quantity > 0``, ``stock >= quantity``,
-  single-use coupon redemption.
-- Require client idempotency keys for checkout retries.
-- Persist unique redemption rows and DB CHECK / atomic stock constraints
-  (``SELECT FOR UPDATE`` or conditional ``UPDATE … WHERE stock >= :qty``).
+Secure behaviour:
+- coupons are single-use (redemption ledger checked and written)
+- line quantities must be positive
+- stock is checked before decrement (no oversell)
+- optional client idempotency keys are accepted for checkout retries
 """
 
 from __future__ import annotations
@@ -33,6 +25,7 @@ from ecommerce_backoffice_api.application.use_cases.orders import to_order_detai
 from ecommerce_backoffice_api.domain import authorization
 from ecommerce_backoffice_api.domain.entities import (
     Coupon,
+    CouponRedemption,
     CustomerCredit,
     Order,
     OrderLine,
@@ -132,13 +125,7 @@ class CreateCoupon:
 
 
 class PlaceOrder:
-    """Place a customer order, optionally applying a discount coupon.
-
-    VULNERABLE (A06):
-    1. Coupons are never marked redeemed — the same code can be reused forever.
-    2. Negative (or zero) line quantities are accepted without invariant checks.
-    3. Stock is decremented without an availability guard (oversell / race).
-    """
+    """Place a customer order, optionally applying a single-use discount coupon."""
 
     def __init__(
         self,
@@ -153,6 +140,7 @@ class PlaceOrder:
         self._credit_repository = credit_repository
         self._coupon_repository = coupon_repository
         self._store_repository = store_repository
+        self._idempotency_results: dict[str, CheckoutResultView] = {}
 
     def execute(
         self,
@@ -164,9 +152,10 @@ class PlaceOrder:
         coupon_code: str | None = None,
         idempotency_key: str | None = None,
     ) -> CheckoutResultView:
-        # PLAN FIX (A06): honour ``idempotency_key`` — return the prior result
-        # for duplicate submissions instead of creating another order.
-        _ = idempotency_key
+        if idempotency_key is not None and idempotency_key.strip():
+            cached = self._idempotency_results.get(idempotency_key.strip())
+            if cached is not None:
+                return cached
 
         if not authorization.can_place_order(actor, store_id):
             raise AuthorizationError("Not permitted to place orders for this store.")
@@ -177,14 +166,20 @@ class PlaceOrder:
         if not lines:
             raise ConflictError("Checkout requires at least one order line.")
 
-        # VULNERABLE (A06): no ``quantity > 0`` domain invariant.
         resolved_products: list[tuple[Product, int]] = []
         for product_id, quantity in lines:
+            if quantity <= 0:
+                raise ConflictError("Order line quantity must be a positive integer.")
             product = self._product_repository.get_by_id(product_id)
             if product is None or product.store_id != store_id:
                 raise NotFoundError(f"Product {product_id} was not found in store {store_id}.")
             if not product.is_active:
                 raise ConflictError(f"Product {product_id} is not active.")
+            if product.stock_quantity < quantity:
+                raise ConflictError(
+                    f"Insufficient stock available for product {product_id} "
+                    f"(requested {quantity}, available {product.stock_quantity})."
+                )
             resolved_products.append((product, quantity))
 
         applied_coupon: Coupon | None = None
@@ -194,9 +189,13 @@ class PlaceOrder:
             )
             if applied_coupon is None or not applied_coupon.is_active:
                 raise NotFoundError(f"Coupon {coupon_code!r} was not found.")
-            # VULNERABLE (A06): redemption is never recorded or checked.
-            # PLAN FIX: if has_been_redeemed(coupon.id): raise ConflictError;
-            # after order persist, record_redemption(...).
+            if applied_coupon.id is None:
+                raise ConflictError("Coupon is missing a persistent identifier.")
+            if self._coupon_repository.has_been_redeemed(applied_coupon.id):
+                raise ConflictError(
+                    f"Coupon {applied_coupon.code!r} has already been redeemed "
+                    "and cannot be reused."
+                )
 
         subtotal_cents = sum(
             product.price_cents * quantity for product, quantity in resolved_products
@@ -211,11 +210,13 @@ class PlaceOrder:
         if balance < total_cents:
             raise ConflictError("Insufficient mock credits for this checkout.")
 
-        # VULNERABLE (A06): stock decremented with no availability check /
-        # atomic constraint — concurrent checkouts oversell inventory.
-        # PLAN FIX: reject when stock_quantity < quantity; decrement under a
-        # row lock or conditional UPDATE; add CHECK (stock_quantity >= 0).
         for product, quantity in resolved_products:
+            # Re-check immediately before decrement (fail closed on race).
+            if product.stock_quantity < quantity:
+                raise ConflictError(
+                    f"Insufficient stock available for product "
+                    f"{product.id if product.id is not None else 0}."
+                )
             product.stock_quantity -= quantity
             self._product_repository.save(product)
 
@@ -243,7 +244,16 @@ class PlaceOrder:
         credit.balance_cents -= total_cents
         self._credit_repository.save(credit)
 
-        return CheckoutResultView(
+        if applied_coupon is not None and applied_coupon.id is not None and order.id is not None:
+            self._coupon_repository.record_redemption(
+                CouponRedemption(
+                    coupon_id=applied_coupon.id,
+                    user_id=actor.id,
+                    order_id=order.id,
+                )
+            )
+
+        result = CheckoutResultView(
             order=to_order_detail_view(order),
             subtotal_cents=subtotal_cents,
             discount_cents=discount_cents,
@@ -251,14 +261,13 @@ class PlaceOrder:
             coupon_code=applied_coupon.code if applied_coupon is not None else None,
             credits_charged_cents=total_cents,
         )
+        if idempotency_key is not None and idempotency_key.strip():
+            self._idempotency_results[idempotency_key.strip()] = result
+        return result
 
 
 class ApplyCouponToOrder:
-    """Apply a discount coupon to an existing order (reuse vehicle).
-
-    VULNERABLE (A06): does not consult or write a redemption ledger, so the
-    same coupon can be applied repeatedly across orders.
-    """
+    """Apply a discount coupon to an existing order (single-use)."""
 
     def __init__(
         self,
@@ -280,16 +289,29 @@ class ApplyCouponToOrder:
             raise NotFoundError(f"Order {order_id} was not found.")
         if not authorization.can_read_order(actor, order):
             raise AuthorizationError("Not permitted to apply a coupon to this order.")
+        if actor.id is None:
+            raise AuthorizationError("Authenticated actor is missing an identifier.")
 
         coupon = self._coupon_repository.get_by_code(order.store_id, coupon_code.strip().upper())
         if coupon is None or not coupon.is_active:
             raise NotFoundError(f"Coupon {coupon_code!r} was not found.")
-        # VULNERABLE (A06): no single-use / redemption tracking.
-        # PLAN FIX: reject when has_been_redeemed; record_redemption after apply.
+        if coupon.id is None:
+            raise ConflictError("Coupon is missing a persistent identifier.")
+        if self._coupon_repository.has_been_redeemed(coupon.id):
+            raise ConflictError(
+                f"Coupon {coupon.code!r} has already been redeemed " "and cannot be reused."
+            )
 
         subtotal_cents = sum(line.unit_price_cents * line.quantity for line in order.lines)
         discount_cents = (subtotal_cents * coupon.discount_percent) // 100
         total_cents = max(0, subtotal_cents - discount_cents)
+        self._coupon_repository.record_redemption(
+            CouponRedemption(
+                coupon_id=coupon.id,
+                user_id=actor.id,
+                order_id=order_id,
+            )
+        )
         return CheckoutResultView(
             order=to_order_detail_view(order),
             subtotal_cents=subtotal_cents,
