@@ -52,12 +52,12 @@ def test_password_hashes_must_use_strong_kdf_not_md5() -> None:
     hasher = build_password_hasher()
     digest = hasher.hash_password("Correct-Horse-Battery-Staple-9!")
 
-    assert not _MD5_HEX_RE.fullmatch(digest), (
-        "Password digest looks like unsalted MD5 hex; use Argon2id or bcrypt."
-    )
-    assert digest.startswith(_STRONG_PASSWORD_HASH_PREFIXES), (
-        f"Expected Argon2/bcrypt hash prefix, got {digest[:12]!r}."
-    )
+    assert not _MD5_HEX_RE.fullmatch(
+        digest
+    ), "Password digest looks like unsalted MD5 hex; use Argon2id or bcrypt."
+    assert digest.startswith(
+        _STRONG_PASSWORD_HASH_PREFIXES
+    ), f"Expected Argon2/bcrypt hash prefix, got {digest[:12]!r}."
 
 
 def test_sensitive_pii_at_rest_must_not_be_plaintext() -> None:
@@ -112,9 +112,9 @@ def test_session_cookies_must_include_secure_and_httponly() -> None:
     """Secure: web session cookie must set Secure (and HttpOnly)."""
     app = create_app()
     session_options = _session_middleware_options(app)
-    assert session_options.get("https_only") is True, (
-        "SessionMiddleware must set https_only=True so Set-Cookie includes Secure."
-    )
+    assert (
+        session_options.get("https_only") is True
+    ), "SessionMiddleware must set https_only=True so Set-Cookie includes Secure."
 
     with patch(
         "ecommerce_backoffice_web.api_client.ApiClient.login",
@@ -129,9 +129,7 @@ def test_session_cookies_must_include_secure_and_httponly() -> None:
         )
 
     set_cookie_headers = [
-        value
-        for value in response.headers.get_list("set-cookie")
-        if "session=" in value.lower()
+        value for value in response.headers.get_list("set-cookie") if "session=" in value.lower()
     ]
     assert set_cookie_headers, "Expected a session Set-Cookie after successful login."
     for cookie in set_cookie_headers:
