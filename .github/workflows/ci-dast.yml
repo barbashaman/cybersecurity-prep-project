@@ -32,10 +32,12 @@ jobs:
           mkdir -p report-payload/security/zap report-payload/api-contract/swagger-ui
           chmod -R 777 report-payload/security/zap
 
+      # Explicit -f docker-compose.yml so the local override (persistent volume,
+      # hot-reload) is not applied; CI needs the ephemeral tmpfs database.
       - name: Build and start the stack (IaC)
         run: |
-          docker compose build api web
-          docker compose up -d database api web
+          docker compose -f docker-compose.yml build api web
+          docker compose -f docker-compose.yml up -d database api web
 
       - name: Wait for API healthcheck (version gate)
         run: |
@@ -45,7 +47,7 @@ jobs:
             fi
             sleep 3
           done
-          echo "API did not become healthy in time."; docker compose logs api; exit 1
+          echo "API did not become healthy in time."; docker compose -f docker-compose.yml logs api; exit 1
 
       - name: Swagger banner
         run: |
@@ -71,7 +73,7 @@ jobs:
       - name: Resolve compose network
         id: net
         run: |
-          NET=$(docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' "$(docker compose ps -q api)")
+          NET=$(docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' "$(docker compose -f docker-compose.yml ps -q api)")
           echo "network=$NET" >> "$GITHUB_OUTPUT"
           echo "Compose network: $NET"
 
@@ -95,7 +97,7 @@ jobs:
 
       - name: Collect stack logs
         if: always()
-        run: docker compose logs --no-color > report-payload/security/zap/stack.log 2>&1 || true
+        run: docker compose -f docker-compose.yml logs --no-color > report-payload/security/zap/stack.log 2>&1 || true
 
       - name: Manifest
         if: always()
@@ -109,7 +111,7 @@ jobs:
 
       - name: Tear down
         if: always()
-        run: docker compose down -v || true
+        run: docker compose -f docker-compose.yml down -v || true
 
       - name: Upload run artifact (Tier 1)
         if: always()

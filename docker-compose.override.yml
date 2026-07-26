@@ -7,7 +7,9 @@
 services:
   database:
     # Persist locally instead of the ephemeral tmpfs used in CI.
-    tmpfs: []
+    # Compose merges sequences by append; `tmpfs: []` does not clear the base
+    # entry and collides with the volume mount on the same path. `!reset` drops it.
+    tmpfs: !reset []
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -18,16 +20,17 @@ services:
       - ./src:/app/src
     environment:
       API_LOG_LEVEL: debug
-    command: >
-      sh -c "uvicorn ecommerce_backoffice_api.presentation.main:app
-             --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src"
+      API_HOST: 0.0.0.0
+    # Single-line command: YAML folded newlines inside `sh -c` make uvicorn
+    # see only the first line and default to 127.0.0.1 (breaks published ports).
+    command: ["sh", "-c", "uvicorn ecommerce_backoffice_api.presentation.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src"]
 
   web:
     volumes:
       - ./src:/app/src
-    command: >
-      sh -c "uvicorn ecommerce_backoffice_web.main:app
-             --host 0.0.0.0 --port 8080 --reload --reload-dir /app/src"
+    environment:
+      WEB_HOST: 0.0.0.0
+    command: ["sh", "-c", "uvicorn ecommerce_backoffice_web.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/src"]
 
 volumes:
   postgres_data:
