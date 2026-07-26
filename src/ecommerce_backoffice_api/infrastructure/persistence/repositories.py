@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session, selectinload
 
 from ecommerce_backoffice_api.domain.entities import (
@@ -110,6 +110,7 @@ def _order_from_model(model: OrderModel) -> Order:
         customer_email=model.customer_email,
         customer_full_name=model.customer_full_name,
         shipping_address=model.shipping_address,
+        notes=model.notes,
         lines=lines,
     )
 
@@ -264,6 +265,35 @@ class SqlAlchemyProductRepository:
         )
         return [_product_from_model(model) for model in self._session.scalars(statement).all()]
 
+    def search_for_store(self, store_id: int, query: str) -> list[Product]:
+        """Search products by name within a store.
+
+        VULNERABLE (A05): concatenates the caller-controlled ``query`` into raw SQL
+        (``WHERE name LIKE '%{q}%'``), enabling SQL injection.
+
+        PLAN FIX (A05): parameterized queries / ORM ``.ilike(:pattern)`` with bound
+        parameters; never interpolate untrusted input into SQL text.
+        """
+        # Intentional A05 red-phase SQL concatenation vehicle (PLAN FIX: bound params).
+        vulnerable_sql = (
+            "SELECT id, store_id, name, description, price_cents, is_active, stock_quantity "  # noqa: S608
+            f"FROM products WHERE store_id = {store_id} AND name LIKE '%{query}%' "  # nosec B608
+            "ORDER BY id"
+        )
+        rows = self._session.execute(text(vulnerable_sql)).all()
+        return [
+            Product(
+                id=int(row.id),
+                store_id=int(row.store_id),
+                name=str(row.name),
+                description=str(row.description),
+                price_cents=int(row.price_cents),
+                is_active=bool(row.is_active),
+                stock_quantity=int(row.stock_quantity),
+            )
+            for row in rows
+        ]
+
     def get_by_id(self, product_id: int) -> Product | None:
         model = self._session.get(ProductModel, product_id)
         return _product_from_model(model) if model is not None else None
@@ -340,6 +370,7 @@ class SqlAlchemyOrderRepository:
             customer_email=order.customer_email,
             customer_full_name=order.customer_full_name,
             shipping_address=order.shipping_address,
+            notes=order.notes,
             lines=[
                 OrderLineModel(
                     product_id=line.product_id,
@@ -364,6 +395,19 @@ class SqlAlchemyOrderRepository:
         if model is None:
             raise NotFoundError(f"Order {order_id} was not found.")
         model.status = status.value
+        self._session.flush()
+        return _order_from_model(model)
+
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        statement = (
+            select(OrderModel)
+            .options(selectinload(OrderModel.lines))
+            .where(OrderModel.id == order_id)
+        )
+        model = self._session.scalars(statement).first()
+        if model is None:
+            raise NotFoundError(f"Order {order_id} was not found.")
+        model.notes = notes
         self._session.flush()
         return _order_from_model(model)
 

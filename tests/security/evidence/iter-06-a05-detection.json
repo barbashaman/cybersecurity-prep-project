@@ -1,0 +1,17 @@
+{
+  "iteration": "iter-06",
+  "owasp_risk": "A05 Injection",
+  "owasp_api_cross_reference": "API8:2023 Security Misconfiguration / injection class — SQL injection in product search and XSS via unsanitized order notes",
+  "summary": "Product search concatenates the q parameter into raw SQL (LIKE '%{q}%'), and order notes are rendered with Jinja2 |safe, enabling SQL injection and stored XSS.",
+  "failing_tests": [
+    "tests/security/test_a05_injection.py::test_product_search_must_use_parameterized_queries",
+    "tests/security/test_a05_injection.py::test_order_notes_must_be_html_escaped_in_rendered_output"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a05_injection.py",
+      "description": "Detection suite asserting parameterized product search and HTML-escaped order notes; fails on vulnerable red-phase search and |safe rendering."
+    }
+  ]
+}

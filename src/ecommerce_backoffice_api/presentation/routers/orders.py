@@ -11,6 +11,7 @@ from ecommerce_backoffice_api.application.dto.orders import AnonymizedOrderView,
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
+    UpdateOrderNotes,
     UpdateOrderStatus,
 )
 from ecommerce_backoffice_api.application.use_cases.receipts import (
@@ -25,12 +26,14 @@ from ecommerce_backoffice_api.presentation.dependencies import (
     get_list_orders,
     get_load_order_receipt,
     get_store_order_receipt,
+    get_update_order_notes,
     get_update_order_status,
 )
 from ecommerce_backoffice_api.presentation.error_mapping import http_error_from_domain
 from ecommerce_backoffice_api.presentation.schemas.orders import (
     AnonymizedOrderResponse,
     OrderLineResponse,
+    OrderNotesUpdateRequest,
     OrderResponse,
     OrderStatusUpdateRequest,
 )
@@ -65,6 +68,7 @@ def _serialize_order(view: OrderDetailView | AnonymizedOrderView) -> dict[str, A
             store_id=view.store_id,
             status=view.status,
             lines=lines,
+            notes=view.notes,
         ).model_dump()
     return OrderResponse(
         id=view.id,
@@ -75,6 +79,7 @@ def _serialize_order(view: OrderDetailView | AnonymizedOrderView) -> dict[str, A
         customer_full_name=view.customer_full_name,
         shipping_address=view.shipping_address,
         lines=lines,
+        notes=view.notes,
     ).model_dump()
 
 
@@ -118,6 +123,27 @@ def patch_order_status(
 ) -> dict[str, Any]:
     try:
         order = use_case.execute(actor=actor, order_id=order_id, status=payload.status)
+    except DomainError as error:
+        raise http_error_from_domain(error) from error
+    return _serialize_order(order)
+
+
+@router.patch("/orders/{order_id}/notes")
+def patch_order_notes(
+    order_id: int,
+    payload: OrderNotesUpdateRequest,
+    actor: Annotated[User, Depends(get_current_user)],
+    use_case: Annotated[UpdateOrderNotes, Depends(get_update_order_notes)],
+) -> dict[str, Any]:
+    """Update free-text notes on an order.
+
+    VULNERABLE (A05): notes are stored unsanitized and rendered with Jinja2
+    ``|safe`` in the web UI (stored XSS / autoescape bypass).
+
+    PLAN FIX (A05): Pydantic validation, output encoding (drop ``|safe``), CSP.
+    """
+    try:
+        order = use_case.execute(actor=actor, order_id=order_id, notes=payload.notes)
     except DomainError as error:
         raise http_error_from_domain(error) from error
     return _serialize_order(order)

@@ -95,6 +95,10 @@ class ProductRepository(Protocol):
         """Return products belonging to ``store_id``."""
         ...
 
+    def search_for_store(self, store_id: int, query: str) -> list[Product]:
+        """Return products in ``store_id`` whose name matches ``query``."""
+        ...
+
     def get_by_id(self, product_id: int) -> Product | None:
         """Return the product with ``product_id``, or None."""
         ...
@@ -129,6 +133,10 @@ class OrderRepository(Protocol):
 
     def update_status(self, order_id: int, status: OrderStatus) -> Order:
         """Update the status of an existing order and return it."""
+        ...
+
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        """Replace free-text notes on an existing order and return it."""
         ...
 
 

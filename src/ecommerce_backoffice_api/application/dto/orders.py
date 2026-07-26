@@ -34,6 +34,7 @@ class OrderDetailView:
     customer_full_name: str
     shipping_address: str
     lines: tuple[OrderLineView, ...]
+    notes: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,3 +45,4 @@ class AnonymizedOrderView:
     store_id: int
     status: OrderStatus
     lines: tuple[OrderLineView, ...]
+    notes: str = ""

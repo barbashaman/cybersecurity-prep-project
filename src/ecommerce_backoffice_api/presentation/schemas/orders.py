@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ecommerce_backoffice_api.domain.enums import OrderStatus
 
@@ -27,6 +27,7 @@ class OrderResponse(BaseModel):
     customer_full_name: str
     shipping_address: str
     lines: list[OrderLineResponse]
+    notes: str = ""
 
 
 class AnonymizedOrderResponse(BaseModel):
@@ -36,9 +37,25 @@ class AnonymizedOrderResponse(BaseModel):
     store_id: int
     status: OrderStatus
     lines: list[OrderLineResponse]
+    notes: str = ""
 
 
 class OrderStatusUpdateRequest(BaseModel):
     """Payload for patching an order status."""
 
     status: OrderStatus = Field(...)
+
+
+class OrderNotesUpdateRequest(BaseModel):
+    """Payload for patching free-text order notes.
+
+    VULNERABLE (A05): ``notes`` accepts arbitrary markup with no length/charset
+    constraints; the web UI renders it with Jinja2 ``|safe``.
+
+    PLAN FIX (A05): Field(max_length=...), reject HTML/script patterns or strip
+    tags; encode on output; add CSP.
+    """
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    notes: str

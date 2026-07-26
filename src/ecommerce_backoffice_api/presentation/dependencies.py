@@ -26,6 +26,7 @@ from ecommerce_backoffice_api.application.use_cases.checkout import (
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
+    UpdateOrderNotes,
     UpdateOrderStatus,
 )
 from ecommerce_backoffice_api.application.use_cases.password_reset import (
@@ -37,6 +38,7 @@ from ecommerce_backoffice_api.application.use_cases.products import (
     GetProduct,
     ImportProductsFromCsv,
     ListProductsForStore,
+    SearchProductsForStore,
     UpdateProduct,
 )
 from ecommerce_backoffice_api.application.use_cases.receipts import (
@@ -185,6 +187,15 @@ def get_list_products(session: Annotated[Session, Depends(get_session)]) -> List
     )
 
 
+def get_search_products(
+    session: Annotated[Session, Depends(get_session)],
+) -> SearchProductsForStore:
+    return SearchProductsForStore(
+        SqlAlchemyProductRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
 def get_create_product(session: Annotated[Session, Depends(get_session)]) -> CreateProduct:
     return CreateProduct(
         SqlAlchemyProductRepository(session),
@@ -230,6 +241,10 @@ def get_get_order(
 
 def get_update_order_status(session: Annotated[Session, Depends(get_session)]) -> UpdateOrderStatus:
     return UpdateOrderStatus(SqlAlchemyOrderRepository(session))
+
+
+def get_update_order_notes(session: Annotated[Session, Depends(get_session)]) -> UpdateOrderNotes:
+    return UpdateOrderNotes(SqlAlchemyOrderRepository(session))
 
 
 def get_list_users(

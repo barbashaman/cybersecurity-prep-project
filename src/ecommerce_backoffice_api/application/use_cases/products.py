@@ -35,6 +35,33 @@ class ListProductsForStore:
         return self._product_repository.list_for_store(store_id)
 
 
+class SearchProductsForStore:
+    """Search products by name within a store catalog.
+
+    VULNERABLE (A05): the repository builds SQL via string concatenation of
+    ``query``. Callers must not treat search results as trustworthy evidence of
+    a literal name match until remediation.
+
+    PLAN FIX (A05): keep this use case; fix the repository to use bound params
+    and validate ``query`` length in the presentation schema.
+    """
+
+    def __init__(
+        self,
+        product_repository: ProductRepository,
+        store_repository: StoreRepository,
+    ) -> None:
+        self._product_repository = product_repository
+        self._store_repository = store_repository
+
+    def execute(self, *, actor: User, store_id: int, query: str) -> list[Product]:
+        if not authorization.can_read_store_catalog(actor, store_id):
+            raise AuthorizationError("Not permitted to read this store catalog.")
+        if self._store_repository.get_by_id(store_id) is None:
+            raise NotFoundError(f"Store {store_id} was not found.")
+        return self._product_repository.search_for_store(store_id, query)
+
+
 class CreateProduct:
     """Create a product in a store the actor may write."""
 
