@@ -52,23 +52,58 @@ jobs:
           OWASP_RISK: ${{ github.event.inputs.owasp_risk || 'TBD - populate from iteration mapping' }}
         run: |
           python - <<'PY'
+          import json
           import os
+          import re
           from pathlib import Path
           from tests.toolkit.reporting.advisory_generator import (
               AdvisoryGenerator, AdvisoryInput, ScannerEvidence,
           )
-          iteration = os.environ["ITERATION"]
+
+          iteration_ref = os.environ["ITERATION"]
+          # Branch names look like iter-01-owasp-a10-...; collapse to iter-01 when present.
+          match = re.match(r"(iter-\d+)", iteration_ref)
+          iteration = match.group(1) if match else iteration_ref
           risk = os.environ["OWASP_RISK"]
+
+          evidence_dir = Path("tests/security/evidence")
+          candidates = sorted(evidence_dir.glob(f"{iteration}-*-detection.json"))
+          payload: dict = {}
+          if candidates:
+              payload = json.loads(candidates[0].read_text(encoding="utf-8"))
+
+          failing_tests = payload.get("failing_tests") or []
+          failing_test = "\n".join(failing_tests) if failing_tests else (
+              "(detection test id will be injected here)"
+          )
+          evidence_items = [
+              ScannerEvidence(
+                  tool=item["tool"],
+                  identifier=item["identifier"],
+                  description=item["description"],
+              )
+              for item in payload.get("evidence", [])
+          ] or [ScannerEvidence(tool="pending", identifier="-", description="attached in Red phase")]
+
           gen = AdvisoryGenerator(template_dir=Path("documentation/advisories"))
           advisory = AdvisoryInput(
               document_name=f"Advisory {iteration}",
-              covered_elements=f"Feature and detection for {iteration}",
+              covered_elements=payload.get(
+                  "summary",
+                  f"Feature and detection for {iteration}",
+              ),
               iteration=iteration,
-              owasp_risk=risk,
-              owasp_api_cross_reference="See OWASP API Security Top 10 mapping.",
-              summary="Auto-generated from the detection run. Populate with the flaw narrative.",
-              failing_test="(detection test id will be injected here)",
-              evidence=[ScannerEvidence(tool="pending", identifier="-", description="attached in Red phase")],
+              owasp_risk=payload.get("owasp_risk", risk),
+              owasp_api_cross_reference=payload.get(
+                  "owasp_api_cross_reference",
+                  "See OWASP API Security Top 10 mapping.",
+              ),
+              summary=payload.get(
+                  "summary",
+                  "Auto-generated from the detection run. Populate with the flaw narrative.",
+              ),
+              failing_test=failing_test,
+              evidence=evidence_items,
           )
           out = gen.write(advisory, Path("documentation/advisories"))
           print(f"Wrote {out}")

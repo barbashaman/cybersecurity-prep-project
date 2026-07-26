@@ -12,6 +12,7 @@ from ecommerce_backoffice_api.domain import authorization
 from ecommerce_backoffice_api.domain.entities import Order, User
 from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
 from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, NotFoundError
+from ecommerce_backoffice_api.domain.order_status_transitions import resolve_order_status_transition
 
 
 def _to_line_views(order: Order) -> tuple[OrderLineView, ...]:
@@ -118,7 +119,9 @@ class UpdateOrderStatus:
             raise NotFoundError(f"Order {order_id} was not found.")
         if not authorization.can_update_order_status(actor, order):
             raise AuthorizationError("Not permitted to update this order status.")
-        updated = self._order_repository.update_status(order_id, status)
+        # Transition table is consulted, but the vulnerable resolver fails open.
+        resolved_status = resolve_order_status_transition(order.status, status)
+        updated = self._order_repository.update_status(order_id, resolved_status)
         if authorization.must_anonymize_order_for(actor):
             return to_anonymized_order_view(updated)
         return to_order_detail_view(updated)

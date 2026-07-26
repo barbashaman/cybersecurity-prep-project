@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.startup import prepare_database
 from ecommerce_backoffice_api.infrastructure.security.jwt_token_service import JwtTokenService
+from ecommerce_backoffice_api.presentation.exception_handlers import register_exception_handlers
 from ecommerce_backoffice_api.presentation.routers import auth, orders, products, stores
 
 
@@ -46,12 +47,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "Phase 1b baseline application: JWT auth, RBAC, store/product/order "
             "CRUD against PostgreSQL. OWASP Top 10:2025 countdown iterations follow."
         ),
+        # DEBUG enables the iter-01 A10 traceback-leak path via exception handlers.
+        debug=resolved.debug,
         # Per-environment Swagger exposure policy (tightened in iter-09).
         docs_url="/docs" if resolved.expose_docs else None,
         redoc_url="/redoc" if resolved.expose_docs else None,
         openapi_url="/openapi.json" if resolved.expose_docs else None,
         lifespan=lifespan,
     )
+    # Settings must be readable by exception handlers even before lifespan runs.
+    app.state.settings = resolved
+    register_exception_handlers(app)
 
     # Deliberately permissive baseline; the strict allowlist lands in iter-09.
     app.add_middleware(

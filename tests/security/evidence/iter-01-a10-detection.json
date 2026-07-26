@@ -1,0 +1,19 @@
+{
+  "iteration": "iter-01",
+  "owasp_risk": "A10 Mishandling of Exceptional Conditions",
+  "owasp_api_cross_reference": "API8:2023 Security Misconfiguration (error handling) / exceptional-condition mishandling",
+  "summary": "CSV bulk product import leaks Python stack traces when DEBUG=true, and the order-status state machine fails open on illegal transitions (e.g. delivered → pending).",
+  "failing_tests": [
+    "tests/security/test_a10_exceptional_conditions.py::test_debug_error_response_must_not_leak_stack_trace",
+    "tests/security/test_a10_exceptional_conditions.py::test_csv_import_exception_must_not_leak_stack_trace_markers",
+    "tests/security/test_a10_exceptional_conditions.py::test_csv_import_zero_division_must_not_leak_stack_trace_markers",
+    "tests/security/test_a10_exceptional_conditions.py::test_invalid_order_status_transition_must_be_rejected"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a10_exceptional_conditions.py",
+      "description": "Detection suite asserting secure exceptional-condition handling; fails on vulnerable red-phase code."
+    }
+  ]
+}
