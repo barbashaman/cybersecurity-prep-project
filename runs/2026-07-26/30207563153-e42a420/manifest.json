@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "main",
+  "commit": "e42a420f6b40dff221357a1e2c28a2f249a7207a",
+  "workflow": "ci-sast",
+  "run_id": "30207563153",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-26T15:10:34Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
