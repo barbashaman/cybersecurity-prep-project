@@ -86,3 +86,22 @@ class AuditEvent:
     detail: str
     created_at: datetime
     id: int | None = None
+
+
+@dataclass(slots=True)
+class StoreTheme:
+    """A storefront theme artifact uploaded for a tenant store (iter-03 A08)."""
+
+    store_id: int
+    artifact_bytes: bytes
+    content_type: str = "application/octet-stream"
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class OrderReceipt:
+    """A purchase receipt blob persisted for an order (iter-03 A08)."""
+
+    order_id: int
+    payload_blob: bytes
+    id: int | None = None

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ecommerce_backoffice_api.application.dto.orders import AnonymizedOrderView, OrderDetailView
@@ -13,12 +13,18 @@ from ecommerce_backoffice_api.application.use_cases.orders import (
     ListOrdersForStore,
     UpdateOrderStatus,
 )
+from ecommerce_backoffice_api.application.use_cases.receipts import (
+    LoadOrderReceipt,
+    StoreOrderReceipt,
+)
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import DomainError
 from ecommerce_backoffice_api.presentation.dependencies import (
     get_current_user,
     get_get_order,
     get_list_orders,
+    get_load_order_receipt,
+    get_store_order_receipt,
     get_update_order_status,
 )
 from ecommerce_backoffice_api.presentation.error_mapping import http_error_from_domain
@@ -27,6 +33,10 @@ from ecommerce_backoffice_api.presentation.schemas.orders import (
     OrderLineResponse,
     OrderResponse,
     OrderStatusUpdateRequest,
+)
+from ecommerce_backoffice_api.presentation.schemas.receipts import (
+    OrderReceiptResponse,
+    OrderReceiptStoreRequest,
 )
 
 router = APIRouter(tags=["orders"])
@@ -111,3 +121,47 @@ def patch_order_status(
     except DomainError as error:
         raise http_error_from_domain(error) from error
     return _serialize_order(order)
+
+
+@router.put(
+    "/orders/{order_id}/receipt",
+    response_model=OrderReceiptResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def put_order_receipt(
+    order_id: int,
+    payload: OrderReceiptStoreRequest,
+    actor: Annotated[User, Depends(get_current_user)],
+    use_case: Annotated[StoreOrderReceipt, Depends(get_store_order_receipt)],
+) -> OrderReceiptResponse:
+    """Store a purchase receipt payload for an order.
+
+    VULNERABLE (A08): the use case serializes the payload with ``pickle``.
+    """
+    receipt_payload = dict(payload.payload)
+    try:
+        use_case.execute(
+            actor=actor,
+            order_id=order_id,
+            receipt_payload=receipt_payload,
+        )
+    except DomainError as error:
+        raise http_error_from_domain(error) from error
+    return OrderReceiptResponse(order_id=order_id, payload=receipt_payload)
+
+
+@router.get("/orders/{order_id}/receipt", response_model=OrderReceiptResponse)
+def read_order_receipt(
+    order_id: int,
+    actor: Annotated[User, Depends(get_current_user)],
+    use_case: Annotated[LoadOrderReceipt, Depends(get_load_order_receipt)],
+) -> OrderReceiptResponse:
+    """Load a purchase receipt for an order.
+
+    VULNERABLE (A08): the use case deserializes stored blobs with ``pickle.loads``.
+    """
+    try:
+        loaded = use_case.execute(actor=actor, order_id=order_id)
+    except DomainError as error:
+        raise http_error_from_domain(error) from error
+    return OrderReceiptResponse(order_id=order_id, payload=loaded)

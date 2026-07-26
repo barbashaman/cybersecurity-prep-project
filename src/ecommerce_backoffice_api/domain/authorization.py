@@ -91,3 +91,19 @@ def can_list_users(actor: User) -> bool:
 def can_list_audit_events(actor: User) -> bool:
     """Only admins may read the admin audit trail."""
     return actor.role is UserRole.ADMIN
+
+
+def can_write_store_theme(actor: User, store_id: int) -> bool:
+    """Theme uploads: admin or the owning store owner."""
+    return can_write_store_catalog(actor, store_id)
+
+
+def can_manage_order_receipt(actor: User, order: Order) -> bool:
+    """Receipt store/load: admin, owning store owner, or the ordering customer."""
+    if actor.role is UserRole.ADMIN:
+        return True
+    if actor.role is UserRole.STORE_OWNER:
+        return actor.store_id == order.store_id
+    if actor.role is UserRole.CUSTOMER:
+        return actor.id == order.customer_user_id
+    return False
