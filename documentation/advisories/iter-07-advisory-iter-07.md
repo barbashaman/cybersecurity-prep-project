@@ -28,11 +28,9 @@ tests/security/test_a04_cryptographic_failures.py::test_session_cookies_must_inc
 
 ## Remediation
 
-_Pending — populated in the Green phase of this iteration._
+Applied in the green phase of this iteration:
 
-### Planned fixes (not yet applied)
-
-- Restore **Argon2id** (preferred) or strong bcrypt via the `PasswordHasher` port; re-hash seeded credentials.
-- **Encrypt sensitive PII at rest** (AES-GCM / Fernet envelope encryption) with KMS-managed keys; do not store cleartext phones/addresses.
-- **Secret management** for `WEB_SESSION_SECRET` / encryption keys (no demo defaults in deployable envs).
-- Session cookies: `https_only=True` (Secure) + HttpOnly; emit **HSTS** on the web tier.
+- **Argon2id** password hashing via `Argon2PasswordHasher` / `build_password_hasher()`.
+- **Fernet encryption at rest** for `customer_phone` (`EncryptedText` TypeDecorator); key from `PII_ENCRYPTION_KEY` (demo-derived fallback for local/CI only).
+- Session cookies: `https_only=True` (Secure) + HttpOnly; **HSTS** (`Strict-Transport-Security`) on the web tier.
+- Prefer secret management for `WEB_SESSION_SECRET`, `JWT_SECRET`, and `PII_ENCRYPTION_KEY` in deployable environments.

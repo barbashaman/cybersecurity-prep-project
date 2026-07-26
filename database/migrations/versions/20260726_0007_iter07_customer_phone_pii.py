@@ -19,12 +19,10 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    # VULNERABLE (A04): sensitive contact PII column stored as plaintext Text.
-    # PLAN FIX (A04): encrypt at rest (AES-GCM / Fernet) with KMS-managed keys;
-    # keep ciphertext + nonce columns (or envelope encryption) instead of cleartext.
+    # Column holds Fernet ciphertext (application TypeDecorator encrypts at rest).
     op.add_column(
         "orders",
-        sa.Column("customer_phone", sa.String(length=64), nullable=False, server_default=""),
+        sa.Column("customer_phone", sa.Text(), nullable=False, server_default=""),
     )
 
 

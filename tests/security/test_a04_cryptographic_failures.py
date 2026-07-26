@@ -17,7 +17,7 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.testclient import TestClient
@@ -61,7 +61,7 @@ def test_password_hashes_must_use_strong_kdf_not_md5() -> None:
 
 
 def test_sensitive_pii_at_rest_must_not_be_plaintext() -> None:
-    """Secure: customer phone must not equal the cleartext value in storage."""
+    """Secure: customer phone ciphertext at rest; ORM still decrypts for app use."""
     phone = plaintext_customer_phone_sample()
     session = _session()
     try:
@@ -90,13 +90,20 @@ def test_sensitive_pii_at_rest_must_not_be_plaintext() -> None:
         session.add(order)
         session.commit()
 
-        stored = session.scalars(
-            select(OrderModel.customer_phone).where(OrderModel.id == order.id)
-        ).one()
-        assert stored != phone, (
+        # Bypass TypeDecorator decrypt: assert the on-disk column is not cleartext.
+        raw_at_rest = session.execute(
+            text("SELECT customer_phone FROM orders WHERE id = :id"),
+            {"id": order.id},
+        ).scalar_one()
+        assert raw_at_rest != phone, (
             "Sensitive PII (customer_phone) is stored in plaintext at rest; "
             "encrypt with AES-GCM/Fernet and manage keys via secret management."
         )
+
+        session.expire_all()
+        loaded = session.get(OrderModel, order.id)
+        assert loaded is not None
+        assert loaded.customer_phone == phone
     finally:
         session.close()
 
@@ -113,7 +120,8 @@ def test_session_cookies_must_include_secure_and_httponly() -> None:
         "ecommerce_backoffice_web.api_client.ApiClient.login",
         return_value={"access_token": "demo-token", "role": "admin"},
     ):
-        client = TestClient(app)
+        # HTTPS base URL so Secure cookies are emitted and visible to the client.
+        client = TestClient(app, base_url="https://testserver")
         response = client.post(
             "/login",
             data={"email": "admin@example.com", "password": "x"},
@@ -122,7 +130,7 @@ def test_session_cookies_must_include_secure_and_httponly() -> None:
 
     set_cookie_headers = [
         value
-        for value in response.headers.getlist("set-cookie")
+        for value in response.headers.get_list("set-cookie")
         if "session=" in value.lower()
     ]
     assert set_cookie_headers, "Expected a session Set-Cookie after successful login."

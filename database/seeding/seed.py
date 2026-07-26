@@ -70,7 +70,6 @@ def seed_database(session: Session) -> bool:
         logger.info("Seed skipped: admin user already present.")
         return False
 
-    # VULNERABLE (A04): seed uses the process hasher (MD5 in red phase).
     hasher = build_password_hasher()
     password_hash = hasher.hash_password(DEMO_ONLY_SEED_PASSWORD)
 

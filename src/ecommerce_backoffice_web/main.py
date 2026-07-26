@@ -39,27 +39,27 @@ def create_app() -> FastAPI:
     api_client = ApiClient(api_base_url)
 
     app = FastAPI(title="E-Commerce Backoffice Web", version=version)
-    # VULNERABLE (A04): session cookie without Secure (https_only=False).
-    # PLAN FIX (A04): https_only=True, keep HttpOnly, manage WEB_SESSION_SECRET
-    # via secret management, and emit Strict-Transport-Security (HSTS).
+    # Remediated (A04): Secure session cookies + HSTS.
     app.add_middleware(
         SessionMiddleware,
         secret_key=session_secret,
-        https_only=False,
+        https_only=True,
     )
     app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 
     @app.middleware("http")
-    async def content_security_policy_middleware(
+    async def security_headers_middleware(
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
-        """Emit a baseline CSP (iter-06 A05 output-encoding defense in depth)."""
+        """Emit CSP (A05) and HSTS (A04) on every response."""
         response = await call_next(request)
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'"
         )
-        # PLAN FIX (A04): also set Strict-Transport-Security when serving over TLS.
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
         return response
 
     def _context(request: Request, **extra: Any) -> dict[str, Any]:
