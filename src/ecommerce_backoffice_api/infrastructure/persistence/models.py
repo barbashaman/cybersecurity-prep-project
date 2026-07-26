@@ -1,0 +1,108 @@
+"""SQLAlchemy 2.0 ORM models for the Phase 1b baseline schema."""
+
+from __future__ import annotations
+
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+class Base(DeclarativeBase):
+    """Declarative base for all ORM models."""
+
+
+class UserModel(Base):
+    """Persisted user row."""
+
+    __tablename__ = "users"
+    __table_args__ = (UniqueConstraint("email", name="uq_users_email"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    email: Mapped[str] = mapped_column(String(320), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
+    full_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    store_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("stores.id", ondelete="SET NULL"), nullable=True
+    )
+
+
+class StoreModel(Base):
+    """Persisted store row."""
+
+    __tablename__ = "stores"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    # use_alter breaks the users <-> stores circular foreign-key dependency.
+    owner_user_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey(
+            "users.id",
+            ondelete="SET NULL",
+            use_alter=True,
+            name="fk_stores_owner_user_id",
+        ),
+        nullable=True,
+    )
+
+    products: Mapped[list[ProductModel]] = relationship(back_populates="store")
+    orders: Mapped[list[OrderModel]] = relationship(back_populates="store")
+
+
+class ProductModel(Base):
+    """Persisted product row."""
+
+    __tablename__ = "products"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    store_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    store: Mapped[StoreModel] = relationship(back_populates="products")
+
+
+class OrderModel(Base):
+    """Persisted order row (includes customer PII columns)."""
+
+    __tablename__ = "orders"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    store_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False
+    )
+    customer_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(64), nullable=False)
+    customer_email: Mapped[str] = mapped_column(String(320), nullable=False)
+    customer_full_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    shipping_address: Mapped[str] = mapped_column(Text, nullable=False)
+
+    store: Mapped[StoreModel] = relationship(back_populates="orders")
+    lines: Mapped[list[OrderLineModel]] = relationship(
+        back_populates="order",
+        cascade="all, delete-orphan",
+    )
+
+
+class OrderLineModel(Base):
+    """Persisted order-line row."""
+
+    __tablename__ = "order_lines"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+    )
+    product_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=False
+    )
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    unit_price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    order: Mapped[OrderModel] = relationship(back_populates="lines")

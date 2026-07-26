@@ -8,8 +8,10 @@ A01**), proving it with automated detection, generating an advisory, then
 remediating it — a reproducible red-to-green transition captured in the CI
 evidence trail.
 
-> **Phase 1 (this bootstrap)** ships scaffolding, infrastructure, CI/CD and
-> scripts **only** — no application code. Application code arrives in Phase 1b.
+> **Phase 1b (this baseline)** ships the working FastAPI + Jinja2 + PostgreSQL
+> e-commerce backoffice: domain model, JWT auth, RBAC, CRUD, Alembic migrations,
+> deterministic seeder, and toolkit HTTP/in-process transports. OWASP countdown
+> vulnerabilities arrive in Phase 2.
 
 ---
 
@@ -18,9 +20,10 @@ evidence trail.
 - **API** — FastAPI, auto-generating an OpenAPI 3.1 contract at `/docs`,
   `/redoc`, `/openapi.json`. Structured in four Clean Architecture layers
   (`domain` → `application` → `infrastructure` → `presentation`) with a strictly
-  inward dependency rule.
+  inward dependency rule (enforced by import-linter).
 - **Web** — a separate Jinja2 server-rendered service, Android-WebView friendly,
-  talking to the API purely over its HTTP contract.
+  talking to the API purely over its HTTP contract (signed session cookie holds
+  the JWT).
 - **Database** — PostgreSQL via SQLAlchemy + Alembic. Every pipeline run gets an
   ephemeral, freshly seeded database.
 - **Infrastructure** — everything runs under `docker-compose` (IaC).
@@ -30,6 +33,15 @@ evidence trail.
 
 See [`documentation/architecture/overview.md`](documentation/architecture/overview.md)
 and the ADRs under [`documentation/decisions/`](documentation/decisions/).
+
+### Seed credentials (demo-only)
+
+Password for every seeded user: `ChangeMeDemoOnly!`
+
+- `admin@example.com` — admin
+- `owner1@example.com` / `owner2@example.com` — store owners
+- `customer1@example.com` / `customer2@example.com` — customers
+- `delivery@example.com` — delivery manager
 
 ---
 

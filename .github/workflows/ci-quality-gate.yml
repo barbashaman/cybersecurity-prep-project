@@ -40,14 +40,17 @@ jobs:
         run: ruff format --check src tests
 
       - name: Mypy (strict)
-        run: mypy src tests
+        run: mypy src tests database/seeding
+
+      - name: Import contracts (Clean Architecture)
+        run: lint-imports
 
       - name: Prepare payload dir
         run: mkdir -p report-payload/tests/pytest
 
-      - name: Unit tests (toolkit self-tests)
+      - name: Unit tests (toolkit + domain smoke)
         run: |
-          pytest tests/test_toolkit_smoke.py \
+          pytest tests/test_toolkit_smoke.py tests/domain \
             --junitxml=report-payload/tests/pytest/junit.xml \
             --html=report-payload/tests/pytest/report.html --self-contained-html
 

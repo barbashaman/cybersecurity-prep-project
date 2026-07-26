@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Orders · {{ store.name }}{% endblock %}
+{% block content %}
+<section class="panel stack">
+  <div>
+    <h1 class="hero-title">Orders · {{ store.name }}</h1>
+    <p class="lede">Order list for store {{ store.id }}.
+      Delivery managers see anonymized rows without customer PII.
+      <a href="/stores/{{ store.id }}">Back to products</a></p>
+  </div>
+  {% if error %}
+    <p class="flash">{{ error }}</p>
+  {% endif %}
+  {% if orders %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Status</th>
+        <th>Customer</th>
+        <th>Ship to</th>
+        <th>Lines</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ order.status }}</td>
+        <td class="muted">
+          {% if order.customer_full_name is defined and order.customer_full_name %}
+            {{ order.customer_full_name }}<br>{{ order.customer_email }}
+          {% else %}
+            (anonymized)
+          {% endif %}
+        </td>
+        <td class="muted">
+          {% if order.shipping_address is defined and order.shipping_address %}
+            {{ order.shipping_address }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td class="muted">{{ order.lines|length }} item(s)</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No orders to show.</p>
+  {% endif %}
+</section>
+{% endblock %}

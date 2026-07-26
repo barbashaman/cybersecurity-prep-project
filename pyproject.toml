@@ -11,9 +11,6 @@ requires-python = "==3.12.*"
 license = { text = "Proprietary" }
 authors = [{ name = "Matheus Barbachan" }]
 
-# Runtime dependencies are intentionally minimal in Phase 1 (no application
-# code yet). Concrete versions land with Phase 1b; the security groups below
-# are what the pipelines need today.
 dependencies = [
     "fastapi==0.115.6",
     "uvicorn[standard]==0.34.0",
@@ -24,6 +21,10 @@ dependencies = [
     "pydantic==2.10.4",
     "pydantic-settings==2.7.0",
     "httpx==0.28.1",
+    "PyJWT==2.10.1",
+    "bcrypt==4.2.1",
+    "python-multipart==0.0.20",
+    "itsdangerous==2.2.0",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +32,7 @@ dev = [
     "ruff==0.8.6",
     "mypy==1.14.1",
     "pre-commit==4.0.1",
+    "import-linter==2.1",
 ]
 test = [
     "pytest==8.3.4",
@@ -53,7 +55,10 @@ Repository = "https://github.com/barbashaman/cybersecurity-prep-project"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ecommerce_backoffice_api", "src/ecommerce_backoffice_web"]
-artifacts = ["src/ecommerce_backoffice_web/templates/**/*.html"]
+artifacts = [
+    "src/ecommerce_backoffice_web/templates/**/*.html",
+    "src/ecommerce_backoffice_web/static/**/*",
+]
 
 # ---------------------------------------------------------------------------
 # Ruff - lint + format
@@ -62,7 +67,7 @@ artifacts = ["src/ecommerce_backoffice_web/templates/**/*.html"]
 target-version = "py312"
 line-length = 100
 src = ["src", "tests"]
-extend-exclude = ["reports", ".venv"]
+extend-exclude = ["reports", ".venv", "database/migrations"]
 
 [tool.ruff.lint]
 select = [
@@ -77,9 +82,14 @@ select = [
 # Test suites may use assert and hard-coded fixtures.
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106"]
+"database/seeding/**" = ["S105", "S106"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["ecommerce_backoffice_api", "ecommerce_backoffice_web"]
+known-first-party = [
+    "ecommerce_backoffice_api",
+    "ecommerce_backoffice_web",
+    "database",
+]
 
 # ---------------------------------------------------------------------------
 # mypy - strict
@@ -93,9 +103,9 @@ warn_unused_ignores = true
 disallow_any_generics = true
 no_implicit_reexport = true
 show_error_codes = true
-mypy_path = "src"
+mypy_path = "src:."
 explicit_package_bases = true
-exclude = ["reports/", "build/"]
+exclude = ["reports/", "build/", "database/migrations/"]
 
 # ---------------------------------------------------------------------------
 # pytest
@@ -103,6 +113,7 @@ exclude = ["reports/", "build/"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
+pythonpath = ["src", "."]
 # behaviour/ holds Gherkin only; e2e/ is Robot Framework, not pytest.
 norecursedirs = ["tests/behaviour", "tests/e2e", "reports"]
 addopts = "-ra --strict-markers --strict-config"
@@ -117,7 +128,7 @@ markers = [
 # ---------------------------------------------------------------------------
 [tool.bandit]
 # Scan application source only; tests deliberately contain insecure fixtures.
-exclude_dirs = ["tests", ".venv", "reports", "build"]
+exclude_dirs = ["tests", ".venv", "reports", "build", "database"]
 
 # ---------------------------------------------------------------------------
 # Coverage
@@ -129,3 +140,48 @@ source = ["src"]
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
+
+# ---------------------------------------------------------------------------
+# import-linter - Clean Architecture dependency rule
+# ---------------------------------------------------------------------------
+[tool.importlinter]
+root_packages = [
+    "ecommerce_backoffice_api",
+    "ecommerce_backoffice_web",
+]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Domain is isolated from outer layers and frameworks"
+type = "forbidden"
+source_modules = [
+    "ecommerce_backoffice_api.domain",
+]
+forbidden_modules = [
+    "ecommerce_backoffice_api.application",
+    "ecommerce_backoffice_api.infrastructure",
+    "ecommerce_backoffice_api.presentation",
+    "fastapi",
+    "sqlalchemy",
+]
+
+[[tool.importlinter.contracts]]
+name = "Application does not depend on infrastructure or presentation"
+type = "forbidden"
+source_modules = [
+    "ecommerce_backoffice_api.application",
+]
+forbidden_modules = [
+    "ecommerce_backoffice_api.infrastructure",
+    "ecommerce_backoffice_api.presentation",
+]
+
+[[tool.importlinter.contracts]]
+name = "Web does not import the API package"
+type = "forbidden"
+source_modules = [
+    "ecommerce_backoffice_web",
+]
+forbidden_modules = [
+    "ecommerce_backoffice_api",
+]

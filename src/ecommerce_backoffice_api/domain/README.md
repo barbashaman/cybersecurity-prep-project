@@ -7,8 +7,8 @@ policies and domain exceptions live here.
 
 **Depends on: nothing.** This layer imports only the Python standard library.
 
-Forbidden imports (enforced by review and, from Phase 1b, by an import-linter
-contract):
+Forbidden imports (enforced by the import-linter contract in ``pyproject.toml``
+and the quality-gate ``lint-imports`` step):
 
 - No `fastapi`, `sqlalchemy`, `pydantic`, `httpx`, or any framework.
 - No `application`, `infrastructure`, or `presentation` modules.

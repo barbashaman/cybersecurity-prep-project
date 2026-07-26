@@ -12,5 +12,10 @@ direct database access.
   services at arm's length is what makes the DAST surface realistic and lets
   the web tier be scaled or replaced independently.
 
-Phase 1 ships the package skeleton only; templates and routes arrive in
-Phase 1b.
+## Phase 1b pages
+
+- `/login` — form posts to the API login endpoint; JWT stored in a signed
+  session cookie
+- `/dashboard` — stores visible to the signed-in role
+- `/stores/{store_id}` — product catalog
+- `/stores/{store_id}/orders` — orders (delivery managers see anonymized rows)

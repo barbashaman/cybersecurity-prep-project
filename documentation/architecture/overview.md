@@ -89,10 +89,11 @@ artifact. See [`../iteration-playbook.md`](../iteration-playbook.md).
 
 ## Phase boundaries
 
-- **Phase 1 (this bootstrap)** — scaffolding, IaC, CI/CD, scripts, toolkit
-  skeleton, and a minimal *operational* API (health/version/OpenAPI only). No
-  e-commerce domain code.
-- **Phase 1b** — baseline application: domain model, auth, RBAC, CRUD, Jinja2
-  UI, database seeder.
+- **Phase 1** — scaffolding, IaC, CI/CD, scripts, toolkit skeleton, and a
+  minimal *operational* API (health/version/OpenAPI).
+- **Phase 1b (current)** — baseline application: domain model, JWT auth, RBAC,
+  store/product/order CRUD, Alembic migrations, deterministic seeder, Jinja2 UI,
+  toolkit HTTP + in-process transports, import-linter contracts. DEBUG/CORS/docs
+  remain deliberately permissive (iter-09 vehicle).
 - **Phase 2** — the A10→A01 countdown.
 - **Phase 3** — golden master: all risks remediated, consolidated posture report.

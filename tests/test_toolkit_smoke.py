@@ -1,9 +1,8 @@
 """Toolkit self-tests.
 
-These exercise the dependency-injection wiring and the reporting renderer - the
-infrastructure that every future suite depends on - without touching any
-application code (there is none yet). They give the quality gate real, green
-assertions during Phase 1.
+These exercise the dependency-injection wiring and the reporting renderer
+without requiring a live database. Role-matrix coverage uses
+:class:`StaticIdentityProvider` directly so CI quality-gate stays offline-safe.
 """
 
 from __future__ import annotations
@@ -12,25 +11,28 @@ from pathlib import Path
 
 import pytest
 
+from tests.toolkit.clients.http_client import HttpTransportClient
 from tests.toolkit.context.container import ToolkitContainer
 from tests.toolkit.context.environment import Environment, Transport
 from tests.toolkit.identities.roles import Role
+from tests.toolkit.identities.static_provider import StaticIdentityProvider
 from tests.toolkit.reporting.unified_report import build_summary
 
 
 def test_container_builds_http_context() -> None:
     environment = Environment(transport=Transport.HTTP, base_url="http://api:8000")
-    context = ToolkitContainer(environment).build_execution_context()
+    context = ToolkitContainer(
+        environment,
+        use_static_identities=True,
+    ).build_execution_context()
 
     assert context.environment.transport is Transport.HTTP
     assert context.environment.base_url == "http://api:8000"
+    assert isinstance(context.client, HttpTransportClient)
 
 
 def test_role_matrix_has_all_four_roles() -> None:
-    environment = Environment(transport=Transport.IN_PROCESS, base_url="http://api:8000")
-    context = ToolkitContainer(environment).build_execution_context()
-
-    identities = context.identities.all_roles()
+    identities = StaticIdentityProvider().all_roles()
     roles = {identity.role for identity in identities}
 
     assert roles == set(Role)

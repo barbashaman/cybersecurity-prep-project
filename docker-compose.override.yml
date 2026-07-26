@@ -18,9 +18,15 @@ services:
   api:
     volumes:
       - ./src:/app/src
+      - ./database:/app/database
+      - ./alembic.ini:/app/alembic.ini
+      - ./scripts/api_entrypoint.sh:/app/scripts/api_entrypoint.sh
     environment:
       API_LOG_LEVEL: debug
       API_HOST: 0.0.0.0
+      # Prefer the bind-mounted source over the image site-packages for hot reload.
+      PYTHONPATH: /app/src:/app
+    # Hot-reload bypasses the production entrypoint; lifespan still migrates+seeds.
     # Single-line command: YAML folded newlines inside `sh -c` make uvicorn
     # see only the first line and default to 127.0.0.1 (breaks published ports).
     command: ["sh", "-c", "uvicorn ecommerce_backoffice_api.presentation.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src"]
@@ -30,6 +36,7 @@ services:
       - ./src:/app/src
     environment:
       WEB_HOST: 0.0.0.0
+      PYTHONPATH: /app/src
     command: ["sh", "-c", "uvicorn ecommerce_backoffice_web.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/src"]
 
 volumes:
