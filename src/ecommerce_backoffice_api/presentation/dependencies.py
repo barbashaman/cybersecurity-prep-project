@@ -28,7 +28,12 @@ from ecommerce_backoffice_api.application.use_cases.products import (
     ListProductsForStore,
     UpdateProduct,
 )
+from ecommerce_backoffice_api.application.use_cases.receipts import (
+    LoadOrderReceipt,
+    StoreOrderReceipt,
+)
 from ecommerce_backoffice_api.application.use_cases.stores import CreateStore, GetStore, ListStores
+from ecommerce_backoffice_api.application.use_cases.themes import GetStoreTheme, UploadStoreTheme
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import AuthenticationError
 from ecommerce_backoffice_api.infrastructure.config import Settings
@@ -36,7 +41,9 @@ from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyAuditEventRepository,
     SqlAlchemyOrderRepository,
     SqlAlchemyProductRepository,
+    SqlAlchemyReceiptRepository,
     SqlAlchemyStoreRepository,
+    SqlAlchemyThemeRepository,
     SqlAlchemyUserRepository,
 )
 from ecommerce_backoffice_api.infrastructure.security.password_hasher import BcryptPasswordHasher
@@ -196,3 +203,31 @@ def get_list_audit_events(
     admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
 ) -> ListAuditEvents:
     return ListAuditEvents(SqlAlchemyAuditEventRepository(session), admin_audit_trail)
+
+
+def get_upload_store_theme(session: Annotated[Session, Depends(get_session)]) -> UploadStoreTheme:
+    return UploadStoreTheme(
+        SqlAlchemyThemeRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_get_store_theme(session: Annotated[Session, Depends(get_session)]) -> GetStoreTheme:
+    return GetStoreTheme(
+        SqlAlchemyThemeRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_store_order_receipt(session: Annotated[Session, Depends(get_session)]) -> StoreOrderReceipt:
+    return StoreOrderReceipt(
+        SqlAlchemyReceiptRepository(session),
+        SqlAlchemyOrderRepository(session),
+    )
+
+
+def get_load_order_receipt(session: Annotated[Session, Depends(get_session)]) -> LoadOrderReceipt:
+    return LoadOrderReceipt(
+        SqlAlchemyReceiptRepository(session),
+        SqlAlchemyOrderRepository(session),
+    )

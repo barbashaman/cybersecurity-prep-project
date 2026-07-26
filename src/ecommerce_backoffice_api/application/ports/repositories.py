@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from ecommerce_backoffice_api.domain.entities import AuditEvent, Order, Product, Store, User
+from ecommerce_backoffice_api.domain.entities import (
+    AuditEvent,
+    Order,
+    OrderReceipt,
+    Product,
+    Store,
+    StoreTheme,
+    User,
+)
 from ecommerce_backoffice_api.domain.enums import OrderStatus
 
 
@@ -97,4 +105,28 @@ class OrderRepository(Protocol):
 
     def update_status(self, order_id: int, status: OrderStatus) -> Order:
         """Update the status of an existing order and return it."""
+        ...
+
+
+class ThemeRepository(Protocol):
+    """Read/write access to store theme artifacts."""
+
+    def get_for_store(self, store_id: int) -> StoreTheme | None:
+        """Return the theme for ``store_id``, or None."""
+        ...
+
+    def save(self, theme: StoreTheme) -> StoreTheme:
+        """Upsert the theme for a store and return it with an assigned id."""
+        ...
+
+
+class ReceiptRepository(Protocol):
+    """Read/write access to order receipt blobs."""
+
+    def get_for_order(self, order_id: int) -> OrderReceipt | None:
+        """Return the receipt for ``order_id``, or None."""
+        ...
+
+    def save(self, receipt: OrderReceipt) -> OrderReceipt:
+        """Upsert the receipt for an order and return it with an assigned id."""
         ...
