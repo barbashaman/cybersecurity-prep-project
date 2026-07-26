@@ -5,14 +5,14 @@
   "workflow": "ci-quality-gate",
   "run_id": "30210926381",
   "iteration": "phase-1-bootstrap",
-  "generated_at": "2026-07-26T16:42:30Z",
+  "generated_at": "2026-07-26T16:47:22Z",
   "totals": {
     "total": 16,
     "passed": 16,
     "failed": 0,
     "skipped": 0,
     "success_rate": 100.0,
-    "duration_seconds": 0.13
+    "duration_seconds": 0.144
   },
   "suites": [
     {
@@ -22,7 +22,7 @@
       "passed": 16,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.13,
+      "duration_seconds": 0.144,
       "success_rate": 100.0
     }
   ],
