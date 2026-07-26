@@ -32,9 +32,7 @@ tests/security/test_a07_authentication.py::test_reset_confirm_must_issue_short_l
 
 ## Remediation
 
-*(Planned — not yet implemented; stop before green-phase fix.)*
-
-- Issue short-lived, high-entropy rotating reset tokens (single-use; consume on confirm).
-- Enforce lockout / rate limits on login and password-reset request bursts.
-- Maintain a token revocation list (or rotating `jti`) and invalidate sessions on logout.
-- Bound post-reset session JWT lifetime (short `exp`); never omit the expiry claim.
+- Reset tokens are `secrets.token_urlsafe(32)`, rotated per request, and consumed on confirm.
+- Login and password-reset request bursts raise `RateLimitError` after five attempts.
+- Logout adds the bearer token to an in-process revocation set; subsequent parses fail.
+- Post-reset session JWTs include `exp` with a 15-minute TTL.

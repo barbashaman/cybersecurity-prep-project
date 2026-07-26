@@ -73,4 +73,3 @@ class LogoutResponse(BaseModel):
     """Acknowledgement for ``POST /auth/logout``."""
 
     message: str
-

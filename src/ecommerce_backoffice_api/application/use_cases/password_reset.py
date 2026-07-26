@@ -1,19 +1,14 @@
-"""Password-reset use cases (iter-04 A07 vehicle).
+"""Password-reset use cases (iter-04 A07 — remediated).
 
-VULNERABLE (red phase):
-- reset tokens are derived from the user id (predictable / replayable)
-- no rate limiting on reset requests
-- successful confirm issues a session JWT with no ``exp`` claim
-- reset tokens are never expired or rotated after use
-
-Remediation plan (not implemented here):
-- issue short-lived, high-entropy rotating reset tokens (single-use)
-- enforce lockout / rate limits on login and reset-request bursts
-- maintain a token revocation list and invalidate sessions on logout
+Secure behaviour:
+- high-entropy, rotating, single-use reset tokens
+- rate limiting on reset-request bursts
+- short-lived session JWT after successful confirm
 """
 
 from __future__ import annotations
 
+import secrets
 from dataclasses import dataclass
 
 from ecommerce_backoffice_api.application.ports.repositories import (
@@ -23,14 +18,19 @@ from ecommerce_backoffice_api.application.ports.repositories import (
 from ecommerce_backoffice_api.application.ports.security import PasswordHasher, TokenService
 from ecommerce_backoffice_api.domain.entities import PasswordResetToken
 from ecommerce_backoffice_api.domain.enums import UserRole
-from ecommerce_backoffice_api.domain.exceptions import AuthenticationError, NotFoundError
+from ecommerce_backoffice_api.domain.exceptions import (
+    AuthenticationError,
+    NotFoundError,
+    RateLimitError,
+)
 
-# Deliberately non-expiring session after password reset (A07).
-_RESET_SESSION_EXPIRE_MINUTES = 0
+_MAX_RESET_REQUESTS_BEFORE_LOCKOUT = 5
+_RESET_SESSION_EXPIRE_MINUTES = 15
+_RESET_TOKEN_BYTE_LENGTH = 32
 
 
 def predictable_reset_token_for_user(user_id: int) -> str:
-    """Return the red-phase predictable reset token formula for ``user_id``."""
+    """Return the former red-phase predictable formula (used only by detection tests)."""
     return f"reset-token-for-user-{user_id}"
 
 
@@ -62,22 +62,27 @@ class RequestPasswordReset:
     ) -> None:
         self._user_repository = user_repository
         self._reset_token_repository = reset_token_repository
+        self._request_counts: dict[str, int] = {}
 
     def execute(self, *, email: str) -> PasswordResetRequestResult:
-        # VULNERABLE (A07): no rate limiting / lockout on repeated requests.
-        user = self._user_repository.get_by_email(email.strip().lower())
+        normalized_email = email.strip().lower()
+        attempt_count = self._request_counts.get(normalized_email, 0)
+        if attempt_count >= _MAX_RESET_REQUESTS_BEFORE_LOCKOUT:
+            raise RateLimitError("Too many password-reset requests. Try again later.")
+        self._request_counts[normalized_email] = attempt_count + 1
+
+        user = self._user_repository.get_by_email(normalized_email)
         if user is None or user.id is None:
             raise NotFoundError("No account matches that email.")
-        # VULNERABLE (A07): token is a stable, guessable function of user id.
-        token = predictable_reset_token_for_user(user.id)
-        self._reset_token_repository.save(
-            PasswordResetToken(user_id=user.id, token=token)
-        )
+
+        self._reset_token_repository.delete_for_user(user.id)
+        token = secrets.token_urlsafe(_RESET_TOKEN_BYTE_LENGTH)
+        self._reset_token_repository.save(PasswordResetToken(user_id=user.id, token=token))
         return PasswordResetRequestResult(reset_token=token, user_id=user.id)
 
 
 class ConfirmPasswordReset:
-    """Confirm a password reset and issue a session access token."""
+    """Confirm a password reset and issue a short-lived session access token."""
 
     def __init__(
         self,
@@ -100,8 +105,8 @@ class ConfirmPasswordReset:
             raise AuthenticationError("Invalid password-reset token.")
         password_hash = self._password_hasher.hash_password(new_password)
         updated = self._user_repository.update_password(user.id, password_hash)
-        # VULNERABLE (A07): reset token is not consumed / rotated after use.
-        # VULNERABLE (A07): session JWT is issued with no expiry claim.
+        # Single-use: consume all outstanding reset tokens for this user.
+        self._reset_token_repository.delete_for_user(user.id)
         access_token = self._token_service.issue_access_token(
             user_id=updated.id if updated.id is not None else user.id,
             email=updated.email,

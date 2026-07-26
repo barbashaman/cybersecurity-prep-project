@@ -44,8 +44,8 @@ class TokenService(Protocol):
         """Return a signed access token for the given principal.
 
         When ``expire_minutes`` is ``None``, the service default TTL is used.
-        A non-positive ``expire_minutes`` omits the ``exp`` claim (intentionally
-        insecure; used by the red-phase password-reset flow).
+        A non-positive ``expire_minutes`` omits the ``exp`` claim (legacy /
+        unsupported for new sessions after the A07 remediation).
         """
         ...
 
