@@ -82,9 +82,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: reports-publish
-      cancel-in-progress: false
+    # No shared concurrency group: GitHub cancels all but one pending job in a
+    # group, which drops publishes when quality/sast/dast/supply-chain finish
+    # together. Serialisation is handled by publish.sh rebase-retry instead.
     steps:
       - uses: actions/checkout@v4
         with:

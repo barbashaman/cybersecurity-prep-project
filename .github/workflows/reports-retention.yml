@@ -13,8 +13,10 @@ on:
         required: false
         default: "20"
 
+# Retention can race with publishes; rebase is not used here (orphan prune
+# commit), so keep a dedicated group that only this workflow joins.
 concurrency:
-  group: reports-publish
+  group: reports-retention
   cancel-in-progress: false
 
 permissions:

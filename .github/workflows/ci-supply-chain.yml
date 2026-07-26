@@ -101,9 +101,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: reports-publish
-      cancel-in-progress: false
+    # See ci-quality-gate.yml: shared reports-publish concurrency cancels
+    # pending publishes; rebase-retry in publish.sh serialises the push.
     steps:
       - uses: actions/checkout@v4
         with:
