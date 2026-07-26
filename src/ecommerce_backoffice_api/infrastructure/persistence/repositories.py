@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from ecommerce_backoffice_api.domain.entities import (
@@ -266,33 +266,17 @@ class SqlAlchemyProductRepository:
         return [_product_from_model(model) for model in self._session.scalars(statement).all()]
 
     def search_for_store(self, store_id: int, query: str) -> list[Product]:
-        """Search products by name within a store.
-
-        VULNERABLE (A05): concatenates the caller-controlled ``query`` into raw SQL
-        (``WHERE name LIKE '%{q}%'``), enabling SQL injection.
-
-        PLAN FIX (A05): parameterized queries / ORM ``.ilike(:pattern)`` with bound
-        parameters; never interpolate untrusted input into SQL text.
-        """
-        # Intentional A05 red-phase SQL concatenation vehicle (PLAN FIX: bound params).
-        vulnerable_sql = (
-            "SELECT id, store_id, name, description, price_cents, is_active, stock_quantity "  # noqa: S608
-            f"FROM products WHERE store_id = {store_id} AND name LIKE '%{query}%' "  # nosec B608
-            "ORDER BY id"
-        )
-        rows = self._session.execute(text(vulnerable_sql)).all()
-        return [
-            Product(
-                id=int(row.id),
-                store_id=int(row.store_id),
-                name=str(row.name),
-                description=str(row.description),
-                price_cents=int(row.price_cents),
-                is_active=bool(row.is_active),
-                stock_quantity=int(row.stock_quantity),
+        """Search products by name within a store using bound LIKE parameters."""
+        pattern = f"%{query}%"
+        statement = (
+            select(ProductModel)
+            .where(
+                ProductModel.store_id == store_id,
+                ProductModel.name.like(pattern),
             )
-            for row in rows
-        ]
+            .order_by(ProductModel.id)
+        )
+        return [_product_from_model(model) for model in self._session.scalars(statement).all()]
 
     def get_by_id(self, product_id: int) -> Product | None:
         model = self._session.get(ProductModel, product_id)

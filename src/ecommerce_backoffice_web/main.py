@@ -7,6 +7,7 @@ The JWT from login is stored in a signed session cookie.
 from __future__ import annotations
 
 import os
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +41,18 @@ def create_app() -> FastAPI:
     app = FastAPI(title="E-Commerce Backoffice Web", version=version)
     app.add_middleware(SessionMiddleware, secret_key=session_secret)
     app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+
+    @app.middleware("http")
+    async def content_security_policy_middleware(
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        """Emit a baseline CSP (iter-06 A05 output-encoding defense in depth)."""
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'"
+        )
+        return response
 
     def _context(request: Request, **extra: Any) -> dict[str, Any]:
         payload: dict[str, Any] = {

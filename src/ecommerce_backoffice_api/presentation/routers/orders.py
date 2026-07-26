@@ -135,13 +135,7 @@ def patch_order_notes(
     actor: Annotated[User, Depends(get_current_user)],
     use_case: Annotated[UpdateOrderNotes, Depends(get_update_order_notes)],
 ) -> dict[str, Any]:
-    """Update free-text notes on an order.
-
-    VULNERABLE (A05): notes are stored unsanitized and rendered with Jinja2
-    ``|safe`` in the web UI (stored XSS / autoescape bypass).
-
-    PLAN FIX (A05): Pydantic validation, output encoding (drop ``|safe``), CSP.
-    """
+    """Update free-text notes on an order (HTML-escaped on render; CSP on web)."""
     try:
         order = use_case.execute(actor=actor, order_id=order_id, notes=payload.notes)
     except DomainError as error:

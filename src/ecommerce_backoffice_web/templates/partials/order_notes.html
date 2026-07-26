@@ -1,4 +1,2 @@
-{# VULNERABLE (A05): ``|safe`` disables Jinja2 autoescape for attacker-controlled
-   order notes (stored XSS).
-   PLAN FIX (A05): drop ``|safe`` so HTML is encoded; add Content-Security-Policy. #}
-<div class="order-notes">{{ notes|safe }}</div>
+{# Remediated (A05): rely on Jinja2 autoescape — never mark notes as |safe. #}
+<div class="order-notes">{{ notes }}</div>

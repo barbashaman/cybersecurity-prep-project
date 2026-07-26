@@ -47,15 +47,8 @@ class OrderStatusUpdateRequest(BaseModel):
 
 
 class OrderNotesUpdateRequest(BaseModel):
-    """Payload for patching free-text order notes.
-
-    VULNERABLE (A05): ``notes`` accepts arbitrary markup with no length/charset
-    constraints; the web UI renders it with Jinja2 ``|safe``.
-
-    PLAN FIX (A05): Field(max_length=...), reject HTML/script patterns or strip
-    tags; encode on output; add CSP.
-    """
+    """Payload for patching free-text order notes (length-bounded)."""
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    notes: str
+    notes: str = Field(default="", max_length=2000)
