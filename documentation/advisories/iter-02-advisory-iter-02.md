@@ -1,6 +1,6 @@
 Document Name: Advisory iter-02
-Covered Elements: Feature and detection for iter-02 — admin audit trail (A09)
-Creation Date: 26/07/2026-18:00:00.000
+Covered Elements: Admin audit trail persists successful admin actions but skips authorization failures, and plaintext application logs include bearer tokens plus PII (emails, names, shipping addresses).
+Creation Date: 26/07/2026-16:40:27.065
 
 # Security Advisory — A09 Security Logging and Alerting Failures
 
@@ -32,8 +32,4 @@ tests/security/test_a09_logging_alerting.py::test_sensitive_order_logging_must_n
 
 ## Remediation
 
-- Authorization denials are persisted as `AuditOutcome.AUTHORIZATION_DENIED` events.
-- Audit logs emit structured JSON with actor/resource identifiers only — never
-  bearer tokens, emails, names, or shipping addresses.
-- A `RedactingFilter` strips residual token/email patterns from the audit logger.
-- Crossing five in-process authorization denials emits a threshold alert warning.
+_Pending — populated in the Green phase of this iteration._
