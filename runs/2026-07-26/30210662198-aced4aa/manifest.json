@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "iter-01-owasp-a10-exceptional-conditions",
+  "commit": "aced4aad398f0e55a5847a41056d0b2f3e610c8c",
+  "workflow": "ci-dast",
+  "run_id": "30210662198",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-26T16:35:22Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
