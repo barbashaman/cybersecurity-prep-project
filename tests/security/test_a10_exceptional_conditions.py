@@ -52,6 +52,14 @@ class _FakeProductRepository:
     def list_for_store(self, store_id: int) -> list[Product]:
         return [product for product in self.products if product.store_id == store_id]
 
+    def search_for_store(self, store_id: int, query: str) -> list[Product]:
+        needle = query.lower()
+        return [
+            product
+            for product in self.products
+            if product.store_id == store_id and (not needle or needle in product.name.lower())
+        ]
+
     def get_by_id(self, product_id: int) -> Product | None:
         for product in self.products:
             if product.id == product_id:
@@ -92,6 +100,12 @@ class _FakeOrderRepository:
         if self._order.id != order_id:
             raise LookupError(order_id)
         self._order.status = status
+        return self._order
+
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        if self._order.id != order_id:
+            raise LookupError(order_id)
+        self._order.notes = notes
         return self._order
 
 

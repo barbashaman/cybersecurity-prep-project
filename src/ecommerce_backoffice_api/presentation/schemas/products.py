@@ -46,3 +46,17 @@ class ProductImportResponse(BaseModel):
 
     imported_count: int
     products: list[ProductResponse]
+
+
+class ProductSearchQuery(BaseModel):
+    """Query parameters for product name search.
+
+    VULNERABLE (A05): ``q`` is unconstrained and concatenated into raw SQL.
+
+    PLAN FIX (A05): Field(max_length=...), reject control characters; repository
+    must use bound parameters / ORM filters.
+    """
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    q: str = Field(default="")

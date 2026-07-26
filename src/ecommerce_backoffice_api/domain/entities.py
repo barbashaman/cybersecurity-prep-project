@@ -72,6 +72,9 @@ class Order:
     customer_full_name: str
     shipping_address: str
     lines: list[OrderLine] = field(default_factory=list)
+    # VULNERABLE (A05): free-text notes are later rendered with Jinja2 ``|safe``.
+    # PLAN FIX (A05): Pydantic validation + HTML output encoding (no ``|safe``) + CSP.
+    notes: str = ""
     id: int | None = None
 
 

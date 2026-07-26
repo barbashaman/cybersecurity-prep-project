@@ -109,6 +109,11 @@ def can_manage_order_receipt(actor: User, order: Order) -> bool:
     return False
 
 
+def can_update_order_notes(actor: User, order: Order) -> bool:
+    """Order-notes updates: same principals as receipt management."""
+    return can_manage_order_receipt(actor, order)
+
+
 def can_grant_credits(actor: User) -> bool:
     """Mock credit grants: admin or the customer themselves (demo purchase)."""
     return actor.role in {UserRole.ADMIN, UserRole.CUSTOMER}

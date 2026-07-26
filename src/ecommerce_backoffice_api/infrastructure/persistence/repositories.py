@@ -110,6 +110,7 @@ def _order_from_model(model: OrderModel) -> Order:
         customer_email=model.customer_email,
         customer_full_name=model.customer_full_name,
         shipping_address=model.shipping_address,
+        notes=model.notes,
         lines=lines,
     )
 
@@ -264,6 +265,19 @@ class SqlAlchemyProductRepository:
         )
         return [_product_from_model(model) for model in self._session.scalars(statement).all()]
 
+    def search_for_store(self, store_id: int, query: str) -> list[Product]:
+        """Search products by name within a store using bound LIKE parameters."""
+        pattern = f"%{query}%"
+        statement = (
+            select(ProductModel)
+            .where(
+                ProductModel.store_id == store_id,
+                ProductModel.name.like(pattern),
+            )
+            .order_by(ProductModel.id)
+        )
+        return [_product_from_model(model) for model in self._session.scalars(statement).all()]
+
     def get_by_id(self, product_id: int) -> Product | None:
         model = self._session.get(ProductModel, product_id)
         return _product_from_model(model) if model is not None else None
@@ -340,6 +354,7 @@ class SqlAlchemyOrderRepository:
             customer_email=order.customer_email,
             customer_full_name=order.customer_full_name,
             shipping_address=order.shipping_address,
+            notes=order.notes,
             lines=[
                 OrderLineModel(
                     product_id=line.product_id,
@@ -364,6 +379,19 @@ class SqlAlchemyOrderRepository:
         if model is None:
             raise NotFoundError(f"Order {order_id} was not found.")
         model.status = status.value
+        self._session.flush()
+        return _order_from_model(model)
+
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        statement = (
+            select(OrderModel)
+            .options(selectinload(OrderModel.lines))
+            .where(OrderModel.id == order_id)
+        )
+        model = self._session.scalars(statement).first()
+        if model is None:
+            raise NotFoundError(f"Order {order_id} was not found.")
+        model.notes = notes
         self._session.flush()
         return _order_from_model(model)
 

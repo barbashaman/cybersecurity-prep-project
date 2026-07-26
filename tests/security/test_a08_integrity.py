@@ -84,6 +84,10 @@ class _FakeOrderRepository:
         self._order.status = status
         return self._order
 
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        self._order.notes = notes
+        return self._order
+
 
 class _FakeReceiptRepository:
     def __init__(self) -> None:

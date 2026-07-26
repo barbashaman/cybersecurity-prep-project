@@ -83,6 +83,13 @@ class _FakeProductRepository:
     def list_for_store(self, store_id: int) -> list[Product]:
         return [self._product] if self._product.store_id == store_id else []
 
+    def search_for_store(self, store_id: int, query: str) -> list[Product]:
+        if self._product.store_id != store_id:
+            return []
+        if query and query.lower() not in self._product.name.lower():
+            return []
+        return [self._product]
+
     def get_by_id(self, product_id: int) -> Product | None:
         if self._product.id == product_id:
             return self._product
@@ -118,6 +125,10 @@ class _FakeOrderRepository:
 
     def update_status(self, order_id: int, status: OrderStatus) -> Order:
         self._order.status = status
+        return self._order
+
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        self._order.notes = notes
         return self._order
 
 

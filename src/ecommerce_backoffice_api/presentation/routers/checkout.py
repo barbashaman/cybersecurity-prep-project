@@ -46,6 +46,7 @@ def _serialize_checkout(view: CheckoutResultView) -> CheckoutResponse:
                 )
                 for line in order.lines
             ],
+            notes=order.notes,
         ),
         subtotal_cents=view.subtotal_cents,
         discount_cents=view.discount_cents,
