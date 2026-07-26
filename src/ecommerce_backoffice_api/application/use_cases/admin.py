@@ -34,9 +34,6 @@ class ListUsers:
             )
             raise AuthorizationError("Not permitted to list users.")
         users = self._user_repository.list_all()
-        # Deliberately include subject PII in the success log (A09 vehicle).
-        subject_emails = ",".join(user.email for user in users)
-        subject_names = ",".join(user.full_name for user in users)
         self._admin_audit_trail.record_success(
             actor=actor,
             action="user.list",
@@ -44,8 +41,6 @@ class ListUsers:
             resource_id=None,
             detail=f"Listed {len(users)} users.",
             access_token=access_token,
-            subject_email=subject_emails,
-            subject_full_name=subject_names,
         )
         return users
 

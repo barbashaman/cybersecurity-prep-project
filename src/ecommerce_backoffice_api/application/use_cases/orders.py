@@ -120,7 +120,6 @@ class GetOrder:
             )
             raise AuthorizationError("Not permitted to read this order.")
         if actor.role is UserRole.ADMIN:
-            # VULNERABLE (A09): success path logs order PII via the audit trail.
             self._admin_audit_trail.record_success(
                 actor=actor,
                 action="order.read",
@@ -128,9 +127,6 @@ class GetOrder:
                 resource_id=str(order_id),
                 detail=f"Read order {order_id}.",
                 access_token=access_token,
-                subject_email=order.customer_email,
-                subject_full_name=order.customer_full_name,
-                shipping_address=order.shipping_address,
             )
         if authorization.must_anonymize_order_for(actor):
             return to_anonymized_order_view(order)

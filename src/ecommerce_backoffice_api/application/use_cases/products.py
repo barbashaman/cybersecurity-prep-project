@@ -136,8 +136,6 @@ class UpdateProduct:
                 resource_id=str(product_id),
                 detail=f"Updated product {product_id}.",
                 access_token=access_token,
-                subject_email=actor.email,
-                subject_full_name=actor.full_name,
             )
         return saved
 

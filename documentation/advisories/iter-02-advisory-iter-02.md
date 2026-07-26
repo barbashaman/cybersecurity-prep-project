@@ -32,4 +32,8 @@ tests/security/test_a09_logging_alerting.py::test_sensitive_order_logging_must_n
 
 ## Remediation
 
-_Pending — populated in the Green phase of this iteration._
+- Authorization denials are persisted as `AuditOutcome.AUTHORIZATION_DENIED` events.
+- Audit logs emit structured JSON with actor/resource identifiers only — never
+  bearer tokens, emails, names, or shipping addresses.
+- A `RedactingFilter` strips residual token/email patterns from the audit logger.
+- Crossing five in-process authorization denials emits a threshold alert warning.
