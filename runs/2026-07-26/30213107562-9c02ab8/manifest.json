@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/pip-audit-2.10.1",
+  "commit": "9c02ab80c54672ebc8d58a9d06d968868ace9431",
+  "workflow": "ci-quality-gate",
+  "run_id": "30213107562",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-26T17:42:44Z",
+  "totals": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0.152
+  },
+  "suites": [
+    {
+      "name": "pytest: pytest",
+      "framework": "pytest",
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.152,
+      "success_rate": 100.0
+    }
+  ],
+  "statuses": {
+    "tests": "passed"
+  }
+}
