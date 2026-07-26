@@ -5,10 +5,18 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ecommerce_backoffice_api.domain.entities import Order, OrderLine, Product, Store, User
-from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
+from ecommerce_backoffice_api.domain.entities import (
+    AuditEvent,
+    Order,
+    OrderLine,
+    Product,
+    Store,
+    User,
+)
+from ecommerce_backoffice_api.domain.enums import AuditOutcome, OrderStatus, UserRole
 from ecommerce_backoffice_api.domain.exceptions import NotFoundError
 from ecommerce_backoffice_api.infrastructure.persistence.models import (
+    AuditEventModel,
     OrderLineModel,
     OrderModel,
     ProductModel,
@@ -66,6 +74,19 @@ def _order_from_model(model: OrderModel) -> Order:
     )
 
 
+def _audit_event_from_model(model: AuditEventModel) -> AuditEvent:
+    return AuditEvent(
+        id=model.id,
+        actor_user_id=model.actor_user_id,
+        action=model.action,
+        resource_type=model.resource_type,
+        resource_id=model.resource_id,
+        outcome=AuditOutcome(model.outcome),
+        detail=model.detail,
+        created_at=model.created_at,
+    )
+
+
 class SqlAlchemyUserRepository:
     """User repository backed by SQLAlchemy."""
 
@@ -80,6 +101,10 @@ class SqlAlchemyUserRepository:
         statement = select(UserModel).where(UserModel.email == email.strip().lower())
         model = self._session.scalars(statement).first()
         return _user_from_model(model) if model is not None else None
+
+    def list_all(self) -> list[User]:
+        models = self._session.scalars(select(UserModel).order_by(UserModel.id)).all()
+        return [_user_from_model(model) for model in models]
 
     def add(self, user: User) -> User:
         model = UserModel(
@@ -227,3 +252,32 @@ class SqlAlchemyOrderRepository:
         model.status = status.value
         self._session.flush()
         return _order_from_model(model)
+
+
+class SqlAlchemyAuditEventRepository:
+    """Audit-event repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add(self, event: AuditEvent) -> AuditEvent:
+        model = AuditEventModel(
+            actor_user_id=event.actor_user_id,
+            action=event.action,
+            resource_type=event.resource_type,
+            resource_id=event.resource_id,
+            outcome=event.outcome.value,
+            detail=event.detail,
+            created_at=event.created_at,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _audit_event_from_model(model)
+
+    def list_recent(self, *, limit: int = 100) -> list[AuditEvent]:
+        statement = (
+            select(AuditEventModel)
+            .order_by(AuditEventModel.id.desc())
+            .limit(max(1, min(limit, 500)))
+        )
+        return [_audit_event_from_model(model) for model in self._session.scalars(statement).all()]

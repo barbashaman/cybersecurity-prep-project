@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.datastructures import UploadFile
 
 from ecommerce_backoffice_api.application.use_cases.products import (
@@ -33,6 +34,13 @@ from ecommerce_backoffice_api.presentation.schemas.products import (
 )
 
 router = APIRouter(tags=["products"])
+_bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def _access_token(credentials: HTTPAuthorizationCredentials | None) -> str | None:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        return None
+    return credentials.credentials
 
 
 def _product_response(product: Product) -> ProductResponse:
@@ -105,6 +113,7 @@ def patch_product(
     payload: ProductUpdateRequest,
     actor: Annotated[User, Depends(get_current_user)],
     use_case: Annotated[UpdateProduct, Depends(get_update_product)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_scheme)],
 ) -> ProductResponse:
     try:
         product = use_case.execute(
@@ -114,6 +123,7 @@ def patch_product(
             description=payload.description,
             price_cents=payload.price_cents,
             is_active=payload.is_active,
+            access_token=_access_token(credentials),
         )
     except DomainError as error:
         raise http_error_from_domain(error) from error

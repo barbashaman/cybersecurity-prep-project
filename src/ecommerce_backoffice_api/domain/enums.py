@@ -33,3 +33,13 @@ class OrderStatus(str, Enum):
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return self.value
+
+
+class AuditOutcome(str, Enum):
+    """Outcome recorded on an admin audit-trail event."""
+
+    SUCCESS = "success"
+    AUTHORIZATION_DENIED = "authorization_denied"
+
+    def __str__(self) -> str:  # pragma: no cover - trivial
+        return self.value

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from ecommerce_backoffice_api.domain.entities import Order, Product, Store, User
+from ecommerce_backoffice_api.domain.entities import AuditEvent, Order, Product, Store, User
 from ecommerce_backoffice_api.domain.enums import OrderStatus
 
 
@@ -19,8 +19,24 @@ class UserRepository(Protocol):
         """Return the user with ``email``, or None."""
         ...
 
+    def list_all(self) -> list[User]:
+        """Return every persisted user (admin directory use cases)."""
+        ...
+
     def add(self, user: User) -> User:
         """Persist a new user and return it with an assigned id."""
+        ...
+
+
+class AuditEventRepository(Protocol):
+    """Read/write access to admin audit-trail events."""
+
+    def add(self, event: AuditEvent) -> AuditEvent:
+        """Persist a new audit event and return it with an assigned id."""
+        ...
+
+    def list_recent(self, *, limit: int = 100) -> list[AuditEvent]:
+        """Return the most recent audit events, newest first."""
         ...
 
 

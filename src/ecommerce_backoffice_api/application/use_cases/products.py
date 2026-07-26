@@ -9,8 +9,10 @@ from ecommerce_backoffice_api.application.ports.repositories import (
     ProductRepository,
     StoreRepository,
 )
+from ecommerce_backoffice_api.application.use_cases.audit import AdminAuditTrail
 from ecommerce_backoffice_api.domain import authorization
 from ecommerce_backoffice_api.domain.entities import Product, User
+from ecommerce_backoffice_api.domain.enums import UserRole
 from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, NotFoundError
 
 
@@ -86,8 +88,13 @@ class GetProduct:
 class UpdateProduct:
     """Patch product fields when the actor may write the catalog."""
 
-    def __init__(self, product_repository: ProductRepository) -> None:
+    def __init__(
+        self,
+        product_repository: ProductRepository,
+        admin_audit_trail: AdminAuditTrail,
+    ) -> None:
         self._product_repository = product_repository
+        self._admin_audit_trail = admin_audit_trail
 
     def execute(
         self,
@@ -98,11 +105,19 @@ class UpdateProduct:
         description: str | None = None,
         price_cents: int | None = None,
         is_active: bool | None = None,
+        access_token: str | None = None,
     ) -> Product:
         product = self._product_repository.get_by_id(product_id)
         if product is None:
             raise NotFoundError(f"Product {product_id} was not found.")
         if not authorization.can_write_store_catalog(actor, product.store_id):
+            self._admin_audit_trail.record_authorization_failure(
+                actor=actor,
+                action="product.update",
+                resource_type="product",
+                resource_id=str(product_id),
+                detail="Not permitted to write this product.",
+            )
             raise AuthorizationError("Not permitted to write this product.")
         if name is not None:
             product.name = name.strip()
@@ -112,7 +127,17 @@ class UpdateProduct:
             product.price_cents = price_cents
         if is_active is not None:
             product.is_active = is_active
-        return self._product_repository.save(product)
+        saved = self._product_repository.save(product)
+        if actor.role is UserRole.ADMIN:
+            self._admin_audit_trail.record_success(
+                actor=actor,
+                action="product.update",
+                resource_type="product",
+                resource_id=str(product_id),
+                detail=f"Updated product {product_id}.",
+                access_token=access_token,
+            )
+        return saved
 
 
 class ImportProductsFromCsv:

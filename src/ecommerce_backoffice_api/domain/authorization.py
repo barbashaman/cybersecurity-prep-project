@@ -81,3 +81,13 @@ def can_update_order_status(actor: User, order: Order) -> bool:
 def must_anonymize_order_for(actor: User) -> bool:
     """Delivery managers receive Interface-Segregated, PII-free order views."""
     return actor.role is UserRole.DELIVERY_MANAGER
+
+
+def can_list_users(actor: User) -> bool:
+    """Only admins may enumerate backoffice principals."""
+    return actor.role is UserRole.ADMIN
+
+
+def can_list_audit_events(actor: User) -> bool:
+    """Only admins may read the admin audit trail."""
+    return actor.role is UserRole.ADMIN
