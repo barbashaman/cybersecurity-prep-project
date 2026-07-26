@@ -71,6 +71,11 @@ class Order:
     customer_email: str
     customer_full_name: str
     shipping_address: str
+    # VULNERABLE (A04): shipping / contact PII (phone, address, name, email) is
+    # persisted as plaintext without encryption at rest.
+    # PLAN FIX (A04): encrypt sensitive fields at rest (AES-GCM / Fernet) with
+    # KMS-managed keys; delivery-manager ports must keep omitting this PII.
+    customer_phone: str = ""
     lines: list[OrderLine] = field(default_factory=list)
     # VULNERABLE (A05): free-text notes are later rendered with Jinja2 ``|safe``.
     # PLAN FIX (A05): Pydantic validation + HTML output encoding (no ``|safe``) + CSP.

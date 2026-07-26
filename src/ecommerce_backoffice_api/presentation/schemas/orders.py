@@ -26,6 +26,7 @@ class OrderResponse(BaseModel):
     customer_email: str
     customer_full_name: str
     shipping_address: str
+    customer_phone: str = ""
     lines: list[OrderLineResponse]
     notes: str = ""
 

@@ -32,7 +32,9 @@ from ecommerce_backoffice_api.infrastructure.persistence.models import (
     StoreModel,
     UserModel,
 )
-from ecommerce_backoffice_api.infrastructure.security.password_hasher import BcryptPasswordHasher
+from ecommerce_backoffice_api.infrastructure.security.password_hasher import (
+    build_password_hasher,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +70,8 @@ def seed_database(session: Session) -> bool:
         logger.info("Seed skipped: admin user already present.")
         return False
 
-    hasher = BcryptPasswordHasher()
+    # VULNERABLE (A04): seed uses the process hasher (MD5 in red phase).
+    hasher = build_password_hasher()
     password_hash = hasher.hash_password(DEMO_ONLY_SEED_PASSWORD)
 
     admin = UserModel(
@@ -174,17 +177,59 @@ def seed_database(session: Session) -> bool:
         OrderStatus.DELIVERED,
         OrderStatus.CANCELLED,
     )
-    order_specs: list[tuple[StoreModel, UserModel, OrderStatus, str]] = [
-        (store_one, customer_one, staged_statuses[0], "12 Pine Street, Seattle, WA"),
-        (store_one, customer_one, staged_statuses[2], "12 Pine Street, Seattle, WA"),
-        (store_one, customer_one, staged_statuses[3], "45 Harbor Ave, Seattle, WA"),
-        (store_two, customer_two, staged_statuses[1], "88 Market Road, Austin, TX"),
-        (store_two, customer_two, staged_statuses[3], "88 Market Road, Austin, TX"),
-        (store_two, customer_two, staged_statuses[4], "3 River Lane, Austin, TX"),
-        (store_two, customer_two, staged_statuses[5], "3 River Lane, Austin, TX"),
+    order_specs: list[tuple[StoreModel, UserModel, OrderStatus, str, str]] = [
+        (
+            store_one,
+            customer_one,
+            staged_statuses[0],
+            "12 Pine Street, Seattle, WA",
+            "+1-206-555-0101",
+        ),
+        (
+            store_one,
+            customer_one,
+            staged_statuses[2],
+            "12 Pine Street, Seattle, WA",
+            "+1-206-555-0101",
+        ),
+        (
+            store_one,
+            customer_one,
+            staged_statuses[3],
+            "45 Harbor Ave, Seattle, WA",
+            "+1-206-555-0145",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[1],
+            "88 Market Road, Austin, TX",
+            "+1-512-555-0188",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[3],
+            "88 Market Road, Austin, TX",
+            "+1-512-555-0188",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[4],
+            "3 River Lane, Austin, TX",
+            "+1-512-555-0103",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[5],
+            "3 River Lane, Austin, TX",
+            "+1-512-555-0103",
+        ),
     ]
 
-    for store, customer, status, address in order_specs:
+    for store, customer, status, address, phone in order_specs:
         catalog = products_by_store[store.id]
         first = catalog[0]
         second = catalog[1]
@@ -195,6 +240,8 @@ def seed_database(session: Session) -> bool:
             customer_email=customer.email,
             customer_full_name=customer.full_name,
             shipping_address=address,
+            # VULNERABLE (A04): plaintext phone at rest (demo seed).
+            customer_phone=phone,
             lines=[
                 OrderLineModel(
                     product_id=first.id,

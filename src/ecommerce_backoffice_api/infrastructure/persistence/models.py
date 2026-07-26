@@ -95,6 +95,11 @@ class OrderModel(Base):
     customer_email: Mapped[str] = mapped_column(String(320), nullable=False)
     customer_full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     shipping_address: Mapped[str] = mapped_column(Text, nullable=False)
+    # VULNERABLE (A04): sensitive contact PII stored as plaintext String (no
+    # encryption-at-rest). Shipping address / name / email are likewise cleartext.
+    # PLAN FIX (A04): store ciphertext (+ nonce) via AES-GCM/Fernet; manage keys
+    # through secret management / KMS.
+    customer_phone: Mapped[str] = mapped_column(String(64), nullable=False, default="")
     # VULNERABLE (A05): unsanitized notes are rendered with Jinja2 ``|safe``.
     # PLAN FIX (A05): keep as Text but encode on output; validate length/content in API.
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")

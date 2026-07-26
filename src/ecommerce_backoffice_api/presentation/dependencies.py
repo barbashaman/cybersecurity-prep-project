@@ -62,7 +62,9 @@ from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyThemeRepository,
     SqlAlchemyUserRepository,
 )
-from ecommerce_backoffice_api.infrastructure.security.password_hasher import BcryptPasswordHasher
+from ecommerce_backoffice_api.infrastructure.security.password_hasher import (
+    build_password_hasher,
+)
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -136,7 +138,7 @@ def get_authenticate_user(
     """Build the login use case for the current request."""
     return AuthenticateUser(
         user_repository=SqlAlchemyUserRepository(session),
-        password_hasher=BcryptPasswordHasher(),
+        password_hasher=build_password_hasher(),
         token_service=token_service,
     )
 
@@ -157,7 +159,7 @@ def get_confirm_password_reset(
     return ConfirmPasswordReset(
         user_repository=SqlAlchemyUserRepository(session),
         reset_token_repository=SqlAlchemyPasswordResetTokenRepository(session),
-        password_hasher=BcryptPasswordHasher(),
+        password_hasher=build_password_hasher(),
         token_service=token_service,
     )
 

@@ -37,6 +37,7 @@ def _serialize_checkout(view: CheckoutResultView) -> CheckoutResponse:
             customer_email=order.customer_email,
             customer_full_name=order.customer_full_name,
             shipping_address=order.shipping_address,
+            customer_phone=order.customer_phone,
             lines=[
                 OrderLineResponse(
                     id=line.id,
@@ -78,6 +79,7 @@ def checkout_order(
             store_id=store_id,
             lines=[(line.product_id, line.quantity) for line in payload.lines],
             shipping_address=payload.shipping_address,
+            customer_phone=payload.customer_phone,
             coupon_code=payload.coupon_code,
             idempotency_key=payload.idempotency_key,
         )

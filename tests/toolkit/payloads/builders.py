@@ -28,3 +28,8 @@ def sql_injection_like_bypass_query() -> str:
 def stored_xss_order_notes() -> str:
     """Return a stored-XSS payload for order notes rendered with Jinja ``|safe``."""
     return "<script>alert('xss')</script>"
+
+
+def plaintext_customer_phone_sample() -> str:
+    """Return a distinctive phone value used to detect plaintext PII at rest."""
+    return "+1-206-555-0199"

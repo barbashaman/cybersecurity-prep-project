@@ -39,7 +39,14 @@ def create_app() -> FastAPI:
     api_client = ApiClient(api_base_url)
 
     app = FastAPI(title="E-Commerce Backoffice Web", version=version)
-    app.add_middleware(SessionMiddleware, secret_key=session_secret)
+    # VULNERABLE (A04): session cookie without Secure (https_only=False).
+    # PLAN FIX (A04): https_only=True, keep HttpOnly, manage WEB_SESSION_SECRET
+    # via secret management, and emit Strict-Transport-Security (HSTS).
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=session_secret,
+        https_only=False,
+    )
     app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 
     @app.middleware("http")
@@ -52,6 +59,7 @@ def create_app() -> FastAPI:
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'"
         )
+        # PLAN FIX (A04): also set Strict-Transport-Security when serving over TLS.
         return response
 
     def _context(request: Request, **extra: Any) -> dict[str, Any]:

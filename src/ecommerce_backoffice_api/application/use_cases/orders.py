@@ -44,6 +44,7 @@ def to_order_detail_view(order: Order) -> OrderDetailView:
         customer_email=order.customer_email,
         customer_full_name=order.customer_full_name,
         shipping_address=order.shipping_address,
+        customer_phone=order.customer_phone,
         lines=_to_line_views(order),
         notes=order.notes,
     )
