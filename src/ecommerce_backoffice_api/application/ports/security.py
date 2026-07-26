@@ -33,10 +33,26 @@ class TokenClaims:
 class TokenService(Protocol):
     """Issues and validates bearer access tokens."""
 
-    def issue_access_token(self, *, user_id: int, email: str, role: UserRole) -> str:
-        """Return a signed access token for the given principal."""
+    def issue_access_token(
+        self,
+        *,
+        user_id: int,
+        email: str,
+        role: UserRole,
+        expire_minutes: int | None = None,
+    ) -> str:
+        """Return a signed access token for the given principal.
+
+        When ``expire_minutes`` is ``None``, the service default TTL is used.
+        A non-positive ``expire_minutes`` omits the ``exp`` claim (intentionally
+        insecure; used by the red-phase password-reset flow).
+        """
         ...
 
     def parse_access_token(self, token: str) -> TokenClaims:
         """Decode and validate ``token``; raise on failure."""
+        ...
+
+    def revoke_access_token(self, token: str) -> None:
+        """Mark ``token`` as revoked so subsequent parses fail."""
         ...

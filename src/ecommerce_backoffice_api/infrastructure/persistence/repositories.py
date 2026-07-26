@@ -10,6 +10,7 @@ from ecommerce_backoffice_api.domain.entities import (
     Order,
     OrderLine,
     OrderReceipt,
+    PasswordResetToken,
     Product,
     Store,
     StoreTheme,
@@ -22,6 +23,7 @@ from ecommerce_backoffice_api.infrastructure.persistence.models import (
     OrderLineModel,
     OrderModel,
     OrderReceiptModel,
+    PasswordResetTokenModel,
     ProductModel,
     StoreModel,
     StoreThemeModel,
@@ -108,6 +110,14 @@ def _order_receipt_from_model(model: OrderReceiptModel) -> OrderReceipt:
     )
 
 
+def _password_reset_token_from_model(model: PasswordResetTokenModel) -> PasswordResetToken:
+    return PasswordResetToken(
+        id=model.id,
+        user_id=model.user_id,
+        token=model.token,
+    )
+
+
 class SqlAlchemyUserRepository:
     """User repository backed by SQLAlchemy."""
 
@@ -138,6 +148,53 @@ class SqlAlchemyUserRepository:
         self._session.add(model)
         self._session.flush()
         return _user_from_model(model)
+
+    def update_password(self, user_id: int, password_hash: str) -> User:
+        model = self._session.get(UserModel, user_id)
+        if model is None:
+            raise NotFoundError(f"User {user_id} was not found.")
+        model.password_hash = password_hash
+        self._session.flush()
+        return _user_from_model(model)
+
+
+class SqlAlchemyPasswordResetTokenRepository:
+    """Password-reset token repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def save(self, reset_token: PasswordResetToken) -> PasswordResetToken:
+        existing = self._session.scalars(
+            select(PasswordResetTokenModel).where(
+                PasswordResetTokenModel.token == reset_token.token
+            )
+        ).first()
+        if existing is not None:
+            existing.user_id = reset_token.user_id
+            self._session.flush()
+            return _password_reset_token_from_model(existing)
+        model = PasswordResetTokenModel(
+            user_id=reset_token.user_id,
+            token=reset_token.token,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _password_reset_token_from_model(model)
+
+    def get_by_token(self, token: str) -> PasswordResetToken | None:
+        model = self._session.scalars(
+            select(PasswordResetTokenModel).where(PasswordResetTokenModel.token == token)
+        ).first()
+        return _password_reset_token_from_model(model) if model is not None else None
+
+    def delete_for_user(self, user_id: int) -> None:
+        models = self._session.scalars(
+            select(PasswordResetTokenModel).where(PasswordResetTokenModel.user_id == user_id)
+        ).all()
+        for model in models:
+            self._session.delete(model)
+        self._session.flush()
 
 
 class SqlAlchemyStoreRepository:

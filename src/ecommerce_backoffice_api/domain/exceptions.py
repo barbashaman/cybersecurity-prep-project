@@ -21,3 +21,7 @@ class NotFoundError(DomainError):
 
 class ConflictError(DomainError):
     """Raised when a write would violate a uniqueness or state constraint."""
+
+
+class RateLimitError(DomainError):
+    """Raised when authentication or reset attempts exceed a safe threshold."""

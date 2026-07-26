@@ -105,3 +105,12 @@ class OrderReceipt:
     order_id: int
     payload_blob: bytes
     id: int | None = None
+
+
+@dataclass(slots=True)
+class PasswordResetToken:
+    """A password-reset credential issued for a user (iter-04 A07)."""
+
+    user_id: int
+    token: str
+    id: int | None = None

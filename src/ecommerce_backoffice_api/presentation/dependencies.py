@@ -15,11 +15,16 @@ from ecommerce_backoffice_api.application.use_cases.audit import AdminAuditTrail
 from ecommerce_backoffice_api.application.use_cases.authentication import (
     AuthenticateUser,
     GetCurrentUserProfile,
+    LogoutUser,
 )
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
     UpdateOrderStatus,
+)
+from ecommerce_backoffice_api.application.use_cases.password_reset import (
+    ConfirmPasswordReset,
+    RequestPasswordReset,
 )
 from ecommerce_backoffice_api.application.use_cases.products import (
     CreateProduct,
@@ -40,6 +45,7 @@ from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyAuditEventRepository,
     SqlAlchemyOrderRepository,
+    SqlAlchemyPasswordResetTokenRepository,
     SqlAlchemyProductRepository,
     SqlAlchemyReceiptRepository,
     SqlAlchemyStoreRepository,
@@ -123,6 +129,33 @@ def get_authenticate_user(
         password_hasher=BcryptPasswordHasher(),
         token_service=token_service,
     )
+
+
+def get_request_password_reset(
+    session: Annotated[Session, Depends(get_session)],
+) -> RequestPasswordReset:
+    return RequestPasswordReset(
+        user_repository=SqlAlchemyUserRepository(session),
+        reset_token_repository=SqlAlchemyPasswordResetTokenRepository(session),
+    )
+
+
+def get_confirm_password_reset(
+    session: Annotated[Session, Depends(get_session)],
+    token_service: Annotated[TokenService, Depends(get_token_service)],
+) -> ConfirmPasswordReset:
+    return ConfirmPasswordReset(
+        user_repository=SqlAlchemyUserRepository(session),
+        reset_token_repository=SqlAlchemyPasswordResetTokenRepository(session),
+        password_hasher=BcryptPasswordHasher(),
+        token_service=token_service,
+    )
+
+
+def get_logout_user(
+    token_service: Annotated[TokenService, Depends(get_token_service)],
+) -> LogoutUser:
+    return LogoutUser(token_service=token_service)
 
 
 def get_list_stores(session: Annotated[Session, Depends(get_session)]) -> ListStores:

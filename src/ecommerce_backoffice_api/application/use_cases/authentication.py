@@ -1,4 +1,13 @@
-"""Authentication use cases."""
+"""Authentication and session use cases.
+
+VULNERABLE (red phase, iter-04 A07):
+- login has no rate limiting / lockout after repeated failures
+- logout is a no-op; bearer tokens remain valid until natural expiry
+
+Remediation plan (not implemented here):
+- enforce lockout / rate limits on login bursts
+- revoke access tokens on logout (revocation list / rotating jti)
+"""
 
 from __future__ import annotations
 
@@ -35,6 +44,7 @@ class AuthenticateUser:
         self._token_service = token_service
 
     def execute(self, *, email: str, password: str) -> LoginResult:
+        # VULNERABLE (A07): no rate limiting / account lockout on failed logins.
         user = self._user_repository.get_by_email(email.strip().lower())
         if user is None or user.id is None:
             raise AuthenticationError("Invalid email or password.")
@@ -64,3 +74,19 @@ class GetCurrentUserProfile:
         if user is None:
             raise AuthenticationError("Authenticated user no longer exists.")
         return user
+
+
+class LogoutUser:
+    """End an authenticated session.
+
+    VULNERABLE (A07): intentionally does not revoke the presented bearer token.
+    """
+
+    def __init__(self, token_service: TokenService) -> None:
+        self._token_service = token_service
+
+    def execute(self, *, access_token: str) -> None:
+        # VULNERABLE (A07): logout is a no-op; token remains valid.
+        _ = (self._token_service, access_token)
+        return
+
