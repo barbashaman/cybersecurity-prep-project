@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Pipeline Reports Archive</title>
+<style>
+ body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:2rem;color:#e2e8f0;background:#0f172a}
+ h1{margin-bottom:.2rem}
+ .card{background:#111827;border:1px solid #1f2937;border-radius:.5rem;padding:1rem 1.2rem;margin:1rem 0}
+ table{border-collapse:collapse;width:100%}
+ th,td{border:1px solid #1f2937;padding:.45rem .6rem;text-align:left;font-size:.9rem}
+ th{background:#0b1220}
+ td.num{text-align:right;font-variant-numeric:tabular-nums}
+ a{color:#38bdf8} code{color:#93c5fd}
+ .empty{text-align:center;color:#64748b;font-style:italic}
+ .sub{color:#94a3b8}
+</style></head><body>
+<h1>Pipeline Reports Archive</h1>
+<p class="sub">Immutable per-run evidence for the OWASP Top 10:2025 countdown.
+ Each iteration is a visible dip (Red) and recovery (Green).</p>
+<div class="card"><h2>Success-rate trend</h2><svg viewBox='0 0 720 220' width='100%' role='img' aria-label='Success-rate trend'><line x1='30' y1='30' x2='30' y2='190' stroke='#888'></line><line x1='30' y1='190' x2='690' y2='190' stroke='#888'></line><text x='4' y='34' font-size='10' fill='#888'>100%</text><text x='8' y='190' font-size='10' fill='#888'>0%</text><polyline fill='none' stroke='#38bdf8' stroke-width='2' points='30.0,30.0'></polyline><circle cx='30.0' cy='30.0' r='3.5' fill='#2e7d32'></circle></svg></div>
+<div class="card"><h2>Run history (1)</h2>
+ <table><thead><tr>
+  <th>Generated (UTC)</th><th>Branch</th><th>Commit</th><th>Workflow</th>
+  <th>Iteration</th><th>Success</th><th>Pass/Total</th><th>Report</th>
+ </tr></thead><tbody><tr><td>2026-07-26T15:04:35Z</td><td>dependabot/github_actions/actions/download-artifact-8</td><td><code>e061bdb7b65f</code></td><td>ci-quality-gate</td><td>phase-1-bootstrap</td><td style='color:#2e7d32;font-weight:600'>100.0%</td><td class='num'>4/4</td><td><a href='runs/2026-07-26/30207393733-e061bdb/tests/unified-dashboard.html'>report</a></td></tr></tbody></table></div>
+</body></html>
