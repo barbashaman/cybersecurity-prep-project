@@ -1,0 +1,60 @@
+name: reports-retention
+
+# Enforces the archive retention policy on a schedule: main and iter-* tag runs
+# (marked .keep-permanent) are kept forever; ordinary feature-branch runs are
+# pruned beyond the most recent 20.
+on:
+  schedule:
+    - cron: "17 4 * * 0" # weekly, Sunday 04:17 UTC
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: Number of recent feature-branch runs to retain.
+        required: false
+        default: "20"
+
+concurrency:
+  group: reports-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reports
+          fetch-depth: 0
+        continue-on-error: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch the prune script from the default branch
+        run: |
+          git fetch origin "${GITHUB_REF_NAME}" || true
+          git checkout origin/main -- .github/actions/publish-reports/prune.py || \
+            git show origin/main:.github/actions/publish-reports/prune.py > prune.py || true
+
+      - name: Prune
+        run: |
+          SCRIPT=".github/actions/publish-reports/prune.py"
+          [ -f "$SCRIPT" ] || SCRIPT="prune.py"
+          python "$SCRIPT" --archive-root . --keep "${{ github.event.inputs.keep || '20' }}"
+          python .github/actions/publish-reports/generate_index.py --archive-root . 2>/dev/null || true
+
+      - name: Commit pruned archive
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to prune."
+          else
+            git commit -m "reports: retention prune"
+            git push origin "HEAD:reports"
+          fi

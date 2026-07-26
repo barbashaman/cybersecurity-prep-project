@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# docker-compose.override.yml - local development conveniences.
+# Applied automatically by `docker compose` on top of docker-compose.yml.
+#   * source bind-mounts + uvicorn --reload for hot reload
+#   * a persistent Postgres volume so local data survives restarts
+# ---------------------------------------------------------------------------
+services:
+  database:
+    # Persist locally instead of the ephemeral tmpfs used in CI.
+    tmpfs: []
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  api:
+    volumes:
+      - ./src:/app/src
+    environment:
+      API_LOG_LEVEL: debug
+    command: >
+      sh -c "uvicorn ecommerce_backoffice_api.presentation.main:app
+             --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src"
+
+  web:
+    volumes:
+      - ./src:/app/src
+    command: >
+      sh -c "uvicorn ecommerce_backoffice_web.main:app
+             --host 0.0.0.0 --port 8080 --reload --reload-dir /app/src"
+
+volumes:
+  postgres_data:

@@ -1,0 +1,131 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ecommerce-backoffice"
+version = "0.1.0"
+description = "Dockerized FastAPI + Jinja2 + PostgreSQL e-commerce backoffice SaaS with a DI-driven security test toolkit and DevSecOps pipelines (OWASP Top 10:2025 countdown portfolio)."
+readme = "README.md"
+requires-python = "==3.12.*"
+license = { text = "Proprietary" }
+authors = [{ name = "Matheus Barbachan" }]
+
+# Runtime dependencies are intentionally minimal in Phase 1 (no application
+# code yet). Concrete versions land with Phase 1b; the security groups below
+# are what the pipelines need today.
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "jinja2==3.1.5",
+    "sqlalchemy==2.0.36",
+    "alembic==1.14.0",
+    "psycopg[binary]==3.2.3",
+    "pydantic==2.10.4",
+    "pydantic-settings==2.7.0",
+    "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.8.6",
+    "mypy==1.14.1",
+    "pre-commit==4.0.1",
+]
+test = [
+    "pytest==8.3.4",
+    "pytest-bdd==8.1.0",
+    "pytest-cov==6.0.0",
+    "pytest-html==4.1.1",
+    "playwright==1.49.1",
+    "robotframework==7.1.1",
+    "junitparser==3.2.0",
+]
+security = [
+    "bandit[toml]==1.8.0",
+    "semgrep==1.99.0",
+    "pip-audit==2.9.0",
+    "cyclonedx-bom==5.1.1",
+]
+
+[project.urls]
+Repository = "https://github.com/barbashaman/cybersecurity-prep-project"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ecommerce_backoffice_api", "src/ecommerce_backoffice_web"]
+artifacts = ["src/ecommerce_backoffice_web/templates/**/*.html"]
+
+# ---------------------------------------------------------------------------
+# Ruff - lint + format
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = ["reports", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",   # pycodestyle / pyflakes
+    "I",             # isort
+    "N",             # pep8-naming (no abbreviations / magic strings discipline)
+    "UP",            # pyupgrade
+    "B",             # flake8-bugbear
+    "S",             # flake8-bandit (defense in depth alongside bandit)
+    "C4", "SIM", "RUF",
+]
+# Test suites may use assert and hard-coded fixtures.
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ecommerce_backoffice_api", "ecommerce_backoffice_web"]
+
+# ---------------------------------------------------------------------------
+# mypy - strict
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+no_implicit_reexport = true
+show_error_codes = true
+mypy_path = "src"
+explicit_package_bases = true
+exclude = ["reports/", "build/"]
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+# behaviour/ holds Gherkin only; e2e/ is Robot Framework, not pytest.
+norecursedirs = ["tests/behaviour", "tests/e2e", "reports"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "api: API / integration tests (pytest-bdd + Playwright APIRequestContext)",
+    "security: security-focused suites (ZAP-proxied, role matrix)",
+    "smoke: fast subset run by the local pre-commit / quality gate",
+]
+
+# ---------------------------------------------------------------------------
+# Bandit - SAST
+# ---------------------------------------------------------------------------
+[tool.bandit]
+# Scan application source only; tests deliberately contain insecure fixtures.
+exclude_dirs = ["tests", ".venv", "reports", "build"]
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true

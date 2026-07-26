@@ -1,0 +1,41 @@
+Document Name: {{ advisory.document_name }}
+Covered Elements: {{ advisory.covered_elements }}
+Creation Date: {{ creation_date }}
+
+# Security Advisory — {{ advisory.owasp_risk }}
+
+- **Iteration:** {{ advisory.iteration }}
+- **OWASP Top 10:2025 (Web):** {{ advisory.owasp_risk }}
+- **OWASP API Security Top 10 cross-reference:** {{ advisory.owasp_api_cross_reference }}
+
+## Summary
+
+{{ advisory.summary }}
+
+## Detection
+
+This flaw was proven by the failing detection test:
+
+```
+{{ advisory.failing_test }}
+```
+
+## Evidence
+
+{% if advisory.evidence %}
+| Tool | Identifier | Description |
+| --- | --- | --- |
+{% for item in advisory.evidence %}
+| {{ item.tool }} | {{ item.identifier }} | {{ item.description }} |
+{% endfor %}
+{% else %}
+_No scanner evidence attached._
+{% endif %}
+
+## Remediation
+
+{% if advisory.remediation_summary %}
+{{ advisory.remediation_summary }}
+{% else %}
+_Pending — populated in the Green phase of this iteration._
+{% endif %}

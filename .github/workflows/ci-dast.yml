@@ -1,0 +1,145 @@
+name: ci-dast
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["iter-*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: dast-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  dast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Prepare payload dir
+        run: |
+          mkdir -p report-payload/security/zap report-payload/api-contract/swagger-ui
+          chmod -R 777 report-payload/security/zap
+
+      - name: Build and start the stack (IaC)
+        run: |
+          docker compose build api web
+          docker compose up -d database api web
+
+      - name: Wait for API healthcheck (version gate)
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS http://localhost:8000/health | grep -q '"status":"ok"'; then
+              echo "API healthy."; exit 0
+            fi
+            sleep 3
+          done
+          echo "API did not become healthy in time."; docker compose logs api; exit 1
+
+      - name: Swagger banner
+        run: |
+          echo "======================================================"
+          echo " Swagger UI: http://localhost:8000/docs"
+          echo " OpenAPI   : http://localhost:8000/openapi.json"
+          echo "======================================================"
+
+      - name: Export OpenAPI contract
+        run: |
+          curl -fsS http://localhost:8000/openapi.json \
+            -o report-payload/api-contract/openapi.json
+          # Self-contained Swagger render for this exact build.
+          cat > report-payload/api-contract/swagger-ui/index.html <<'HTML'
+          <!doctype html><html><head><meta charset="utf-8"><title>API contract</title>
+          <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css">
+          </head><body><div id="swagger-ui"></div>
+          <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+          <script>window.onload=()=>SwaggerUIBundle({url:"../openapi.json",dom_id:"#swagger-ui"});</script>
+          </body></html>
+          HTML
+
+      - name: Resolve compose network
+        id: net
+        run: |
+          NET=$(docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' "$(docker compose ps -q api)")
+          echo "network=$NET" >> "$GITHUB_OUTPUT"
+          echo "Compose network: $NET"
+
+      - name: ZAP baseline scan
+        continue-on-error: true
+        run: |
+          docker run --rm --network "${{ steps.net.outputs.network }}" \
+            -v "$PWD/report-payload/security/zap:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://api:8000 \
+            -r baseline.html -J alerts.json -I || true
+
+      - name: ZAP API scan (against exported OpenAPI contract)
+        continue-on-error: true
+        run: |
+          docker run --rm --network "${{ steps.net.outputs.network }}" \
+            -v "$PWD/report-payload/security/zap:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-api-scan.py -t http://api:8000/openapi.json -f openapi \
+            -r api-scan.html -I || true
+
+      - name: Collect stack logs
+        if: always()
+        run: docker compose logs --no-color > report-payload/security/zap/stack.log 2>&1 || true
+
+      - name: Manifest
+        if: always()
+        env:
+          WORKFLOW: ci-dast
+        run: |
+          python -m tests.toolkit.reporting.unified_report \
+            --report-dir report-payload \
+            --out report-payload/tests/unified-dashboard.html \
+            --manifest report-payload/manifest.json
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v || true
+
+      - name: Upload run artifact (Tier 1)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-dast-${{ github.run_number }}-${{ github.sha }}
+          path: report-payload
+          if-no-files-found: warn
+          retention-days: 90
+
+  publish-reports:
+    needs: dast
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: reports-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: reports-dast-${{ github.run_number }}-${{ github.sha }}
+          path: report-payload
+      - uses: ./.github/actions/publish-reports
+        with:
+          payload-dir: report-payload

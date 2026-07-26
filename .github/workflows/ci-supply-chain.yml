@@ -1,0 +1,120 @@
+name: ci-supply-chain
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["iter-*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: supply-chain-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  supply-chain:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install supply-chain tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install "pip-audit==2.9.0" "cyclonedx-bom==5.1.1"
+
+      - name: Prepare payload dir
+        run: mkdir -p report-payload/supply-chain report-payload/security/trivy
+
+      # --- Dependency vulnerability audit (report-only for the Phase 1 baseline) --
+      - name: pip-audit
+        continue-on-error: true
+        run: |
+          pip-audit -r requirements.lock \
+            --format json --output report-payload/supply-chain/pip-audit.json || true
+
+      # --- CycloneDX SBOM -------------------------------------------------
+      - name: Generate CycloneDX SBOM
+        continue-on-error: true
+        run: |
+          cyclonedx-py requirements requirements.lock \
+            --output-format json \
+            --output-file report-payload/supply-chain/sbom.cyclonedx.json
+
+      # --- Trivy image scan (the path iter-08 will exercise) --------------
+      - name: Build API image for scanning
+        run: docker build -f docker/api.Dockerfile -t ecommerce-backoffice-api:sc .
+
+      - name: Trivy image scan (SARIF)
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ecommerce-backoffice-api:sc
+          format: sarif
+          output: report-payload/security/trivy/trivy.sarif
+          exit-code: "0"
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy SARIF to code scanning
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: report-payload/security/trivy/trivy.sarif
+          category: trivy
+
+      - name: Manifest
+        if: always()
+        env:
+          WORKFLOW: ci-supply-chain
+        run: |
+          python -m tests.toolkit.reporting.unified_report \
+            --report-dir report-payload \
+            --out report-payload/tests/unified-dashboard.html \
+            --manifest report-payload/manifest.json
+
+      - name: Upload run artifact (Tier 1)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-supply-chain-${{ github.run_number }}-${{ github.sha }}
+          path: report-payload
+          if-no-files-found: warn
+          retention-days: 90
+
+  publish-reports:
+    needs: supply-chain
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: reports-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: reports-supply-chain-${{ github.run_number }}-${{ github.sha }}
+          path: report-payload
+      - uses: ./.github/actions/publish-reports
+        with:
+          payload-dir: report-payload

@@ -1,0 +1,87 @@
+name: ci-advisory
+
+# Runs only on iteration branches. The advisory is generated from the failing
+# detection run's structured results plus scanner evidence, then committed back
+# to the iteration branch. (No-op on main; safe on the first push.)
+on:
+  push:
+    branches: ["iter-*"]
+  workflow_dispatch:
+    inputs:
+      iteration:
+        description: Iteration id (e.g. iter-01)
+        required: true
+      owasp_risk:
+        description: OWASP Top 10:2025 risk (e.g. A10 Mishandling of Exceptional Conditions)
+        required: true
+
+concurrency:
+  group: advisory-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  advisory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install rendering deps
+        run: pip install "jinja2==3.1.5"
+
+      - name: Download detection evidence (if a prior job published it)
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: reports-*-${{ github.run_number }}-${{ github.sha }}
+          path: evidence
+          merge-multiple: true
+
+      - name: Generate advisory
+        env:
+          ITERATION: ${{ github.event.inputs.iteration || github.ref_name }}
+          OWASP_RISK: ${{ github.event.inputs.owasp_risk || 'TBD - populate from iteration mapping' }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from tests.toolkit.reporting.advisory_generator import (
+              AdvisoryGenerator, AdvisoryInput, ScannerEvidence,
+          )
+          iteration = os.environ["ITERATION"]
+          risk = os.environ["OWASP_RISK"]
+          gen = AdvisoryGenerator(template_dir=Path("documentation/advisories"))
+          advisory = AdvisoryInput(
+              document_name=f"Advisory {iteration}",
+              covered_elements=f"Feature and detection for {iteration}",
+              iteration=iteration,
+              owasp_risk=risk,
+              owasp_api_cross_reference="See OWASP API Security Top 10 mapping.",
+              summary="Auto-generated from the detection run. Populate with the flaw narrative.",
+              failing_test="(detection test id will be injected here)",
+              evidence=[ScannerEvidence(tool="pending", identifier="-", description="attached in Red phase")],
+          )
+          out = gen.write(advisory, Path("documentation/advisories"))
+          print(f"Wrote {out}")
+          PY
+
+      - name: Commit advisory
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add documentation/advisories/*.md
+          if git diff --cached --quiet; then
+            echo "No advisory changes to commit."
+          else
+            git commit -m "docs(advisory): generate advisory for ${GITHUB_REF_NAME} [skip ci]"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

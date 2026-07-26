@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/barbashaman/cybersecurity-prep-project/manifest.schema.json",
+  "title": "Pipeline run manifest",
+  "description": "Describes one archived run; consumed by generate_index.py to build the trend chart and run history.",
+  "type": "object",
+  "required": ["schema_version", "branch", "commit", "workflow", "run_id", "generated_at", "totals"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "branch": { "type": "string" },
+    "commit": { "type": "string" },
+    "workflow": { "type": "string" },
+    "run_id": { "type": "string" },
+    "iteration": { "type": "string" },
+    "generated_at": { "type": "string", "description": "ISO-8601 UTC timestamp." },
+    "totals": {
+      "type": "object",
+      "required": ["total", "passed", "failed", "skipped", "success_rate"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "success_rate": { "type": "number", "minimum": 0, "maximum": 100 },
+        "duration_seconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "suites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "framework", "total", "passed", "failed", "skipped"],
+        "properties": {
+          "name": { "type": "string" },
+          "framework": { "type": "string", "enum": ["pytest", "robot"] },
+          "total": { "type": "integer", "minimum": 0 },
+          "passed": { "type": "integer", "minimum": 0 },
+          "failed": { "type": "integer", "minimum": 0 },
+          "skipped": { "type": "integer", "minimum": 0 },
+          "duration_seconds": { "type": "number", "minimum": 0 },
+          "success_rate": { "type": "number", "minimum": 0, "maximum": 100 }
+        }
+      }
+    },
+    "statuses": {
+      "type": "object",
+      "description": "Per-stage status flags (tests, sast, dast, supply-chain).",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

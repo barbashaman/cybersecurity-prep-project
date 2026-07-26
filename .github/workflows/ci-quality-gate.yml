@@ -1,0 +1,103 @@
+name: ci-quality-gate
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["iter-*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install project (dev + test)
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[dev,test]"
+
+      - name: Ruff lint
+        run: ruff check src tests
+
+      - name: Ruff format check
+        run: ruff format --check src tests
+
+      - name: Mypy (strict)
+        run: mypy src tests
+
+      - name: Prepare payload dir
+        run: mkdir -p report-payload/tests/pytest
+
+      - name: Unit tests (toolkit self-tests)
+        run: |
+          pytest tests/test_toolkit_smoke.py \
+            --junitxml=report-payload/tests/pytest/junit.xml \
+            --html=report-payload/tests/pytest/report.html --self-contained-html
+
+      - name: Build API and Web images (validate Dockerfiles)
+        run: |
+          docker build -f docker/api.Dockerfile -t ecommerce-backoffice-api:ci .
+          docker build -f docker/web.Dockerfile -t ecommerce-backoffice-web:ci .
+
+      - name: Render unified dashboard + manifest
+        if: always()
+        env:
+          WORKFLOW: ci-quality-gate
+        run: |
+          python -m tests.toolkit.reporting.unified_report \
+            --report-dir report-payload \
+            --junit report-payload/tests/pytest/junit.xml \
+            --out report-payload/tests/unified-dashboard.html \
+            --manifest report-payload/manifest.json
+
+      - name: Upload run artifact (Tier 1)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-quality-gate-${{ github.run_number }}-${{ github.sha }}
+          path: report-payload
+          if-no-files-found: warn
+          retention-days: 90
+
+  publish-reports:
+    needs: quality-gate
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: reports-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Download run artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: reports-quality-gate-${{ github.run_number }}-${{ github.sha }}
+          path: report-payload
+      - name: Publish to reports archive branch
+        uses: ./.github/actions/publish-reports
+        with:
+          payload-dir: report-payload

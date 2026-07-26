@@ -1,0 +1,16 @@
+# Force LF for all files that run inside Linux containers / CI shells.
+* text=auto eol=lf
+
+*.sh text eol=lf
+*.bash text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary assets are never normalized.
+*.png binary
+*.jpg binary
+*.ico binary
+*.gz binary
+*.zip binary
