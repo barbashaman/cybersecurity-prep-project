@@ -110,7 +110,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: reports-supply-chain-${{ github.run_number }}-${{ github.sha }}
           path: report-payload
