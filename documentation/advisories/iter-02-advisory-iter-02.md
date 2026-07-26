@@ -1,6 +1,6 @@
 Document Name: Advisory iter-02
 Covered Elements: Admin audit trail persists successful admin actions but skips authorization failures, and plaintext application logs include bearer tokens plus PII (emails, names, shipping addresses).
-Creation Date: 26/07/2026-16:40:27.065
+Creation Date: 26/07/2026-16:47:15.749
 
 # Security Advisory — A09 Security Logging and Alerting Failures
 
