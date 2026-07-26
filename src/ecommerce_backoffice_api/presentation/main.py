@@ -1,36 +1,56 @@
-"""Operational entrypoint for the API service.
+"""API composition root and operational entrypoint.
 
-Phase 1 exposes only the operational contract the DevSecOps machinery needs to
-test itself - a ``/health`` probe carrying the version (consumed by the version
-gate) and the auto-generated OpenAPI document at ``/openapi.json`` / ``/docs``
-(consumed by the ZAP API scan and contract tests). No e-commerce domain or
-business logic lives here; that arrives in Phase 1b.
+Phase 1b wires the e-commerce baseline (auth, RBAC, CRUD) while keeping DEBUG,
+CORS, and OpenAPI docs deliberately permissive — the hardening vehicle for
+iter-09 (A02 Security Misconfiguration).
 """
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from ecommerce_backoffice_api.infrastructure.config import Settings
+from ecommerce_backoffice_api.infrastructure.persistence.startup import prepare_database
+from ecommerce_backoffice_api.infrastructure.security.jwt_token_service import JwtTokenService
+from ecommerce_backoffice_api.presentation.routers import auth, orders, products, stores
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     resolved = settings or Settings.from_env()
 
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        engine, session_factory = prepare_database(resolved)
+        application.state.settings = resolved
+        application.state.engine = engine
+        application.state.session_factory = session_factory
+        application.state.token_service = JwtTokenService(
+            secret=resolved.jwt_secret,
+            algorithm=resolved.jwt_algorithm,
+            expire_minutes=resolved.jwt_expire_minutes,
+        )
+        try:
+            yield
+        finally:
+            engine.dispose()
+
     app = FastAPI(
         title="E-Commerce Backoffice API",
         version=resolved.version,
         description=(
-            "Operational baseline (Phase 1). E-commerce endpoints arrive in "
-            "Phase 1b; the OWASP Top 10:2025 countdown follows."
+            "Phase 1b baseline application: JWT auth, RBAC, store/product/order "
+            "CRUD against PostgreSQL. OWASP Top 10:2025 countdown iterations follow."
         ),
         # Per-environment Swagger exposure policy (tightened in iter-09).
         docs_url="/docs" if resolved.expose_docs else None,
         redoc_url="/redoc" if resolved.expose_docs else None,
         openapi_url="/openapi.json" if resolved.expose_docs else None,
+        lifespan=lifespan,
     )
 
     # Deliberately permissive baseline; the strict allowlist lands in iter-09.
@@ -44,6 +64,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/health", tags=["operations"])
     def health() -> dict[str, Any]:
         return {"status": "ok", "version": resolved.version}
+
+    app.include_router(auth.router, prefix="/api/v1")
+    app.include_router(stores.router, prefix="/api/v1")
+    app.include_router(products.router, prefix="/api/v1")
+    app.include_router(orders.router, prefix="/api/v1")
 
     return app
 

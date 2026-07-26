@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}E-Commerce Backoffice{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">E-Commerce Backoffice</div>
+      <nav class="nav">
+        {% if email %}
+          <span class="muted">{{ email }} · {{ role }}</span>
+          <a href="/dashboard">Stores</a>
+          <form action="/logout" method="post" style="display:inline;margin:0;">
+            <button type="submit">Sign out</button>
+          </form>
+        {% endif %}
+        <span class="muted">v{{ version }}</span>
+      </nav>
+    </header>
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

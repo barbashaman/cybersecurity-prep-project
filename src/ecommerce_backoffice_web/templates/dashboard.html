@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Stores · E-Commerce Backoffice{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1 class="hero-title">Stores</h1>
+  <p class="lede">Stores visible to your role. Open a store to browse its catalog or orders.</p>
+  {% if error %}
+    <p class="flash">{{ error }}</p>
+  {% endif %}
+  {% if stores %}
+  <table class="table">
+    <thead>
+      <tr><th>Name</th><th>Store id</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for store in stores %}
+      <tr>
+        <td>{{ store.name }}</td>
+        <td class="muted">{{ store.id }}</td>
+        <td>
+          <a href="/stores/{{ store.id }}">Products</a>
+          ·
+          <a href="/stores/{{ store.id }}/orders">Orders</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No stores available for this account.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ store.name }} · E-Commerce Backoffice{% endblock %}
+{% block content %}
+<section class="panel stack">
+  <div>
+    <h1 class="hero-title">{{ store.name }}</h1>
+    <p class="lede">Product catalog for store {{ store.id }}.
+      <a href="/stores/{{ store.id }}/orders">View orders</a></p>
+  </div>
+  {% if error %}
+    <p class="flash">{{ error }}</p>
+  {% endif %}
+  {% if products %}
+  <table class="table">
+    <thead>
+      <tr><th>Product</th><th>Price</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>
+          <strong>{{ product.name }}</strong>
+          <div class="muted">{{ product.description }}</div>
+        </td>
+        <td>${{ '%.2f'|format(product.price_cents / 100) }}</td>
+        <td class="muted">{{ "Active" if product.is_active else "Inactive" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No products to show.</p>
+  {% endif %}
+</section>
+{% endblock %}

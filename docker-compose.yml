@@ -38,12 +38,22 @@ services:
       CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-*}
       EXPOSE_DOCS: ${EXPOSE_DOCS:-true}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://backoffice:change_me_local_only@database:5432/backoffice}
+      JWT_SECRET: ${JWT_SECRET:-phase1b-demo-only-jwt-secret-change-me}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-10080}
+      SEED_ON_STARTUP: ${SEED_ON_STARTUP:-true}
     depends_on:
       database:
         condition: service_healthy
     ports:
       - "${API_PORT:-8000}:8000"
     networks: [backoffice]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,urllib.request,sys; port=os.environ.get('API_PORT','8000'); sys.exit(0) if urllib.request.urlopen(f'http://127.0.0.1:{port}/health', timeout=2).status==200 else sys.exit(1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
 
   web:
     build:
@@ -55,6 +65,7 @@ services:
       WEB_HOST: 0.0.0.0
       WEB_PORT: ${WEB_PORT:-8080}
       API_BASE_URL: http://api:8000
+      WEB_SESSION_SECRET: ${WEB_SESSION_SECRET:-phase1b-demo-only-web-session-secret}
     depends_on:
       api:
         condition: service_healthy
