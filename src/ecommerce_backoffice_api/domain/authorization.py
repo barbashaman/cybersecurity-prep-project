@@ -6,6 +6,8 @@ and use cases call them; they contain no I/O and import only the domain.
 
 from __future__ import annotations
 
+from typing import assert_never
+
 from ecommerce_backoffice_api.domain.entities import Order, User
 from ecommerce_backoffice_api.domain.enums import UserRole
 
@@ -21,7 +23,7 @@ def can_read_store(actor: User, store_id: int) -> bool:
         return True
     if actor.role in {UserRole.STORE_OWNER, UserRole.CUSTOMER}:
         return actor.store_id == store_id
-    return False
+    assert_never(actor.role)
 
 
 def can_create_store(actor: User) -> bool:
@@ -35,7 +37,7 @@ def can_read_store_catalog(actor: User, store_id: int) -> bool:
         return True
     if actor.role in {UserRole.STORE_OWNER, UserRole.CUSTOMER}:
         return actor.store_id == store_id
-    return False
+    assert_never(actor.role)
 
 
 def can_write_store_catalog(actor: User, store_id: int) -> bool:
@@ -55,7 +57,7 @@ def can_read_order(actor: User, order: Order) -> bool:
         return actor.store_id == order.store_id
     if actor.role is UserRole.CUSTOMER:
         return actor.id == order.customer_user_id
-    return False
+    assert_never(actor.role)
 
 
 def can_list_store_orders(actor: User, store_id: int) -> bool:
@@ -66,7 +68,7 @@ def can_list_store_orders(actor: User, store_id: int) -> bool:
         return actor.store_id == store_id
     if actor.role is UserRole.CUSTOMER:
         return actor.store_id == store_id
-    return False
+    assert_never(actor.role)
 
 
 def can_update_order_status(actor: User, order: Order) -> bool:
