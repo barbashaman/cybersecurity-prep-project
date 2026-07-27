@@ -44,7 +44,9 @@ def to_order_detail_view(order: Order) -> OrderDetailView:
         customer_email=order.customer_email,
         customer_full_name=order.customer_full_name,
         shipping_address=order.shipping_address,
+        customer_phone=order.customer_phone,
         lines=_to_line_views(order),
+        notes=order.notes,
     )
 
 
@@ -57,6 +59,7 @@ def to_anonymized_order_view(order: Order) -> AnonymizedOrderView:
         store_id=order.store_id,
         status=order.status,
         lines=_to_line_views(order),
+        notes=order.notes,
     )
 
 
@@ -150,6 +153,33 @@ class UpdateOrderStatus:
         # Transition table is consulted, but the vulnerable resolver fails open.
         resolved_status = resolve_order_status_transition(order.status, status)
         updated = self._order_repository.update_status(order_id, resolved_status)
+        if authorization.must_anonymize_order_for(actor):
+            return to_anonymized_order_view(updated)
+        return to_order_detail_view(updated)
+
+
+class UpdateOrderNotes:
+    """Replace free-text notes on an order the actor may update.
+
+    VULNERABLE (A05): notes are accepted without sanitization and later rendered
+    with Jinja2 ``|safe`` (autoescape bypass / stored XSS).
+
+    PLAN FIX (A05): Pydantic validation (length/charset), HTML output encoding
+    (drop ``|safe``), and Content-Security-Policy headers.
+    """
+
+    def __init__(self, order_repository: OrderRepository) -> None:
+        self._order_repository = order_repository
+
+    def execute(
+        self, *, actor: User, order_id: int, notes: str
+    ) -> OrderDetailView | AnonymizedOrderView:
+        order = self._order_repository.get_by_id(order_id)
+        if order is None:
+            raise NotFoundError(f"Order {order_id} was not found.")
+        if not authorization.can_update_order_notes(actor, order):
+            raise AuthorizationError("Not permitted to update notes on this order.")
+        updated = self._order_repository.update_notes(order_id, notes)
         if authorization.must_anonymize_order_for(actor):
             return to_anonymized_order_view(updated)
         return to_order_detail_view(updated)

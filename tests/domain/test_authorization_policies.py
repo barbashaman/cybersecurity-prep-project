@@ -42,6 +42,9 @@ def test_admin_can_read_any_store_and_order() -> None:
     assert authorization.can_read_order(admin, order)
     assert authorization.can_update_order_status(admin, order)
     assert not authorization.must_anonymize_order_for(admin)
+    assert authorization.can_grant_credits(admin)
+    assert authorization.can_manage_coupons(admin, 2)
+    assert authorization.can_place_order(admin, 2)
 
 
 def test_store_owner_is_tenant_scoped() -> None:
@@ -65,6 +68,10 @@ def test_customer_reads_own_orders_only() -> None:
     assert authorization.can_read_order(customer, own_order)
     assert not authorization.can_read_order(customer, other_order)
     assert not authorization.can_update_order_status(customer, own_order)
+    assert authorization.can_grant_credits(customer)
+    assert authorization.can_place_order(customer, 1)
+    assert not authorization.can_place_order(customer, 2)
+    assert not authorization.can_manage_coupons(customer, 1)
 
 
 def test_delivery_manager_sees_anonymized_orders() -> None:
@@ -89,3 +96,24 @@ def test_only_admin_may_list_users_and_audit_events() -> None:
     assert not authorization.can_list_audit_events(owner)
     assert not authorization.can_list_users(customer)
     assert not authorization.can_list_audit_events(delivery)
+
+
+def test_theme_write_and_receipt_management_are_role_scoped() -> None:
+    admin = _user(UserRole.ADMIN, store_id=None)
+    owner = _user(UserRole.STORE_OWNER, store_id=1)
+    customer = _user(UserRole.CUSTOMER, user_id=10, store_id=1)
+    delivery = _user(UserRole.DELIVERY_MANAGER, store_id=None)
+    own_order = _order(store_id=1, customer_user_id=10)
+    other_order = _order(store_id=2, customer_user_id=11)
+
+    assert authorization.can_write_store_theme(admin, 1)
+    assert authorization.can_write_store_theme(owner, 1)
+    assert not authorization.can_write_store_theme(owner, 2)
+    assert not authorization.can_write_store_theme(customer, 1)
+    assert not authorization.can_write_store_theme(delivery, 1)
+
+    assert authorization.can_manage_order_receipt(admin, own_order)
+    assert authorization.can_manage_order_receipt(owner, own_order)
+    assert authorization.can_manage_order_receipt(customer, own_order)
+    assert not authorization.can_manage_order_receipt(customer, other_order)
+    assert not authorization.can_manage_order_receipt(delivery, own_order)

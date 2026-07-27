@@ -13,6 +13,7 @@ from ecommerce_backoffice_api.application.use_cases.products import (
     GetProduct,
     ImportProductsFromCsv,
     ListProductsForStore,
+    SearchProductsForStore,
     UpdateProduct,
 )
 from ecommerce_backoffice_api.domain.entities import Product, User
@@ -23,6 +24,7 @@ from ecommerce_backoffice_api.presentation.dependencies import (
     get_get_product,
     get_import_products,
     get_list_products,
+    get_search_products,
     get_update_product,
 )
 from ecommerce_backoffice_api.presentation.error_mapping import http_error_from_domain
@@ -30,6 +32,7 @@ from ecommerce_backoffice_api.presentation.schemas.products import (
     ProductCreateRequest,
     ProductImportResponse,
     ProductResponse,
+    ProductSearchQuery,
     ProductUpdateRequest,
 )
 
@@ -53,6 +56,7 @@ def _product_response(product: Product) -> ProductResponse:
         description=product.description,
         price_cents=product.price_cents,
         is_active=product.is_active,
+        stock_quantity=product.stock_quantity,
     )
 
 
@@ -64,6 +68,25 @@ def list_products(
 ) -> list[ProductResponse]:
     try:
         products = use_case.execute(actor=actor, store_id=store_id)
+    except DomainError as error:
+        raise http_error_from_domain(error) from error
+    return [_product_response(product) for product in products if product.id is not None]
+
+
+@router.get("/stores/{store_id}/products/search", response_model=list[ProductResponse])
+def search_products(
+    store_id: int,
+    query: Annotated[ProductSearchQuery, Depends()],
+    actor: Annotated[User, Depends(get_current_user)],
+    use_case: Annotated[SearchProductsForStore, Depends(get_search_products)],
+) -> list[ProductResponse]:
+    """Search products by name within a store.
+
+    VULNERABLE (A05): ``q`` is concatenated into raw SQL in the repository.
+    PLAN FIX (A05): parameterized queries + Pydantic validation on ``q``.
+    """
+    try:
+        products = use_case.execute(actor=actor, store_id=store_id, query=query.q)
     except DomainError as error:
         raise http_error_from_domain(error) from error
     return [_product_response(product) for product in products if product.id is not None]
@@ -88,6 +111,7 @@ def create_product(
             description=payload.description,
             price_cents=payload.price_cents,
             is_active=payload.is_active,
+            stock_quantity=payload.stock_quantity,
         )
     except DomainError as error:
         raise http_error_from_domain(error) from error
@@ -123,6 +147,7 @@ def patch_product(
             description=payload.description,
             price_cents=payload.price_cents,
             is_active=payload.is_active,
+            stock_quantity=payload.stock_quantity,
             access_token=_access_token(credentials),
         )
     except DomainError as error:

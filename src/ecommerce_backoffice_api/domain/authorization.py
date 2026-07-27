@@ -91,3 +91,43 @@ def can_list_users(actor: User) -> bool:
 def can_list_audit_events(actor: User) -> bool:
     """Only admins may read the admin audit trail."""
     return actor.role is UserRole.ADMIN
+
+
+def can_write_store_theme(actor: User, store_id: int) -> bool:
+    """Theme uploads: admin or the owning store owner."""
+    return can_write_store_catalog(actor, store_id)
+
+
+def can_manage_order_receipt(actor: User, order: Order) -> bool:
+    """Receipt store/load: admin, owning store owner, or the ordering customer."""
+    if actor.role is UserRole.ADMIN:
+        return True
+    if actor.role is UserRole.STORE_OWNER:
+        return actor.store_id == order.store_id
+    if actor.role is UserRole.CUSTOMER:
+        return actor.id == order.customer_user_id
+    return False
+
+
+def can_update_order_notes(actor: User, order: Order) -> bool:
+    """Order-notes updates: same principals as receipt management."""
+    return can_manage_order_receipt(actor, order)
+
+
+def can_grant_credits(actor: User) -> bool:
+    """Mock credit grants: admin or the customer themselves (demo purchase)."""
+    return actor.role in {UserRole.ADMIN, UserRole.CUSTOMER}
+
+
+def can_manage_coupons(actor: User, store_id: int) -> bool:
+    """Coupon create: admin or the owning store owner."""
+    return can_write_store_catalog(actor, store_id)
+
+
+def can_place_order(actor: User, store_id: int) -> bool:
+    """Checkout: customers of the store (or admin acting for demos)."""
+    if actor.role is UserRole.ADMIN:
+        return True
+    if actor.role is UserRole.CUSTOMER:
+        return actor.store_id == store_id
+    return False

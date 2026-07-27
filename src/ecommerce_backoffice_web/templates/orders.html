@@ -19,6 +19,7 @@
         <th>Status</th>
         <th>Customer</th>
         <th>Ship to</th>
+        <th>Notes</th>
         <th>Lines</th>
       </tr>
     </thead>
@@ -30,6 +31,9 @@
         <td class="muted">
           {% if order.customer_full_name is defined and order.customer_full_name %}
             {{ order.customer_full_name }}<br>{{ order.customer_email }}
+            {% if order.customer_phone is defined and order.customer_phone %}
+              <br>{{ order.customer_phone }}
+            {% endif %}
           {% else %}
             (anonymized)
           {% endif %}
@@ -39,6 +43,15 @@
             {{ order.shipping_address }}
           {% else %}
             —
+          {% endif %}
+        </td>
+        <td>
+          {% if order.notes is defined and order.notes %}
+            {% with notes=order.notes %}
+              {% include "partials/order_notes.html" %}
+            {% endwith %}
+          {% else %}
+            <span class="muted">—</span>
           {% endif %}
         </td>
         <td class="muted">{{ order.lines|length }} item(s)</td>

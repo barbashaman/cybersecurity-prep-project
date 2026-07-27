@@ -7,6 +7,7 @@ goes through ``API_BASE_URL``.
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 
@@ -92,6 +93,28 @@ class ApiClient:
         )
         if not isinstance(result, list):
             raise ApiClientError(500, "Unexpected products response shape.")
+        return result
+
+    def search_products(self, access_token: str, store_id: int, query: str) -> list[dict[str, Any]]:
+        encoded = quote(query, safe="")
+        result = self.request(
+            "GET",
+            f"/api/v1/stores/{store_id}/products/search?q={encoded}",
+            access_token=access_token,
+        )
+        if not isinstance(result, list):
+            raise ApiClientError(500, "Unexpected product search response shape.")
+        return result
+
+    def update_order_notes(self, access_token: str, order_id: int, notes: str) -> dict[str, Any]:
+        result = self.request(
+            "PATCH",
+            f"/api/v1/orders/{order_id}/notes",
+            access_token=access_token,
+            json_body={"notes": notes},
+        )
+        if not isinstance(result, dict):
+            raise ApiClientError(500, "Unexpected order notes response shape.")
         return result
 
     def list_orders(self, access_token: str, store_id: int) -> list[dict[str, Any]]:

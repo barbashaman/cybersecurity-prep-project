@@ -35,6 +35,33 @@ class ListProductsForStore:
         return self._product_repository.list_for_store(store_id)
 
 
+class SearchProductsForStore:
+    """Search products by name within a store catalog.
+
+    VULNERABLE (A05): the repository builds SQL via string concatenation of
+    ``query``. Callers must not treat search results as trustworthy evidence of
+    a literal name match until remediation.
+
+    PLAN FIX (A05): keep this use case; fix the repository to use bound params
+    and validate ``query`` length in the presentation schema.
+    """
+
+    def __init__(
+        self,
+        product_repository: ProductRepository,
+        store_repository: StoreRepository,
+    ) -> None:
+        self._product_repository = product_repository
+        self._store_repository = store_repository
+
+    def execute(self, *, actor: User, store_id: int, query: str) -> list[Product]:
+        if not authorization.can_read_store_catalog(actor, store_id):
+            raise AuthorizationError("Not permitted to read this store catalog.")
+        if self._store_repository.get_by_id(store_id) is None:
+            raise NotFoundError(f"Store {store_id} was not found.")
+        return self._product_repository.search_for_store(store_id, query)
+
+
 class CreateProduct:
     """Create a product in a store the actor may write."""
 
@@ -55,6 +82,7 @@ class CreateProduct:
         description: str,
         price_cents: int,
         is_active: bool = True,
+        stock_quantity: int = 0,
     ) -> Product:
         if not authorization.can_write_store_catalog(actor, store_id):
             raise AuthorizationError("Not permitted to write this store catalog.")
@@ -66,6 +94,7 @@ class CreateProduct:
             description=description.strip(),
             price_cents=price_cents,
             is_active=is_active,
+            stock_quantity=stock_quantity,
         )
         return self._product_repository.add(product)
 
@@ -105,6 +134,7 @@ class UpdateProduct:
         description: str | None = None,
         price_cents: int | None = None,
         is_active: bool | None = None,
+        stock_quantity: int | None = None,
         access_token: str | None = None,
     ) -> Product:
         product = self._product_repository.get_by_id(product_id)
@@ -127,6 +157,8 @@ class UpdateProduct:
             product.price_cents = price_cents
         if is_active is not None:
             product.is_active = is_active
+        if stock_quantity is not None:
+            product.stock_quantity = stock_quantity
         saved = self._product_repository.save(product)
         if actor.role is UserRole.ADMIN:
             self._admin_audit_trail.record_success(
