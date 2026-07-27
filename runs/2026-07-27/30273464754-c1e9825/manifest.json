@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/pytest-9.1.1",
+  "commit": "c1e9825c0452cbe1d8841650b5a2f06e744a67e0",
+  "workflow": "ci-dast",
+  "run_id": "30273464754",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T14:08:50Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
