@@ -24,7 +24,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -104,7 +104,7 @@ jobs:
     # See ci-quality-gate.yml: shared reports-publish concurrency cancels
     # pending publishes; rebase-retry in publish.sh serialises the push.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v5
