@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/playwright-1.61.0",
+  "commit": "a83756856cfdb52331ec8dffe036d31a07ba7550",
+  "workflow": "ci-quality-gate",
+  "run_id": "30272220084",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T13:52:54Z",
+  "totals": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0.139
+  },
+  "suites": [
+    {
+      "name": "pytest: pytest",
+      "framework": "pytest",
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.139,
+      "success_rate": 100.0
+    }
+  ],
+  "statuses": {
+    "tests": "passed"
+  }
+}
