@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/github_actions/actions/upload-artifact-7",
+  "commit": "4acefdb97925dc84c2cf99d3bf7c14b09012aae7",
+  "workflow": "ci-quality-gate",
+  "run_id": "30271495528",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T13:43:14Z",
+  "totals": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0.147
+  },
+  "suites": [
+    {
+      "name": "pytest: pytest",
+      "framework": "pytest",
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.147,
+      "success_rate": 100.0
+    }
+  ],
+  "statuses": {
+    "tests": "passed"
+  }
+}
