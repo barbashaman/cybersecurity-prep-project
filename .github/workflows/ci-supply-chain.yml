@@ -24,7 +24,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload Trivy SARIF to code scanning
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: report-payload/security/trivy/trivy.sarif
           category: trivy
@@ -104,13 +104,13 @@ jobs:
     # See ci-quality-gate.yml: shared reports-publish concurrency cancels
     # pending publishes; rebase-retry in publish.sh serialises the push.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: reports-supply-chain-${{ github.run_number }}-${{ github.sha }}
           path: report-payload
