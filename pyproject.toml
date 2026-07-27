@@ -125,6 +125,9 @@ markers = [
     "component: isolated use-case tests with mocked ports",
     "database: repository/model constraint and mapping tests",
     "integration: use-case + persistence (+ infra) integration tests",
+    "performance: pragmatic SLO / latency assertions for critical paths",
+    "performance_fast: PR-safe performance subset with generous thresholds",
+    "performance_extended: longer-running performance profile (not PR-required)",
     "security: security-focused suites (ZAP-proxied, role matrix)",
     "smoke: fast subset run by the local pre-commit / quality gate",
 ]

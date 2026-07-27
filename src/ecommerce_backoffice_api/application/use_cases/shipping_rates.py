@@ -4,16 +4,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
+from typing import Protocol
 
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.enums import UserRole
 from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, ConflictError
 
 
-class ShippingRateProvider:
+class ShippingRateProvider(Protocol):
     """Port for upstream shipping-rate providers."""
 
-    def fetch_quote(self, *, destination_country: str, parcel_weight_kg: float) -> dict[str, object]:
+    def fetch_quote(
+        self,
+        *,
+        destination_country: str,
+        parcel_weight_kg: float,
+    ) -> dict[str, object]:
         """Return an upstream shipping quote payload."""
         ...
 
