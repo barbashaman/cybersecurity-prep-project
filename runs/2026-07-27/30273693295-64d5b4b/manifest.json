@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "main",
+  "commit": "64d5b4b471e5fd8cf7db17749fdcdf0e73ecf425",
+  "workflow": "ci-supply-chain",
+  "run_id": "30273693295",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T14:11:01Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
