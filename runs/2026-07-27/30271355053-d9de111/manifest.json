@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/github_actions/actions/download-artifact-8",
+  "commit": "d9de11145213c0a7c3f275bb0efe650a61299273",
+  "workflow": "ci-supply-chain",
+  "run_id": "30271355053",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T13:41:52Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
