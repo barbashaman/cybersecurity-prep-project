@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/github_actions/actions/checkout-7",
+  "commit": "4b4f62d188e5c7caec55f2a64c97249ce794cdaf",
+  "workflow": "ci-sast",
+  "run_id": "30271502136",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T13:42:31Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
