@@ -8,18 +8,22 @@ from fastapi import APIRouter, Depends, status
 
 from ecommerce_backoffice_api.application.dto.checkout import CheckoutResultView
 from ecommerce_backoffice_api.application.use_cases.checkout import ApplyCouponToOrder, PlaceOrder
+from ecommerce_backoffice_api.application.use_cases.shipping_rates import GetShippingQuote
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import DomainError
 from ecommerce_backoffice_api.presentation.dependencies import (
     get_apply_coupon_to_order,
     get_current_user,
     get_place_order,
+    get_shipping_quote_use_case,
 )
 from ecommerce_backoffice_api.presentation.error_mapping import http_error_from_domain
 from ecommerce_backoffice_api.presentation.schemas.checkout import (
     ApplyCouponRequest,
     CheckoutRequest,
     CheckoutResponse,
+    ShippingQuoteRequest,
+    ShippingQuoteResponse,
 )
 from ecommerce_backoffice_api.presentation.schemas.orders import OrderLineResponse, OrderResponse
 
@@ -111,3 +115,25 @@ def apply_coupon(
     except DomainError as error:
         raise http_error_from_domain(error) from error
     return _serialize_checkout(view)
+
+
+@router.post("/shipping/quote", response_model=ShippingQuoteResponse)
+def shipping_quote(
+    payload: ShippingQuoteRequest,
+    actor: Annotated[User, Depends(get_current_user)],
+    use_case: Annotated[GetShippingQuote, Depends(get_shipping_quote_use_case)],
+) -> ShippingQuoteResponse:
+    try:
+        quote = use_case.execute(
+            actor=actor,
+            destination_country=payload.destination_country,
+            parcel_weight_kg=payload.parcel_weight_kg,
+        )
+    except DomainError as error:
+        raise http_error_from_domain(error) from error
+    return ShippingQuoteResponse(
+        carrier=quote.carrier,
+        service_level=quote.service_level,
+        currency=quote.currency,
+        amount_cents=quote.amount_cents,
+    )

@@ -47,6 +47,7 @@ class StoreModel(Base):
     __tablename__ = "stores"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    public_id: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     # use_alter breaks the users <-> stores circular foreign-key dependency.
     owner_user_id: Mapped[int | None] = mapped_column(

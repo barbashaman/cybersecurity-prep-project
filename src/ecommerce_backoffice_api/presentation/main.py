@@ -1,9 +1,4 @@
-"""API composition root and operational entrypoint.
-
-Phase 1b wires the e-commerce baseline (auth, RBAC, CRUD) while keeping DEBUG,
-CORS, and OpenAPI docs deliberately permissive — the hardening vehicle for
-iter-09 (A02 Security Misconfiguration).
-"""
+"""API composition root and operational entrypoint."""
 
 from __future__ import annotations
 
@@ -13,6 +8,9 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.requests import Request
+from starlette.responses import Response
 
 from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.startup import prepare_database
@@ -26,8 +24,29 @@ from ecommerce_backoffice_api.presentation.routers import (
     credits,
     orders,
     products,
+    revenue,
     stores,
 )
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Apply baseline security headers to every response."""
+
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; frame-ancestors 'none'; base-uri 'self'",
+        )
+        if request.url.scheme == "https":
+            response.headers.setdefault(
+                "Strict-Transport-Security",
+                "max-age=31536000; includeSubDomains",
+            )
+        return response
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -69,13 +88,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = resolved
     register_exception_handlers(app)
 
-    # Deliberately permissive baseline; the strict allowlist lands in iter-09.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(resolved.cors_allow_origins),
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Artifact-Signature"],
     )
+    app.add_middleware(SecurityHeadersMiddleware)
 
     @app.get("/health", tags=["operations"])
     def health() -> dict[str, Any]:
@@ -89,6 +108,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(credits.router, prefix="/api/v1")
     app.include_router(coupons.router, prefix="/api/v1")
     app.include_router(checkout.router, prefix="/api/v1")
+    app.include_router(revenue.router, prefix="/api/v1")
 
     return app
 

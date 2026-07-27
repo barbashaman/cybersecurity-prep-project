@@ -18,5 +18,6 @@ class StoreResponse(BaseModel):
     """Store resource representation."""
 
     id: int
+    public_id: str
     name: str
     owner_user_id: int | None

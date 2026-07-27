@@ -1,0 +1,17 @@
+{
+  "iteration": "iter-09",
+  "owasp_risk": "A02 Security Misconfiguration",
+  "owasp_api_cross_reference": "API8:2023 Security Misconfiguration",
+  "summary": "Application defaults must be secure: DEBUG disabled, wildcard CORS forbidden, and API documentation hidden by default in production configuration.",
+  "failing_tests": [
+    "tests/security/test_a02_security_misconfiguration.py::test_settings_must_default_to_secure_values",
+    "tests/security/test_a02_security_misconfiguration.py::test_production_must_hide_docs_by_default"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a02_security_misconfiguration.py",
+      "description": "Configuration-focused detection suite asserting secure defaults and production Swagger exposure policy."
+    }
+  ]
+}

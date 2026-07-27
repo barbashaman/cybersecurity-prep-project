@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import uuid
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -49,7 +51,12 @@ def _user_from_model(model: UserModel) -> User:
 
 
 def _store_from_model(model: StoreModel) -> Store:
-    return Store(id=model.id, name=model.name, owner_user_id=model.owner_user_id)
+    return Store(
+        id=model.id,
+        public_id=model.public_id,
+        name=model.name,
+        owner_user_id=model.owner_user_id,
+    )
 
 
 def _product_from_model(model: ProductModel) -> Product:
@@ -247,8 +254,18 @@ class SqlAlchemyStoreRepository:
         model = self._session.get(StoreModel, store_id)
         return _store_from_model(model) if model is not None else None
 
+    def get_by_public_id(self, public_id: str) -> Store | None:
+        statement = select(StoreModel).where(StoreModel.public_id == public_id.strip().lower())
+        model = self._session.scalars(statement).first()
+        return _store_from_model(model) if model is not None else None
+
     def add(self, store: Store) -> Store:
-        model = StoreModel(name=store.name, owner_user_id=store.owner_user_id)
+        public_id = (store.public_id or str(uuid.uuid4())).strip().lower()
+        model = StoreModel(
+            public_id=public_id,
+            name=store.name,
+            owner_user_id=store.owner_user_id,
+        )
         self._session.add(model)
         self._session.flush()
         return _store_from_model(model)

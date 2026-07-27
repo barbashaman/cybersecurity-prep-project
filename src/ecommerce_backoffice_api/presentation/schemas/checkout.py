@@ -86,3 +86,21 @@ class CheckoutResponse(BaseModel):
     total_cents: int
     coupon_code: str | None
     credits_charged_cents: int
+
+
+class ShippingQuoteRequest(BaseModel):
+    """Payload for requesting a shipping quote."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    destination_country: str = Field(min_length=2, max_length=2)
+    parcel_weight_kg: float = Field(gt=0)
+
+
+class ShippingQuoteResponse(BaseModel):
+    """Sanitized shipping quote response."""
+
+    carrier: str
+    service_level: str
+    currency: str
+    amount_cents: int

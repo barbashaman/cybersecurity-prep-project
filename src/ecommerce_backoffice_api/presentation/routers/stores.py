@@ -28,7 +28,14 @@ router = APIRouter(prefix="/stores", tags=["stores"])
 def _store_response(store: Store) -> StoreResponse:
     if store.id is None:
         raise http_error_from_domain(NotFoundError("Store is missing a persistent identifier."))
-    return StoreResponse(id=store.id, name=store.name, owner_user_id=store.owner_user_id)
+    if store.public_id is None:
+        raise http_error_from_domain(NotFoundError("Store is missing a public identifier."))
+    return StoreResponse(
+        id=store.id,
+        public_id=store.public_id,
+        name=store.name,
+        owner_user_id=store.owner_user_id,
+    )
 
 
 def _theme_response(theme: StoreTheme) -> StoreThemeResponse:

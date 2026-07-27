@@ -23,6 +23,7 @@ from ecommerce_backoffice_api.application.use_cases.checkout import (
     GrantCredits,
     PlaceOrder,
 )
+from ecommerce_backoffice_api.application.use_cases.shipping_rates import GetShippingQuote
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
@@ -41,6 +42,7 @@ from ecommerce_backoffice_api.application.use_cases.products import (
     SearchProductsForStore,
     UpdateProduct,
 )
+from ecommerce_backoffice_api.application.use_cases.revenue import GetStoreRevenue
 from ecommerce_backoffice_api.application.use_cases.receipts import (
     LoadOrderReceipt,
     StoreOrderReceipt,
@@ -65,6 +67,7 @@ from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
 from ecommerce_backoffice_api.infrastructure.security.password_hasher import (
     build_password_hasher,
 )
+from ecommerce_backoffice_api.infrastructure.integrations.shipping import MockShippingRateProvider
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -323,4 +326,17 @@ def get_apply_coupon_to_order(
     return ApplyCouponToOrder(
         order_repository=SqlAlchemyOrderRepository(session),
         coupon_repository=SqlAlchemyCouponRepository(session),
+    )
+
+
+def get_shipping_quote_use_case() -> GetShippingQuote:
+    return GetShippingQuote(provider=MockShippingRateProvider())
+
+
+def get_store_revenue_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> GetStoreRevenue:
+    return GetStoreRevenue(
+        store_repository=SqlAlchemyStoreRepository(session),
+        order_repository=SqlAlchemyOrderRepository(session),
     )

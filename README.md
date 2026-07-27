@@ -112,3 +112,6 @@ branch** (the red-to-green evidence trail). See
 See [`documentation/iteration-playbook.md`](documentation/iteration-playbook.md)
 for the per-iteration Red → Red → Green → validate → tag → merge lifecycle and
 the full A10→A01 feature/risk mapping.
+
+Final closure and advisory/evidence linkage is tracked in
+[`documentation/golden-master.md`](documentation/golden-master.md).
