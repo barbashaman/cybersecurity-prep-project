@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/pydantic-settings-2.14.2",
+  "commit": "6f104e0bb9b8ee796ea72493fa622a0bd68f729e",
+  "workflow": "ci-dast",
+  "run_id": "30272214491",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T13:53:56Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
