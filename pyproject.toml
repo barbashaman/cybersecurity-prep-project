@@ -123,6 +123,8 @@ markers = [
     "api: API / integration tests (pytest-bdd + Playwright APIRequestContext)",
     "functional: scenario-focused persona-feature contract tests",
     "component: isolated use-case tests with mocked ports",
+    "database: repository/model constraint and mapping tests",
+    "integration: use-case + persistence (+ infra) integration tests",
     "security: security-focused suites (ZAP-proxied, role matrix)",
     "smoke: fast subset run by the local pre-commit / quality gate",
 ]
