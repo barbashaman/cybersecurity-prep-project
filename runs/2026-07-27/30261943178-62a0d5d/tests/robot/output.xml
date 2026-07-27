@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.1.1 (Python 3.12.13 on linux)" generated="2026-07-27T11:27:33.595680" rpa="false" schemaversion="5">
+<suite id="s1" name="E2E" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e">
+<kw name="Stack Must Be Healthy" type="SETUP">
+<msg time="2026-07-27T11:27:33.649313" level="FAIL">No keyword with name 'Stack Must Be Healthy' found.</msg>
+<status status="FAIL" start="2026-07-27T11:27:33.649275" elapsed="0.000083">No keyword with name 'Stack Must Be Healthy' found.</status>
+</kw>
+<suite id="s1-s1" name="Access Control Negative" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/access_control_negative.robot">
+<test id="s1-s1-t1" name="Cross Tenant Catalog Access Is Denied" line="6">
+<tag>e2e</tag>
+<tag>feature:catalog</tag>
+<tag>negative</tag>
+<tag>owasp:a01</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.649993" elapsed="0.000309">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<test id="s1-s1-t2" name="Customer Cannot Access Admin Directory" line="24">
+<tag>e2e</tag>
+<tag>feature:admin</tag>
+<tag>negative</tag>
+<tag>owasp:a01</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.650561" elapsed="0.000341">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<test id="s1-s1-t3" name="Store Owner Cannot Place Checkout Order" line="29">
+<tag>e2e</tag>
+<tag>feature:checkout</tag>
+<tag>negative</tag>
+<tag>owasp:a01</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.651106" elapsed="0.000245">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<test id="s1-s1-t4" name="Unauthenticated Api Access Is Rejected" line="40">
+<tag>e2e</tag>
+<tag>feature:auth</tag>
+<tag>negative</tag>
+<tag>owasp:a01</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.651552" elapsed="0.000244">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<doc>Negative E2E coverage for broken access control (OWASP A01).</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.649420" elapsed="0.002697">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<suite id="s1-s2" name="Admin Governance" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/admin_governance.robot">
+<test id="s1-s2-t1" name="Admin Governs Across Stores" line="6">
+<tag>e2e</tag>
+<tag>feature:admin</tag>
+<tag>persona:admin</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.652890" elapsed="0.000229">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<doc>Admin cross-store governance journeys.</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.652586" elapsed="0.000763">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<suite id="s1-s3" name="Customer Purchase" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/customer_purchase.robot">
+<test id="s1-s3-t1" name="Customer Completes Purchase Lifecycle" line="6">
+<tag>e2e</tag>
+<tag>feature:checkout</tag>
+<tag>persona:customer</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.654080" elapsed="0.000247">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<doc>Customer purchase lifecycle across API checkout and web catalog.</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.653755" elapsed="0.000826">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<suite id="s1-s4" name="Delivery Privacy" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/delivery_privacy.robot">
+<test id="s1-s4-t1" name="Delivery Manager Sees Anonymized Orders Only" line="6">
+<tag>e2e</tag>
+<tag>feature:orders</tag>
+<tag>persona:delivery_manager</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.655277" elapsed="0.000264">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<doc>Delivery-manager privacy-safe order visibility journeys.</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.654973" elapsed="0.000794">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<suite id="s1-s5" name="Security Misconfiguration" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/security_misconfiguration.robot">
+<test id="s1-s5-t1" name="Web Responses Emit CSP And HSTS" line="6">
+<tag>e2e</tag>
+<tag>feature:misconfig</tag>
+<tag>negative</tag>
+<tag>owasp:a02</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.656506" elapsed="0.000239">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<test id="s1-s5-t2" name="Web Session Cookie Is Marked Secure" line="14">
+<tag>e2e</tag>
+<tag>feature:misconfig</tag>
+<tag>negative</tag>
+<tag>owasp:a02</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.656925" elapsed="0.000243">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<test id="s1-s5-t3" name="Api Health Remains Public While Auth Stays Protected" line="20">
+<tag>e2e</tag>
+<tag>feature:misconfig</tag>
+<tag>owasp:a02</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.657348" elapsed="0.000276">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<doc>E2E checks for security misconfiguration hardening (OWASP A02).</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.656151" elapsed="0.001692">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<suite id="s1-s6" name="Store Owner Catalog" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/store_owner_catalog.robot">
+<test id="s1-s6-t1" name="Store Owner Manages Own Catalog And Orders" line="6">
+<tag>e2e</tag>
+<tag>feature:catalog</tag>
+<tag>persona:store_owner</tag>
+<status status="FAIL" start="2026-07-27T11:27:33.658606" elapsed="0.000262">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</test>
+<doc>Store-owner catalog and order management journeys.</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.658244" elapsed="0.000846">Parent suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<doc>E2E suite root: require a healthy seeded API + web stack.</doc>
+<status status="FAIL" start="2026-07-27T11:27:33.596422" elapsed="0.063160">Suite setup failed:
+No keyword with name 'Stack Must Be Healthy' found.</status>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="11" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="0" fail="11" skip="0">e2e</stat>
+<stat pass="0" fail="2" skip="0">feature:admin</stat>
+<stat pass="0" fail="1" skip="0">feature:auth</stat>
+<stat pass="0" fail="2" skip="0">feature:catalog</stat>
+<stat pass="0" fail="2" skip="0">feature:checkout</stat>
+<stat pass="0" fail="3" skip="0">feature:misconfig</stat>
+<stat pass="0" fail="1" skip="0">feature:orders</stat>
+<stat pass="0" fail="6" skip="0">negative</stat>
+<stat pass="0" fail="4" skip="0">owasp:a01</stat>
+<stat pass="0" fail="3" skip="0">owasp:a02</stat>
+<stat pass="0" fail="1" skip="0">persona:admin</stat>
+<stat pass="0" fail="1" skip="0">persona:customer</stat>
+<stat pass="0" fail="1" skip="0">persona:delivery_manager</stat>
+<stat pass="0" fail="1" skip="0">persona:store_owner</stat>
+</tag>
+<suite>
+<stat pass="0" fail="11" skip="0" id="s1" name="E2E">E2E</stat>
+<stat pass="0" fail="4" skip="0" id="s1-s1" name="Access Control Negative">E2E.Access Control Negative</stat>
+<stat pass="0" fail="1" skip="0" id="s1-s2" name="Admin Governance">E2E.Admin Governance</stat>
+<stat pass="0" fail="1" skip="0" id="s1-s3" name="Customer Purchase">E2E.Customer Purchase</stat>
+<stat pass="0" fail="1" skip="0" id="s1-s4" name="Delivery Privacy">E2E.Delivery Privacy</stat>
+<stat pass="0" fail="3" skip="0" id="s1-s5" name="Security Misconfiguration">E2E.Security Misconfiguration</stat>
+<stat pass="0" fail="1" skip="0" id="s1-s6" name="Store Owner Catalog">E2E.Store Owner Catalog</stat>
+</suite>
+</statistics>
+<errors>
+<msg time="2026-07-27T11:27:33.647645" level="ERROR">Error in file '/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/resources/common.resource' on line 3: Importing library '/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/resources/EcommerceLibrary.py' failed: ModuleNotFoundError: No module named 'database'
+Traceback (most recent call last):
+  File "/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/resources/EcommerceLibrary.py", line 19, in &lt;module&gt;
+    from database.seeding.constants import (
+PYTHONPATH:
+  /home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/resources
+  /opt/hostedtoolcache/Python/3.12.13/x64/bin
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python312.zip
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/lib-dynload
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages</msg>
+</errors>
+</robot>
