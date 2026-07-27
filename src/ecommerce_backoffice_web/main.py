@@ -7,6 +7,7 @@ The JWT from login is stored in a signed session cookie.
 from __future__ import annotations
 
 import os
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
@@ -38,8 +39,26 @@ def create_app() -> FastAPI:
     api_client = ApiClient(api_base_url)
 
     app = FastAPI(title="E-Commerce Backoffice Web", version=version)
-    app.add_middleware(SessionMiddleware, secret_key=session_secret)
+    # Remediated (A04): Secure session cookies + HSTS.
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=session_secret,
+        https_only=True,
+    )
     app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+
+    @app.middleware("http")
+    async def security_headers_middleware(
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        """Emit CSP (A05) and HSTS (A04) on every response."""
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'"
+        )
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
 
     def _context(request: Request, **extra: Any) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -135,9 +154,14 @@ def create_app() -> FastAPI:
         token = _require_token(request)
         if isinstance(token, RedirectResponse):
             return token
+        search_query = request.query_params.get("q", "")
         try:
             store = api_client.get_store(token, store_id)
-            products = api_client.list_products(token, store_id)
+            if search_query:
+                # VULNERABLE (A05): forwards ``q`` to the SQL-concat search API.
+                products = api_client.search_products(token, store_id, search_query)
+            else:
+                products = api_client.list_products(token, store_id)
         except ApiClientError as error:
             return templates.TemplateResponse(
                 request,
@@ -146,6 +170,7 @@ def create_app() -> FastAPI:
                     request,
                     store={"id": store_id, "name": f"Store {store_id}"},
                     products=[],
+                    search_query=search_query,
                     error=error.detail,
                 ),
                 status_code=error.status_code,
@@ -153,7 +178,13 @@ def create_app() -> FastAPI:
         return templates.TemplateResponse(
             request,
             "store_detail.html",
-            _context(request, store=store, products=products, error=None),
+            _context(
+                request,
+                store=store,
+                products=products,
+                search_query=search_query,
+                error=None,
+            ),
         )
 
     @app.get("/stores/{store_id}/orders", response_class=HTMLResponse, response_model=None)

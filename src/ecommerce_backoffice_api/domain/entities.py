@@ -42,6 +42,7 @@ class Product:
     description: str
     price_cents: int
     is_active: bool = True
+    stock_quantity: int = 0
     id: int | None = None
 
 
@@ -70,7 +71,15 @@ class Order:
     customer_email: str
     customer_full_name: str
     shipping_address: str
+    # VULNERABLE (A04): shipping / contact PII (phone, address, name, email) is
+    # persisted as plaintext without encryption at rest.
+    # PLAN FIX (A04): encrypt sensitive fields at rest (AES-GCM / Fernet) with
+    # KMS-managed keys; delivery-manager ports must keep omitting this PII.
+    customer_phone: str = ""
     lines: list[OrderLine] = field(default_factory=list)
+    # VULNERABLE (A05): free-text notes are later rendered with Jinja2 ``|safe``.
+    # PLAN FIX (A05): Pydantic validation + HTML output encoding (no ``|safe``) + CSP.
+    notes: str = ""
     id: int | None = None
 
 
@@ -85,4 +94,67 @@ class AuditEvent:
     outcome: AuditOutcome
     detail: str
     created_at: datetime
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class StoreTheme:
+    """A storefront theme artifact uploaded for a tenant store (iter-03 A08)."""
+
+    store_id: int
+    artifact_bytes: bytes
+    content_type: str = "application/octet-stream"
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class OrderReceipt:
+    """A purchase receipt blob persisted for an order (iter-03 A08)."""
+
+    order_id: int
+    payload_blob: bytes
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class PasswordResetToken:
+    """A password-reset credential issued for a user (iter-04 A07)."""
+
+    user_id: int
+    token: str
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class CustomerCredit:
+    """Mock customer credit balance used for demo checkout (iter-05 A06)."""
+
+    user_id: int
+    balance_cents: int
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class Coupon:
+    """A store-scoped discount coupon (iter-05 A06)."""
+
+    store_id: int
+    code: str
+    discount_percent: int
+    is_active: bool = True
+    id: int | None = None
+
+
+@dataclass(slots=True)
+class CouponRedemption:
+    """A recorded coupon redemption (intended single-use ledger).
+
+    PLAN FIX (A06): persist redemptions with a unique constraint on
+    ``(coupon_id, user_id)`` (or global single-use on ``coupon_id``) so reuse
+    is rejected at the database boundary.
+    """
+
+    coupon_id: int
+    user_id: int
+    order_id: int
     id: int | None = None

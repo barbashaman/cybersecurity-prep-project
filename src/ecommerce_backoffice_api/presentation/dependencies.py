@@ -15,31 +15,56 @@ from ecommerce_backoffice_api.application.use_cases.audit import AdminAuditTrail
 from ecommerce_backoffice_api.application.use_cases.authentication import (
     AuthenticateUser,
     GetCurrentUserProfile,
+    LogoutUser,
+)
+from ecommerce_backoffice_api.application.use_cases.checkout import (
+    ApplyCouponToOrder,
+    CreateCoupon,
+    GrantCredits,
+    PlaceOrder,
 )
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
+    UpdateOrderNotes,
     UpdateOrderStatus,
+)
+from ecommerce_backoffice_api.application.use_cases.password_reset import (
+    ConfirmPasswordReset,
+    RequestPasswordReset,
 )
 from ecommerce_backoffice_api.application.use_cases.products import (
     CreateProduct,
     GetProduct,
     ImportProductsFromCsv,
     ListProductsForStore,
+    SearchProductsForStore,
     UpdateProduct,
 )
+from ecommerce_backoffice_api.application.use_cases.receipts import (
+    LoadOrderReceipt,
+    StoreOrderReceipt,
+)
 from ecommerce_backoffice_api.application.use_cases.stores import CreateStore, GetStore, ListStores
+from ecommerce_backoffice_api.application.use_cases.themes import GetStoreTheme, UploadStoreTheme
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import AuthenticationError
 from ecommerce_backoffice_api.infrastructure.config import Settings
 from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyAuditEventRepository,
+    SqlAlchemyCouponRepository,
+    SqlAlchemyCreditRepository,
     SqlAlchemyOrderRepository,
+    SqlAlchemyPasswordResetTokenRepository,
     SqlAlchemyProductRepository,
+    SqlAlchemyReceiptRepository,
     SqlAlchemyStoreRepository,
+    SqlAlchemyThemeRepository,
     SqlAlchemyUserRepository,
 )
-from ecommerce_backoffice_api.infrastructure.security.password_hasher import BcryptPasswordHasher
+from ecommerce_backoffice_api.infrastructure.security.password_hasher import (
+    build_password_hasher,
+)
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -113,9 +138,36 @@ def get_authenticate_user(
     """Build the login use case for the current request."""
     return AuthenticateUser(
         user_repository=SqlAlchemyUserRepository(session),
-        password_hasher=BcryptPasswordHasher(),
+        password_hasher=build_password_hasher(),
         token_service=token_service,
     )
+
+
+def get_request_password_reset(
+    session: Annotated[Session, Depends(get_session)],
+) -> RequestPasswordReset:
+    return RequestPasswordReset(
+        user_repository=SqlAlchemyUserRepository(session),
+        reset_token_repository=SqlAlchemyPasswordResetTokenRepository(session),
+    )
+
+
+def get_confirm_password_reset(
+    session: Annotated[Session, Depends(get_session)],
+    token_service: Annotated[TokenService, Depends(get_token_service)],
+) -> ConfirmPasswordReset:
+    return ConfirmPasswordReset(
+        user_repository=SqlAlchemyUserRepository(session),
+        reset_token_repository=SqlAlchemyPasswordResetTokenRepository(session),
+        password_hasher=build_password_hasher(),
+        token_service=token_service,
+    )
+
+
+def get_logout_user(
+    token_service: Annotated[TokenService, Depends(get_token_service)],
+) -> LogoutUser:
+    return LogoutUser(token_service=token_service)
 
 
 def get_list_stores(session: Annotated[Session, Depends(get_session)]) -> ListStores:
@@ -132,6 +184,15 @@ def get_create_store(session: Annotated[Session, Depends(get_session)]) -> Creat
 
 def get_list_products(session: Annotated[Session, Depends(get_session)]) -> ListProductsForStore:
     return ListProductsForStore(
+        SqlAlchemyProductRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_search_products(
+    session: Annotated[Session, Depends(get_session)],
+) -> SearchProductsForStore:
+    return SearchProductsForStore(
         SqlAlchemyProductRepository(session),
         SqlAlchemyStoreRepository(session),
     )
@@ -184,6 +245,10 @@ def get_update_order_status(session: Annotated[Session, Depends(get_session)]) -
     return UpdateOrderStatus(SqlAlchemyOrderRepository(session))
 
 
+def get_update_order_notes(session: Annotated[Session, Depends(get_session)]) -> UpdateOrderNotes:
+    return UpdateOrderNotes(SqlAlchemyOrderRepository(session))
+
+
 def get_list_users(
     session: Annotated[Session, Depends(get_session)],
     admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
@@ -196,3 +261,66 @@ def get_list_audit_events(
     admin_audit_trail: Annotated[AdminAuditTrail, Depends(get_admin_audit_trail)],
 ) -> ListAuditEvents:
     return ListAuditEvents(SqlAlchemyAuditEventRepository(session), admin_audit_trail)
+
+
+def get_upload_store_theme(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+) -> UploadStoreTheme:
+    settings = cast(Settings, request.app.state.settings)
+    return UploadStoreTheme(
+        SqlAlchemyThemeRepository(session),
+        SqlAlchemyStoreRepository(session),
+        hmac_secret=settings.theme_hmac_secret,
+    )
+
+
+def get_get_store_theme(session: Annotated[Session, Depends(get_session)]) -> GetStoreTheme:
+    return GetStoreTheme(
+        SqlAlchemyThemeRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_store_order_receipt(session: Annotated[Session, Depends(get_session)]) -> StoreOrderReceipt:
+    return StoreOrderReceipt(
+        SqlAlchemyReceiptRepository(session),
+        SqlAlchemyOrderRepository(session),
+    )
+
+
+def get_load_order_receipt(session: Annotated[Session, Depends(get_session)]) -> LoadOrderReceipt:
+    return LoadOrderReceipt(
+        SqlAlchemyReceiptRepository(session),
+        SqlAlchemyOrderRepository(session),
+    )
+
+
+def get_grant_credits(session: Annotated[Session, Depends(get_session)]) -> GrantCredits:
+    return GrantCredits(SqlAlchemyCreditRepository(session))
+
+
+def get_create_coupon(session: Annotated[Session, Depends(get_session)]) -> CreateCoupon:
+    return CreateCoupon(
+        SqlAlchemyCouponRepository(session),
+        SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_place_order(session: Annotated[Session, Depends(get_session)]) -> PlaceOrder:
+    return PlaceOrder(
+        order_repository=SqlAlchemyOrderRepository(session),
+        product_repository=SqlAlchemyProductRepository(session),
+        credit_repository=SqlAlchemyCreditRepository(session),
+        coupon_repository=SqlAlchemyCouponRepository(session),
+        store_repository=SqlAlchemyStoreRepository(session),
+    )
+
+
+def get_apply_coupon_to_order(
+    session: Annotated[Session, Depends(get_session)],
+) -> ApplyCouponToOrder:
+    return ApplyCouponToOrder(
+        order_repository=SqlAlchemyOrderRepository(session),
+        coupon_repository=SqlAlchemyCouponRepository(session),
+    )

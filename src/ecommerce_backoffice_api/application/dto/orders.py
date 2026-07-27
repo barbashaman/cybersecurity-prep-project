@@ -33,14 +33,21 @@ class OrderDetailView:
     customer_email: str
     customer_full_name: str
     shipping_address: str
+    customer_phone: str
     lines: tuple[OrderLineView, ...]
+    notes: str = ""
 
 
 @dataclass(frozen=True, slots=True)
 class AnonymizedOrderView:
-    """Delivery-manager order view with no customer personally identifiable data."""
+    """Delivery-manager order view with no customer personally identifiable data.
+
+    Interface Segregation: phone, email, name, and shipping address are omitted
+    even though the persistence layer currently stores them in plaintext (A04).
+    """
 
     id: int
     store_id: int
     status: OrderStatus
     lines: tuple[OrderLineView, ...]
+    notes: str = ""

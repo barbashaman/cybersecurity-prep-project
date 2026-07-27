@@ -10,6 +10,7 @@ from ecommerce_backoffice_api.domain.exceptions import (
     ConflictError,
     DomainError,
     NotFoundError,
+    RateLimitError,
 )
 
 
@@ -27,4 +28,9 @@ def http_error_from_domain(error: DomainError) -> HTTPException:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
     if isinstance(error, ConflictError):
         return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+    if isinstance(error, RateLimitError):
+        return HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=str(error),
+        )
     return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))

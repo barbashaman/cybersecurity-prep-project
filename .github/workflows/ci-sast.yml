@@ -61,13 +61,13 @@ jobs:
       # --- Upload to GitHub code scanning (needs Advanced Security; hedged) --
       - name: Upload Bandit SARIF to code scanning
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: report-payload/security/bandit/bandit.sarif
           category: bandit
       - name: Upload Semgrep SARIF to code scanning
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: report-payload/security/semgrep/semgrep.sarif
           category: semgrep

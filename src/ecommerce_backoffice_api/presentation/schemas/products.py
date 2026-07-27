@@ -14,6 +14,7 @@ class ProductCreateRequest(BaseModel):
     description: str = ""
     price_cents: int = Field(ge=0)
     is_active: bool = True
+    stock_quantity: int = 0
 
 
 class ProductUpdateRequest(BaseModel):
@@ -25,6 +26,7 @@ class ProductUpdateRequest(BaseModel):
     description: str | None = None
     price_cents: int | None = Field(default=None, ge=0)
     is_active: bool | None = None
+    stock_quantity: int | None = None
 
 
 class ProductResponse(BaseModel):
@@ -36,6 +38,7 @@ class ProductResponse(BaseModel):
     description: str
     price_cents: int
     is_active: bool
+    stock_quantity: int = 0
 
 
 class ProductImportResponse(BaseModel):
@@ -43,3 +46,17 @@ class ProductImportResponse(BaseModel):
 
     imported_count: int
     products: list[ProductResponse]
+
+
+class ProductSearchQuery(BaseModel):
+    """Query parameters for product name search.
+
+    VULNERABLE (A05): ``q`` is unconstrained and concatenated into raw SQL.
+
+    PLAN FIX (A05): Field(max_length=...), reject control characters; repository
+    must use bound parameters / ORM filters.
+    """
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    q: str = Field(default="")

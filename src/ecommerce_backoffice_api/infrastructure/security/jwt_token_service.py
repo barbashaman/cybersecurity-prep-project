@@ -19,23 +19,41 @@ class JwtTokenService:
         self._secret = secret
         self._algorithm = algorithm
         self._expire_minutes = expire_minutes
+        self._revoked_tokens: set[str] = set()
 
-    def issue_access_token(self, *, user_id: int, email: str, role: UserRole) -> str:
+    def issue_access_token(
+        self,
+        *,
+        user_id: int,
+        email: str,
+        role: UserRole,
+        expire_minutes: int | None = None,
+    ) -> str:
         now = datetime.now(UTC)
         payload: dict[str, Any] = {
             "sub": str(user_id),
             "email": email,
             "role": role.value,
             "iat": now,
-            "exp": now + timedelta(minutes=self._expire_minutes),
         }
+        ttl = self._expire_minutes if expire_minutes is None else expire_minutes
+        # Non-positive TTL deliberately omits ``exp`` (A07 red-phase reset flow).
+        if ttl > 0:
+            payload["exp"] = now + timedelta(minutes=ttl)
         return jwt.encode(payload, self._secret, algorithm=self._algorithm)
 
     def parse_access_token(self, token: str) -> TokenClaims:
+        if token in self._revoked_tokens:
+            raise AuthenticationError("Access token has been revoked.")
         try:
             payload = cast(
                 dict[str, Any],
-                jwt.decode(token, self._secret, algorithms=[self._algorithm]),
+                jwt.decode(
+                    token,
+                    self._secret,
+                    algorithms=[self._algorithm],
+                    options={"require": ["sub", "email", "role"]},
+                ),
             )
         except jwt.PyJWTError as exc:
             raise AuthenticationError("Invalid or expired access token.") from exc
@@ -55,3 +73,6 @@ class JwtTokenService:
         except (TypeError, ValueError) as exc:
             raise AuthenticationError("Access token claims are malformed.") from exc
         return TokenClaims(user_id=user_id, email=email, role=role)
+
+    def revoke_access_token(self, token: str) -> None:
+        self._revoked_tokens.add(token)

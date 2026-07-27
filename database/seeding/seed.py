@@ -24,13 +24,17 @@ from database.seeding.constants import (
 )
 from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
 from ecommerce_backoffice_api.infrastructure.persistence.models import (
+    CouponModel,
+    CustomerCreditModel,
     OrderLineModel,
     OrderModel,
     ProductModel,
     StoreModel,
     UserModel,
 )
-from ecommerce_backoffice_api.infrastructure.security.password_hasher import BcryptPasswordHasher
+from ecommerce_backoffice_api.infrastructure.security.password_hasher import (
+    build_password_hasher,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +70,7 @@ def seed_database(session: Session) -> bool:
         logger.info("Seed skipped: admin user already present.")
         return False
 
-    hasher = BcryptPasswordHasher()
+    hasher = build_password_hasher()
     password_hash = hasher.hash_password(DEMO_ONLY_SEED_PASSWORD)
 
     admin = UserModel(
@@ -129,18 +133,40 @@ def seed_database(session: Session) -> bool:
     products_by_store: dict[int, list[ProductModel]] = {}
     for store in (store_one, store_two):
         products: list[ProductModel] = []
-        for name, description, price_cents in _product_catalog(store.name):
+        for index, (name, description, price_cents) in enumerate(_product_catalog(store.name)):
+            # First SKU per store has stock=1 to exercise oversell demos.
+            stock = 1 if index == 0 else 25
             product = ProductModel(
                 store_id=store.id,
                 name=name,
                 description=description,
                 price_cents=price_cents,
                 is_active=True,
+                stock_quantity=stock,
             )
             products.append(product)
         session.add_all(products)
         session.flush()
         products_by_store[store.id] = products
+
+    session.add_all(
+        [
+            CustomerCreditModel(user_id=customer_one.id, balance_cents=500_000),
+            CustomerCreditModel(user_id=customer_two.id, balance_cents=500_000),
+            CouponModel(
+                store_id=store_one.id,
+                code="SAVE10",
+                discount_percent=10,
+                is_active=True,
+            ),
+            CouponModel(
+                store_id=store_two.id,
+                code="SAVE10",
+                discount_percent=10,
+                is_active=True,
+            ),
+        ]
+    )
 
     staged_statuses = (
         OrderStatus.PENDING,
@@ -150,17 +176,59 @@ def seed_database(session: Session) -> bool:
         OrderStatus.DELIVERED,
         OrderStatus.CANCELLED,
     )
-    order_specs: list[tuple[StoreModel, UserModel, OrderStatus, str]] = [
-        (store_one, customer_one, staged_statuses[0], "12 Pine Street, Seattle, WA"),
-        (store_one, customer_one, staged_statuses[2], "12 Pine Street, Seattle, WA"),
-        (store_one, customer_one, staged_statuses[3], "45 Harbor Ave, Seattle, WA"),
-        (store_two, customer_two, staged_statuses[1], "88 Market Road, Austin, TX"),
-        (store_two, customer_two, staged_statuses[3], "88 Market Road, Austin, TX"),
-        (store_two, customer_two, staged_statuses[4], "3 River Lane, Austin, TX"),
-        (store_two, customer_two, staged_statuses[5], "3 River Lane, Austin, TX"),
+    order_specs: list[tuple[StoreModel, UserModel, OrderStatus, str, str]] = [
+        (
+            store_one,
+            customer_one,
+            staged_statuses[0],
+            "12 Pine Street, Seattle, WA",
+            "+1-206-555-0101",
+        ),
+        (
+            store_one,
+            customer_one,
+            staged_statuses[2],
+            "12 Pine Street, Seattle, WA",
+            "+1-206-555-0101",
+        ),
+        (
+            store_one,
+            customer_one,
+            staged_statuses[3],
+            "45 Harbor Ave, Seattle, WA",
+            "+1-206-555-0145",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[1],
+            "88 Market Road, Austin, TX",
+            "+1-512-555-0188",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[3],
+            "88 Market Road, Austin, TX",
+            "+1-512-555-0188",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[4],
+            "3 River Lane, Austin, TX",
+            "+1-512-555-0103",
+        ),
+        (
+            store_two,
+            customer_two,
+            staged_statuses[5],
+            "3 River Lane, Austin, TX",
+            "+1-512-555-0103",
+        ),
     ]
 
-    for store, customer, status, address in order_specs:
+    for store, customer, status, address, phone in order_specs:
         catalog = products_by_store[store.id]
         first = catalog[0]
         second = catalog[1]
@@ -171,6 +239,8 @@ def seed_database(session: Session) -> bool:
             customer_email=customer.email,
             customer_full_name=customer.full_name,
             shipping_address=address,
+            # VULNERABLE (A04): plaintext phone at rest (demo seed).
+            customer_phone=phone,
             lines=[
                 OrderLineModel(
                     product_id=first.id,

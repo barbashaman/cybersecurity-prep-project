@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ecommerce_backoffice_api.domain.enums import OrderStatus
 
@@ -26,7 +26,9 @@ class OrderResponse(BaseModel):
     customer_email: str
     customer_full_name: str
     shipping_address: str
+    customer_phone: str = ""
     lines: list[OrderLineResponse]
+    notes: str = ""
 
 
 class AnonymizedOrderResponse(BaseModel):
@@ -36,9 +38,18 @@ class AnonymizedOrderResponse(BaseModel):
     store_id: int
     status: OrderStatus
     lines: list[OrderLineResponse]
+    notes: str = ""
 
 
 class OrderStatusUpdateRequest(BaseModel):
     """Payload for patching an order status."""
 
     status: OrderStatus = Field(...)
+
+
+class OrderNotesUpdateRequest(BaseModel):
+    """Payload for patching free-text order notes (length-bounded)."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    notes: str = Field(default="", max_length=2000)

@@ -7,20 +7,32 @@ from sqlalchemy.orm import Session, selectinload
 
 from ecommerce_backoffice_api.domain.entities import (
     AuditEvent,
+    Coupon,
+    CouponRedemption,
+    CustomerCredit,
     Order,
     OrderLine,
+    OrderReceipt,
+    PasswordResetToken,
     Product,
     Store,
+    StoreTheme,
     User,
 )
 from ecommerce_backoffice_api.domain.enums import AuditOutcome, OrderStatus, UserRole
 from ecommerce_backoffice_api.domain.exceptions import NotFoundError
 from ecommerce_backoffice_api.infrastructure.persistence.models import (
     AuditEventModel,
+    CouponModel,
+    CouponRedemptionModel,
+    CustomerCreditModel,
     OrderLineModel,
     OrderModel,
+    OrderReceiptModel,
+    PasswordResetTokenModel,
     ProductModel,
     StoreModel,
+    StoreThemeModel,
     UserModel,
 )
 
@@ -48,6 +60,34 @@ def _product_from_model(model: ProductModel) -> Product:
         description=model.description,
         price_cents=model.price_cents,
         is_active=model.is_active,
+        stock_quantity=model.stock_quantity,
+    )
+
+
+def _credit_from_model(model: CustomerCreditModel) -> CustomerCredit:
+    return CustomerCredit(
+        id=model.id,
+        user_id=model.user_id,
+        balance_cents=model.balance_cents,
+    )
+
+
+def _coupon_from_model(model: CouponModel) -> Coupon:
+    return Coupon(
+        id=model.id,
+        store_id=model.store_id,
+        code=model.code,
+        discount_percent=model.discount_percent,
+        is_active=model.is_active,
+    )
+
+
+def _coupon_redemption_from_model(model: CouponRedemptionModel) -> CouponRedemption:
+    return CouponRedemption(
+        id=model.id,
+        coupon_id=model.coupon_id,
+        user_id=model.user_id,
+        order_id=model.order_id,
     )
 
 
@@ -70,6 +110,8 @@ def _order_from_model(model: OrderModel) -> Order:
         customer_email=model.customer_email,
         customer_full_name=model.customer_full_name,
         shipping_address=model.shipping_address,
+        customer_phone=model.customer_phone,
+        notes=model.notes,
         lines=lines,
     )
 
@@ -84,6 +126,31 @@ def _audit_event_from_model(model: AuditEventModel) -> AuditEvent:
         outcome=AuditOutcome(model.outcome),
         detail=model.detail,
         created_at=model.created_at,
+    )
+
+
+def _store_theme_from_model(model: StoreThemeModel) -> StoreTheme:
+    return StoreTheme(
+        id=model.id,
+        store_id=model.store_id,
+        artifact_bytes=bytes(model.artifact_bytes),
+        content_type=model.content_type,
+    )
+
+
+def _order_receipt_from_model(model: OrderReceiptModel) -> OrderReceipt:
+    return OrderReceipt(
+        id=model.id,
+        order_id=model.order_id,
+        payload_blob=bytes(model.payload_blob),
+    )
+
+
+def _password_reset_token_from_model(model: PasswordResetTokenModel) -> PasswordResetToken:
+    return PasswordResetToken(
+        id=model.id,
+        user_id=model.user_id,
+        token=model.token,
     )
 
 
@@ -117,6 +184,53 @@ class SqlAlchemyUserRepository:
         self._session.add(model)
         self._session.flush()
         return _user_from_model(model)
+
+    def update_password(self, user_id: int, password_hash: str) -> User:
+        model = self._session.get(UserModel, user_id)
+        if model is None:
+            raise NotFoundError(f"User {user_id} was not found.")
+        model.password_hash = password_hash
+        self._session.flush()
+        return _user_from_model(model)
+
+
+class SqlAlchemyPasswordResetTokenRepository:
+    """Password-reset token repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def save(self, reset_token: PasswordResetToken) -> PasswordResetToken:
+        existing = self._session.scalars(
+            select(PasswordResetTokenModel).where(
+                PasswordResetTokenModel.token == reset_token.token
+            )
+        ).first()
+        if existing is not None:
+            existing.user_id = reset_token.user_id
+            self._session.flush()
+            return _password_reset_token_from_model(existing)
+        model = PasswordResetTokenModel(
+            user_id=reset_token.user_id,
+            token=reset_token.token,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _password_reset_token_from_model(model)
+
+    def get_by_token(self, token: str) -> PasswordResetToken | None:
+        model = self._session.scalars(
+            select(PasswordResetTokenModel).where(PasswordResetTokenModel.token == token)
+        ).first()
+        return _password_reset_token_from_model(model) if model is not None else None
+
+    def delete_for_user(self, user_id: int) -> None:
+        models = self._session.scalars(
+            select(PasswordResetTokenModel).where(PasswordResetTokenModel.user_id == user_id)
+        ).all()
+        for model in models:
+            self._session.delete(model)
+        self._session.flush()
 
 
 class SqlAlchemyStoreRepository:
@@ -152,6 +266,19 @@ class SqlAlchemyProductRepository:
         )
         return [_product_from_model(model) for model in self._session.scalars(statement).all()]
 
+    def search_for_store(self, store_id: int, query: str) -> list[Product]:
+        """Search products by name within a store using bound LIKE parameters."""
+        pattern = f"%{query}%"
+        statement = (
+            select(ProductModel)
+            .where(
+                ProductModel.store_id == store_id,
+                ProductModel.name.like(pattern),
+            )
+            .order_by(ProductModel.id)
+        )
+        return [_product_from_model(model) for model in self._session.scalars(statement).all()]
+
     def get_by_id(self, product_id: int) -> Product | None:
         model = self._session.get(ProductModel, product_id)
         return _product_from_model(model) if model is not None else None
@@ -163,6 +290,7 @@ class SqlAlchemyProductRepository:
             description=product.description,
             price_cents=product.price_cents,
             is_active=product.is_active,
+            stock_quantity=product.stock_quantity,
         )
         self._session.add(model)
         self._session.flush()
@@ -178,6 +306,7 @@ class SqlAlchemyProductRepository:
         model.description = product.description
         model.price_cents = product.price_cents
         model.is_active = product.is_active
+        model.stock_quantity = product.stock_quantity
         self._session.flush()
         return _product_from_model(model)
 
@@ -226,6 +355,9 @@ class SqlAlchemyOrderRepository:
             customer_email=order.customer_email,
             customer_full_name=order.customer_full_name,
             shipping_address=order.shipping_address,
+            # VULNERABLE (A04): written as plaintext; no field-level encryption.
+            customer_phone=order.customer_phone,
+            notes=order.notes,
             lines=[
                 OrderLineModel(
                     product_id=line.product_id,
@@ -250,6 +382,19 @@ class SqlAlchemyOrderRepository:
         if model is None:
             raise NotFoundError(f"Order {order_id} was not found.")
         model.status = status.value
+        self._session.flush()
+        return _order_from_model(model)
+
+    def update_notes(self, order_id: int, notes: str) -> Order:
+        statement = (
+            select(OrderModel)
+            .options(selectinload(OrderModel.lines))
+            .where(OrderModel.id == order_id)
+        )
+        model = self._session.scalars(statement).first()
+        if model is None:
+            raise NotFoundError(f"Order {order_id} was not found.")
+        model.notes = notes
         self._session.flush()
         return _order_from_model(model)
 
@@ -281,3 +426,129 @@ class SqlAlchemyAuditEventRepository:
             .limit(max(1, min(limit, 500)))
         )
         return [_audit_event_from_model(model) for model in self._session.scalars(statement).all()]
+
+
+class SqlAlchemyThemeRepository:
+    """Store-theme repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def get_for_store(self, store_id: int) -> StoreTheme | None:
+        statement = select(StoreThemeModel).where(StoreThemeModel.store_id == store_id)
+        model = self._session.scalars(statement).first()
+        return _store_theme_from_model(model) if model is not None else None
+
+    def save(self, theme: StoreTheme) -> StoreTheme:
+        statement = select(StoreThemeModel).where(StoreThemeModel.store_id == theme.store_id)
+        model = self._session.scalars(statement).first()
+        if model is None:
+            model = StoreThemeModel(
+                store_id=theme.store_id,
+                artifact_bytes=theme.artifact_bytes,
+                content_type=theme.content_type,
+            )
+            self._session.add(model)
+        else:
+            model.artifact_bytes = theme.artifact_bytes
+            model.content_type = theme.content_type
+        self._session.flush()
+        return _store_theme_from_model(model)
+
+
+class SqlAlchemyReceiptRepository:
+    """Order-receipt repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def get_for_order(self, order_id: int) -> OrderReceipt | None:
+        statement = select(OrderReceiptModel).where(OrderReceiptModel.order_id == order_id)
+        model = self._session.scalars(statement).first()
+        return _order_receipt_from_model(model) if model is not None else None
+
+    def save(self, receipt: OrderReceipt) -> OrderReceipt:
+        statement = select(OrderReceiptModel).where(OrderReceiptModel.order_id == receipt.order_id)
+        model = self._session.scalars(statement).first()
+        if model is None:
+            model = OrderReceiptModel(
+                order_id=receipt.order_id,
+                payload_blob=receipt.payload_blob,
+            )
+            self._session.add(model)
+        else:
+            model.payload_blob = receipt.payload_blob
+        self._session.flush()
+        return _order_receipt_from_model(model)
+
+
+class SqlAlchemyCreditRepository:
+    """Customer-credit repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def get_for_user(self, user_id: int) -> CustomerCredit | None:
+        model = self._session.scalars(
+            select(CustomerCreditModel).where(CustomerCreditModel.user_id == user_id)
+        ).first()
+        return _credit_from_model(model) if model is not None else None
+
+    def save(self, credit: CustomerCredit) -> CustomerCredit:
+        existing = self._session.scalars(
+            select(CustomerCreditModel).where(CustomerCreditModel.user_id == credit.user_id)
+        ).first()
+        if existing is None:
+            model = CustomerCreditModel(
+                user_id=credit.user_id,
+                balance_cents=credit.balance_cents,
+            )
+            self._session.add(model)
+        else:
+            existing.balance_cents = credit.balance_cents
+            model = existing
+        self._session.flush()
+        return _credit_from_model(model)
+
+
+class SqlAlchemyCouponRepository:
+    """Coupon + redemption repository backed by SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add(self, coupon: Coupon) -> Coupon:
+        model = CouponModel(
+            store_id=coupon.store_id,
+            code=coupon.code,
+            discount_percent=coupon.discount_percent,
+            is_active=coupon.is_active,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _coupon_from_model(model)
+
+    def get_by_code(self, store_id: int, code: str) -> Coupon | None:
+        model = self._session.scalars(
+            select(CouponModel).where(
+                CouponModel.store_id == store_id,
+                CouponModel.code == code.strip().upper(),
+            )
+        ).first()
+        return _coupon_from_model(model) if model is not None else None
+
+    def record_redemption(self, redemption: CouponRedemption) -> CouponRedemption:
+        model = CouponRedemptionModel(
+            coupon_id=redemption.coupon_id,
+            user_id=redemption.user_id,
+            order_id=redemption.order_id,
+        )
+        self._session.add(model)
+        self._session.flush()
+        return _coupon_redemption_from_model(model)
+
+    def has_been_redeemed(self, coupon_id: int) -> bool:
+        model = self._session.scalars(
+            select(CouponRedemptionModel).where(CouponRedemptionModel.coupon_id == coupon_id)
+        ).first()
+        return model is not None

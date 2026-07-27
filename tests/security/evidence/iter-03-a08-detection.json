@@ -1,0 +1,19 @@
+{
+  "iteration": "iter-03",
+  "owasp_risk": "A08 Software or Data Integrity Failures",
+  "owasp_api_cross_reference": "API8:2023 Security Misconfiguration / software and data integrity failures (unsigned artifacts, insecure deserialization)",
+  "summary": "Store theme upload accepts unsigned artifacts without HMAC verification, and purchase receipts are serialized/deserialized with pickle on untrusted data.",
+  "failing_tests": [
+    "tests/security/test_a08_integrity.py::test_theme_upload_must_reject_unsigned_artifact",
+    "tests/security/test_a08_integrity.py::test_theme_upload_must_reject_invalid_signature",
+    "tests/security/test_a08_integrity.py::test_receipt_store_must_persist_json_not_pickle",
+    "tests/security/test_a08_integrity.py::test_receipt_load_must_reject_pickle_payload"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a08_integrity.py",
+      "description": "Detection suite asserting secure theme HMAC verification and JSON-only receipt handling; fails on vulnerable red-phase code."
+    }
+  ]
+}

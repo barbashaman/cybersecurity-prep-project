@@ -7,6 +7,12 @@
     <p class="lede">Product catalog for store {{ store.id }}.
       <a href="/stores/{{ store.id }}/orders">View orders</a></p>
   </div>
+  <form class="stack" method="get" action="/stores/{{ store.id }}">
+    <label for="q">Search products by name</label>
+    <input id="q" name="q" type="search" value="{{ search_query or '' }}"
+           placeholder="e.g. jacket">
+    <button type="submit">Search</button>
+  </form>
   {% if error %}
     <p class="flash">{{ error }}</p>
   {% endif %}

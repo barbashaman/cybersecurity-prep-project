@@ -8,7 +8,11 @@ from ecommerce_backoffice_api.domain.enums import UserRole
 
 
 class PasswordHasher(Protocol):
-    """Hashes and verifies passwords (bcrypt in Phase 1b)."""
+    """Hashes and verifies passwords.
+
+    Phase 1b used bcrypt; iter-07 red intentionally wires MD5. Remediation
+    restores Argon2id (preferred) or strong bcrypt.
+    """
 
     def hash_password(self, plain_password: str) -> str:
         """Return a one-way hash of ``plain_password``."""
@@ -33,10 +37,26 @@ class TokenClaims:
 class TokenService(Protocol):
     """Issues and validates bearer access tokens."""
 
-    def issue_access_token(self, *, user_id: int, email: str, role: UserRole) -> str:
-        """Return a signed access token for the given principal."""
+    def issue_access_token(
+        self,
+        *,
+        user_id: int,
+        email: str,
+        role: UserRole,
+        expire_minutes: int | None = None,
+    ) -> str:
+        """Return a signed access token for the given principal.
+
+        When ``expire_minutes`` is ``None``, the service default TTL is used.
+        A non-positive ``expire_minutes`` omits the ``exp`` claim (legacy /
+        unsupported for new sessions after the A07 remediation).
+        """
         ...
 
     def parse_access_token(self, token: str) -> TokenClaims:
         """Decode and validate ``token``; raise on failure."""
+        ...
+
+    def revoke_access_token(self, token: str) -> None:
+        """Mark ``token`` as revoked so subsequent parses fail."""
         ...
