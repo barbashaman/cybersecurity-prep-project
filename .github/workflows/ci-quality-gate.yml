@@ -26,9 +26,9 @@ jobs:
   quality-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -85,7 +85,7 @@ jobs:
 
       - name: Upload run artifact (Tier 1)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-quality-gate-${{ github.run_number }}-${{ github.sha }}
           path: report-payload
@@ -102,14 +102,14 @@ jobs:
     # group, which drops publishes when quality/sast/dast/supply-chain finish
     # together. Serialisation is handled by publish.sh rebase-retry instead.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Download run artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-quality-gate-${{ github.run_number }}-${{ github.sha }}
           path: report-payload
