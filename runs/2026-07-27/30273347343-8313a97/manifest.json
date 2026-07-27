@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "8/merge",
+  "commit": "8313a971997a6c489bd0cbd087d293a6cf84ecdf",
+  "workflow": "ci-supply-chain",
+  "run_id": "30273347343",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T14:06:52Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
