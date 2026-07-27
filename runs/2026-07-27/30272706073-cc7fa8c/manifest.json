@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/mypy-2.3.0",
+  "commit": "cc7fa8cb6d90e4aa0f4004500317db1112e94ac0",
+  "workflow": "ci-supply-chain",
+  "run_id": "30272706073",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T13:58:14Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
