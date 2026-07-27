@@ -29,6 +29,8 @@ env:
   PYTHON_VERSION: "3.12"
   TOOLKIT_BASE_URL: http://localhost:8000
   WEB_BASE_URL: http://localhost:8080
+  # Robot + seeding imports need repo root (`database/`) and `src/` on sys.path.
+  PYTHONPATH: ${{ github.workspace }}/src:${{ github.workspace }}
 
 jobs:
   extended:

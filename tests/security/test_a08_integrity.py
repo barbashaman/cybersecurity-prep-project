@@ -36,6 +36,9 @@ class _FakeStoreRepository:
     def get_by_id(self, store_id: int) -> Store | None:
         return self._store if self._store.id == store_id else None
 
+    def get_by_public_id(self, public_id: str) -> Store | None:
+        return self._store if self._store.public_id == public_id else None
+
     def list_all(self) -> list[Store]:
         return [self._store]
 
