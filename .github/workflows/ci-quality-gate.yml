@@ -72,7 +72,7 @@ jobs:
 
       - name: Upload run artifact (Tier 1)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-quality-gate-${{ github.run_number }}-${{ github.sha }}
           path: report-payload
