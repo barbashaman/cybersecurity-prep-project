@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "feature/test-pyramid-expansion",
+  "commit": "8f62051e399707a80cbec3f2b97e7a378f211014",
+  "workflow": "ci-sast",
+  "run_id": "30260028805",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T10:57:26Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
