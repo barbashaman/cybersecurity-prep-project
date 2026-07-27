@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/playwright-1.61.0",
+  "commit": "e61eae65d9bc5d5ae785eeddc475e1f298e31003",
+  "workflow": "ci-dast",
+  "run_id": "30272847863",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T14:01:18Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
