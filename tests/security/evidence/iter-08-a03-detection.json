@@ -1,0 +1,17 @@
+{
+  "iteration": "iter-08",
+  "owasp_risk": "A03 Software Supply Chain Failures",
+  "owasp_api_cross_reference": "API10:2023 Unsafe Consumption of APIs / software supply-chain trust failures",
+  "summary": "Shipping-rate integration must reject upstream schema drift, sanitize provider fields, and enforce strict amount/currency validation before quote data is trusted.",
+  "failing_tests": [
+    "tests/security/test_a03_supply_chain_failures.py::test_shipping_quote_must_reject_schema_drift_and_untrusted_fields",
+    "tests/security/test_a03_supply_chain_failures.py::test_shipping_quote_must_sanitize_and_normalize_trusted_payload"
+  ],
+  "evidence": [
+    {
+      "tool": "pytest",
+      "identifier": "tests/security/test_a03_supply_chain_failures.py",
+      "description": "Detection suite asserting strict upstream schema contract, payload sanitization, currency normalization, and bounded numeric conversion for third-party shipping quotes."
+    }
+  ]
+}

@@ -22,9 +22,11 @@ def upgrade() -> None:
     op.create_table(
         "stores",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("public_id", sa.String(length=36), nullable=False),
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("owner_user_id", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("public_id"),
     )
     op.create_table(
         "users",

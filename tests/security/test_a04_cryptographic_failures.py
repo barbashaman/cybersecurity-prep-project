@@ -6,13 +6,14 @@ These tests assert *secure* behaviour:
 - session cookies must include the ``Secure`` flag (and ideally ``HttpOnly``)
 
 Against the deliberately vulnerable red-phase code they FAIL (red). After
-remediation they PASS (green). They are intentionally outside the quality-gate
-domain+toolkit subset so Phase 1b CI stays green until this suite is wired in.
+remediation they PASS (green). Wired into the PR-required quality-gate core
+pyramid (offline security marker suite).
 """
 
 from __future__ import annotations
 
 import re
+import uuid
 from typing import Any
 from unittest.mock import patch
 
@@ -65,7 +66,7 @@ def test_sensitive_pii_at_rest_must_not_be_plaintext() -> None:
     phone = plaintext_customer_phone_sample()
     session = _session()
     try:
-        store = StoreModel(name="Northwind")
+        store = StoreModel(public_id=str(uuid.uuid4()), name="Northwind")
         session.add(store)
         session.flush()
         customer = UserModel(

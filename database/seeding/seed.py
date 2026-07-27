@@ -7,6 +7,7 @@ run on every API startup.
 from __future__ import annotations
 
 import logging
+import uuid
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -90,8 +91,16 @@ def seed_database(session: Session) -> bool:
     session.add_all([admin, delivery])
     session.flush()
 
-    store_one = StoreModel(name=STORE_ONE_NAME, owner_user_id=None)
-    store_two = StoreModel(name=STORE_TWO_NAME, owner_user_id=None)
+    store_one = StoreModel(
+        public_id=str(uuid.uuid4()),
+        name=STORE_ONE_NAME,
+        owner_user_id=None,
+    )
+    store_two = StoreModel(
+        public_id=str(uuid.uuid4()),
+        name=STORE_TWO_NAME,
+        owner_user_id=None,
+    )
     session.add_all([store_one, store_two])
     session.flush()
 

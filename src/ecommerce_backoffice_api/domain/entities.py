@@ -30,6 +30,7 @@ class Store:
 
     name: str
     owner_user_id: int | None = None
+    public_id: str | None = None
     id: int | None = None
 
 

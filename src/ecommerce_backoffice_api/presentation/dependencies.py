@@ -45,11 +45,14 @@ from ecommerce_backoffice_api.application.use_cases.receipts import (
     LoadOrderReceipt,
     StoreOrderReceipt,
 )
+from ecommerce_backoffice_api.application.use_cases.revenue import GetStoreRevenue
+from ecommerce_backoffice_api.application.use_cases.shipping_rates import GetShippingQuote
 from ecommerce_backoffice_api.application.use_cases.stores import CreateStore, GetStore, ListStores
 from ecommerce_backoffice_api.application.use_cases.themes import GetStoreTheme, UploadStoreTheme
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import AuthenticationError
 from ecommerce_backoffice_api.infrastructure.config import Settings
+from ecommerce_backoffice_api.infrastructure.integrations.shipping import MockShippingRateProvider
 from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyAuditEventRepository,
     SqlAlchemyCouponRepository,
@@ -323,4 +326,17 @@ def get_apply_coupon_to_order(
     return ApplyCouponToOrder(
         order_repository=SqlAlchemyOrderRepository(session),
         coupon_repository=SqlAlchemyCouponRepository(session),
+    )
+
+
+def get_shipping_quote_use_case() -> GetShippingQuote:
+    return GetShippingQuote(provider=MockShippingRateProvider())
+
+
+def get_store_revenue_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> GetStoreRevenue:
+    return GetStoreRevenue(
+        store_repository=SqlAlchemyStoreRepository(session),
+        order_repository=SqlAlchemyOrderRepository(session),
     )

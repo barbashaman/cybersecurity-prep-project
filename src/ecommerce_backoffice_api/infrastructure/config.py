@@ -1,11 +1,4 @@
-"""Application configuration loaded from the environment.
-
-Phase 1b ships an honest, deliberately un-hardened baseline: ``DEBUG`` defaults
-on, CORS is wide open and ``/docs`` is exposed. iter-09 (A02 Security
-Misconfiguration) is where these become env-driven and locked down. Keeping the
-config in one typed place is what makes that later change a single, reviewable
-diff.
-"""
+"""Application configuration loaded from the environment."""
 
 from __future__ import annotations
 
@@ -35,6 +28,7 @@ def _read_bool(name: str, default: bool) -> bool:
 class Settings:
     """Typed application settings."""
 
+    environment: str
     version: str
     debug: bool
     expose_docs: bool
@@ -51,7 +45,8 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> Settings:
-        origins_raw = os.environ.get("CORS_ALLOW_ORIGINS", "*")
+        environment = os.environ.get("APP_ENV", "development").strip().lower() or "development"
+        origins_raw = os.environ.get("CORS_ALLOW_ORIGINS", "http://localhost:3000")
         origins = tuple(origin.strip() for origin in origins_raw.split(",") if origin.strip())
         # nosec B105 - intentional demo default; hardened in a later iteration.
         jwt_secret = os.environ.get(
@@ -64,10 +59,11 @@ class Settings:
         )
         pii_encryption_key = os.environ.get("PII_ENCRYPTION_KEY", "")
         return cls(
+            environment=environment,
             version=_read_version(),
-            debug=_read_bool("DEBUG", default=True),
-            expose_docs=_read_bool("EXPOSE_DOCS", default=True),
-            cors_allow_origins=origins or ("*",),
+            debug=_read_bool("DEBUG", default=False),
+            expose_docs=_read_bool("EXPOSE_DOCS", default=environment != "production"),
+            cors_allow_origins=origins or ("http://localhost:3000",),
             api_host=os.environ.get("API_HOST", "0.0.0.0"),  # noqa: S104
             api_port=int(os.environ.get("API_PORT", "8000")),
             database_url=os.environ.get(

@@ -83,6 +83,10 @@ class StoreRepository(Protocol):
         """Return the store with ``store_id``, or None."""
         ...
 
+    def get_by_public_id(self, public_id: str) -> Store | None:
+        """Return the store with UUIDv4 ``public_id``, or None."""
+        ...
+
     def add(self, store: Store) -> Store:
         """Persist a new store and return it with an assigned id."""
         ...

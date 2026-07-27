@@ -6,12 +6,13 @@ These tests assert *secure* behaviour:
 - order notes must be HTML-escaped in rendered web output (no raw ``<script>``)
 
 Against the deliberately vulnerable red-phase code they FAIL (red). After
-remediation they PASS (green). They are intentionally outside the quality-gate
-domain+toolkit subset so Phase 1b CI stays green until this suite is wired in.
+remediation they PASS (green). Wired into the PR-required quality-gate core
+pyramid (offline security marker suite).
 """
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 import pytest
@@ -44,8 +45,8 @@ def _session_with_catalog() -> Session:
     Base.metadata.create_all(engine)
     session_factory = sessionmaker(bind=engine)
     session = session_factory()
-    store_a = StoreModel(name="Northwind")
-    store_b = StoreModel(name="Contoso")
+    store_a = StoreModel(public_id=str(uuid.uuid4()), name="Northwind")
+    store_b = StoreModel(public_id=str(uuid.uuid4()), name="Contoso")
     session.add_all([store_a, store_b])
     session.flush()
     session.add_all(
