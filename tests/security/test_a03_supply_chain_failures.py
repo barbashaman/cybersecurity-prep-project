@@ -13,7 +13,9 @@ pytestmark = pytest.mark.security
 
 
 class _TrustedProvider:
-    def fetch_quote(self, *, destination_country: str, parcel_weight_kg: float) -> dict[str, object]:
+    def fetch_quote(
+        self, *, destination_country: str, parcel_weight_kg: float
+    ) -> dict[str, object]:
         del destination_country, parcel_weight_kg
         return {
             "carrier": "Acme Logistics",
@@ -24,7 +26,9 @@ class _TrustedProvider:
 
 
 class _CompromisedProviderWithSchemaDrift:
-    def fetch_quote(self, *, destination_country: str, parcel_weight_kg: float) -> dict[str, object]:
+    def fetch_quote(
+        self, *, destination_country: str, parcel_weight_kg: float
+    ) -> dict[str, object]:
         del destination_country, parcel_weight_kg
         return {
             "carrier": "<script>alert(1)</script>",
@@ -48,7 +52,8 @@ def _customer() -> User:
 
 def test_shipping_quote_must_reject_schema_drift_and_untrusted_fields() -> None:
     # Threat category: OWASP A03 (Supply Chain / Software Integrity Failures).
-    # Attack path: third-party shipping provider response drifts from trusted schema and injects unsafe data.
+    # Attack path: third-party shipping provider response drifts from trusted
+    # schema and injects unsafe data.
     # Expected secure behavior: reject payload when structure/content violate integration contract.
     # Failure impact: poisoned downstream state, script injection vectors, and pricing manipulation.
     # Arrange
@@ -65,7 +70,8 @@ def test_shipping_quote_must_reject_schema_drift_and_untrusted_fields() -> None:
 
 def test_shipping_quote_must_sanitize_and_normalize_trusted_payload() -> None:
     # Threat category: OWASP A03 (Supply Chain / Software Integrity Failures).
-    # Attack path: valid upstream payload still arrives with lowercase country/currency input variants.
+    # Attack path: valid upstream payload still arrives with lowercase
+    # country/currency input variants.
     # Expected secure behavior: normalize and sanitize trusted fields before returning to callers.
     # Failure impact: inconsistent contract surface can cascade into accounting/reporting defects.
     # Arrange

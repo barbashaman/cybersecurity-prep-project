@@ -67,8 +67,18 @@ class _FakeOrderRepository:
 
 def _stores() -> list[Store]:
     return [
-        Store(id=1, public_id="8a1f3d7a-cf7e-4a27-a2e8-47142f5be7ac", name="Store A", owner_user_id=11),
-        Store(id=2, public_id="f8c7f0d9-2360-4f91-921a-1550c8e5b4b2", name="Store B", owner_user_id=12),
+        Store(
+            id=1,
+            public_id="8a1f3d7a-cf7e-4a27-a2e8-47142f5be7ac",
+            name="Store A",
+            owner_user_id=11,
+        ),
+        Store(
+            id=2,
+            public_id="f8c7f0d9-2360-4f91-921a-1550c8e5b4b2",
+            name="Store B",
+            owner_user_id=12,
+        ),
     ]
 
 
@@ -124,7 +134,8 @@ def test_cross_store_revenue_must_be_blocked_for_other_store_owner() -> None:
 def test_store_revenue_must_use_uuid_lookup_and_authorized_scope() -> None:
     # Threat category: OWASP A01 (Broken Access Control).
     # Attack path: an authorized owner queries store revenue through public identifiers.
-    # Expected secure behavior: lookup stays within actor scope and only tenant-owned data is aggregated.
+    # Expected secure behavior: lookup stays within actor scope and only
+    # tenant-owned data is aggregated.
     # Failure impact: identifier confusion may expose or mix another tenant's data.
     # Arrange
     owner_from_store_a = User(

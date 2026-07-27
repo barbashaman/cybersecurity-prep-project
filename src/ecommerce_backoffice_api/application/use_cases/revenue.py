@@ -46,7 +46,8 @@ class GetStoreRevenue:
         orders = self._order_repository.list_for_store(store.id)
         paid_orders = [order for order in orders if order.status is not OrderStatus.CANCELLED]
         gross_revenue_cents = sum(
-            sum(line.quantity * line.unit_price_cents for line in order.lines) for order in paid_orders
+            sum(line.quantity * line.unit_price_cents for line in order.lines)
+            for order in paid_orders
         )
         return StoreRevenueView(
             store_public_id=store.public_id or "",

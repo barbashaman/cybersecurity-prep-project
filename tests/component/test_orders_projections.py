@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import pytest
+from tests.component.factories import make_order, make_store, make_user
+from tests.component.fakes import FakeAuditEventRepository, FakeOrderRepository, FakeStoreRepository
 
 from ecommerce_backoffice_api.application.dto.orders import AnonymizedOrderView, OrderDetailView
 from ecommerce_backoffice_api.application.use_cases.audit import AdminAuditTrail
@@ -14,8 +16,6 @@ from ecommerce_backoffice_api.application.use_cases.orders import (
 )
 from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
 from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, ConflictError
-from tests.component.factories import make_order, make_store, make_user
-from tests.component.fakes import FakeAuditEventRepository, FakeOrderRepository, FakeStoreRepository
 
 pytestmark = pytest.mark.component
 

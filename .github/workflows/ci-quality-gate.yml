@@ -1,10 +1,15 @@
 name: ci-quality-gate
 
+# Required gate for every PR targeting main (and every branch push).
+# Tier A (PR-required): lint/typecheck + smoke + stable offline pyramid cores.
+# Stack-dependent suites (functional HTTP, E2E Robot, performance_extended)
+# live in ci-extended (nightly / manual) until promoted here.
 on:
   push:
     branches: ["**"]
     tags: ["iter-*"]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -48,9 +53,17 @@ jobs:
       - name: Prepare payload dir
         run: mkdir -p report-payload/tests/pytest
 
-      - name: Unit tests (toolkit + domain smoke)
+      - name: Core pyramid (smoke + component + database + integration + security + performance_fast)
         run: |
-          pytest tests/test_toolkit_smoke.py tests/domain \
+          pytest \
+            tests/test_toolkit_smoke.py \
+            tests/domain \
+            tests/component \
+            tests/database \
+            tests/integration \
+            tests/security \
+            tests/performance \
+            -m "not performance_extended" \
             --junitxml=report-payload/tests/pytest/junit.xml \
             --html=report-payload/tests/pytest/report.html --self-contained-html
 

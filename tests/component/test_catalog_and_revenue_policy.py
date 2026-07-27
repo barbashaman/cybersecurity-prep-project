@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import pytest
+from tests.component.factories import make_order, make_product, make_store, make_user
+from tests.component.fakes import FakeOrderRepository, FakeProductRepository, FakeStoreRepository
 
-from ecommerce_backoffice_api.application.use_cases.products import CreateProduct, ListProductsForStore
+from ecommerce_backoffice_api.application.use_cases.products import (
+    CreateProduct,
+    ListProductsForStore,
+)
 from ecommerce_backoffice_api.application.use_cases.revenue import GetStoreRevenue
 from ecommerce_backoffice_api.domain.enums import OrderStatus, UserRole
 from ecommerce_backoffice_api.domain.exceptions import AuthorizationError
-from tests.component.factories import make_order, make_product, make_store, make_user
-from tests.component.fakes import FakeOrderRepository, FakeProductRepository, FakeStoreRepository
 
 pytestmark = pytest.mark.component
 

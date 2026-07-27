@@ -23,7 +23,6 @@ from ecommerce_backoffice_api.application.use_cases.checkout import (
     GrantCredits,
     PlaceOrder,
 )
-from ecommerce_backoffice_api.application.use_cases.shipping_rates import GetShippingQuote
 from ecommerce_backoffice_api.application.use_cases.orders import (
     GetOrder,
     ListOrdersForStore,
@@ -42,16 +41,18 @@ from ecommerce_backoffice_api.application.use_cases.products import (
     SearchProductsForStore,
     UpdateProduct,
 )
-from ecommerce_backoffice_api.application.use_cases.revenue import GetStoreRevenue
 from ecommerce_backoffice_api.application.use_cases.receipts import (
     LoadOrderReceipt,
     StoreOrderReceipt,
 )
+from ecommerce_backoffice_api.application.use_cases.revenue import GetStoreRevenue
+from ecommerce_backoffice_api.application.use_cases.shipping_rates import GetShippingQuote
 from ecommerce_backoffice_api.application.use_cases.stores import CreateStore, GetStore, ListStores
 from ecommerce_backoffice_api.application.use_cases.themes import GetStoreTheme, UploadStoreTheme
 from ecommerce_backoffice_api.domain.entities import User
 from ecommerce_backoffice_api.domain.exceptions import AuthenticationError
 from ecommerce_backoffice_api.infrastructure.config import Settings
+from ecommerce_backoffice_api.infrastructure.integrations.shipping import MockShippingRateProvider
 from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
     SqlAlchemyAuditEventRepository,
     SqlAlchemyCouponRepository,
@@ -67,7 +68,6 @@ from ecommerce_backoffice_api.infrastructure.persistence.repositories import (
 from ecommerce_backoffice_api.infrastructure.security.password_hasher import (
     build_password_hasher,
 )
-from ecommerce_backoffice_api.infrastructure.integrations.shipping import MockShippingRateProvider
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 

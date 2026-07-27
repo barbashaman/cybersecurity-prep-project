@@ -170,7 +170,7 @@ def test_coupon_store_code_unique_and_credit_round_trip(db_session: Session) -> 
     db_session.rollback()
 
     # Re-seed after rollback for credit path.
-    owner, store = _seed_owner_and_store(db_session)
+    _owner, store = _seed_owner_and_store(db_session)
     customers = SqlAlchemyUserRepository(db_session)
     customer = customers.add(
         User(

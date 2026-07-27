@@ -36,7 +36,12 @@ def db_engine() -> Iterator[Engine]:
 
 @pytest.fixture()
 def db_session(db_engine: Engine) -> Iterator[Session]:
-    factory = sessionmaker(bind=db_engine, autoflush=False, autocommit=False, expire_on_commit=False)
+    factory = sessionmaker(
+        bind=db_engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+    )
     session = factory()
     try:
         yield session

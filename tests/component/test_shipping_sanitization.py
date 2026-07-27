@@ -3,17 +3,19 @@
 from __future__ import annotations
 
 import pytest
+from tests.component.factories import make_user
 
 from ecommerce_backoffice_api.application.use_cases.shipping_rates import GetShippingQuote
 from ecommerce_backoffice_api.domain.enums import UserRole
 from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, ConflictError
-from tests.component.factories import make_user
 
 pytestmark = pytest.mark.component
 
 
 class _TrustedProvider:
-    def fetch_quote(self, *, destination_country: str, parcel_weight_kg: float) -> dict[str, object]:
+    def fetch_quote(
+        self, *, destination_country: str, parcel_weight_kg: float
+    ) -> dict[str, object]:
         del destination_country, parcel_weight_kg
         return {
             "carrier": "Acme Logistics",
@@ -24,7 +26,9 @@ class _TrustedProvider:
 
 
 class _PoisonedProvider:
-    def fetch_quote(self, *, destination_country: str, parcel_weight_kg: float) -> dict[str, object]:
+    def fetch_quote(
+        self, *, destination_country: str, parcel_weight_kg: float
+    ) -> dict[str, object]:
         del destination_country, parcel_weight_kg
         return {
             "carrier": "<script>alert(1)</script>",

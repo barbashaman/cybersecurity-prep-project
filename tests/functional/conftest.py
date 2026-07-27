@@ -88,10 +88,7 @@ def tokens(
 
 @pytest.fixture(scope="session")
 def auth_headers(tokens: dict[str, str]) -> dict[str, dict[str, str]]:
-    return {
-        persona: {"Authorization": f"Bearer {token}"}
-        for persona, token in tokens.items()
-    }
+    return {persona: {"Authorization": f"Bearer {token}"} for persona, token in tokens.items()}
 
 
 @pytest.fixture(scope="session")

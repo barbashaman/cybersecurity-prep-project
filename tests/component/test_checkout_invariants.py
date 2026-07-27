@@ -3,16 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
-from ecommerce_backoffice_api.application.use_cases.checkout import (
-    ApplyCouponToOrder,
-    CreateCoupon,
-    GrantCredits,
-    PlaceOrder,
-)
-from ecommerce_backoffice_api.domain.entities import CustomerCredit
-from ecommerce_backoffice_api.domain.enums import UserRole
-from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, ConflictError
 from tests.component.factories import (
     make_coupon,
     make_order,
@@ -27,6 +17,16 @@ from tests.component.fakes import (
     FakeProductRepository,
     FakeStoreRepository,
 )
+
+from ecommerce_backoffice_api.application.use_cases.checkout import (
+    ApplyCouponToOrder,
+    CreateCoupon,
+    GrantCredits,
+    PlaceOrder,
+)
+from ecommerce_backoffice_api.domain.entities import CustomerCredit
+from ecommerce_backoffice_api.domain.enums import UserRole
+from ecommerce_backoffice_api.domain.exceptions import AuthorizationError, ConflictError
 
 pytestmark = pytest.mark.component
 

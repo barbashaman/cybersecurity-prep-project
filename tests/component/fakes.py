@@ -54,11 +54,7 @@ class FakeProductRepository:
 
     def search_for_store(self, store_id: int, query: str) -> list[Product]:
         needle = query.lower()
-        return [
-            p
-            for p in self._products
-            if p.store_id == store_id and needle in p.name.lower()
-        ]
+        return [p for p in self._products if p.store_id == store_id and needle in p.name.lower()]
 
     def get_by_id(self, product_id: int) -> Product | None:
         for product in self._products:
