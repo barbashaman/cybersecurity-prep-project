@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "branch": "main",
+  "commit": "af4ba62b79ff634bead75610be80e1055dd0cfcb",
+  "workflow": "ci-quality-gate",
+  "run_id": "30273452868",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-07-27T14:07:30Z",
+  "totals": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0.166
+  },
+  "suites": [
+    {
+      "name": "pytest: pytest",
+      "framework": "pytest",
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.166,
+      "success_rate": 100.0
+    }
+  ],
+  "statuses": {
+    "tests": "passed"
+  }
+}
