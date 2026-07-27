@@ -21,7 +21,7 @@ jobs:
   quality-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -89,7 +89,7 @@ jobs:
     # group, which drops publishes when quality/sast/dast/supply-chain finish
     # together. Serialisation is handled by publish.sh rebase-retry instead.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v5
