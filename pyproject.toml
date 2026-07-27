@@ -121,6 +121,8 @@ norecursedirs = ["tests/behaviour", "tests/e2e", "reports"]
 addopts = "-ra --strict-markers --strict-config"
 markers = [
     "api: API / integration tests (pytest-bdd + Playwright APIRequestContext)",
+    "functional: scenario-focused persona-feature contract tests",
+    "component: isolated use-case tests with mocked ports",
     "security: security-focused suites (ZAP-proxied, role matrix)",
     "smoke: fast subset run by the local pre-commit / quality gate",
 ]
