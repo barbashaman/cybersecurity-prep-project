@@ -473,8 +473,3 @@ Understanding and mitigating these top 10 API security threats is essential for 
 
 \*\*Remember:\*\*    
 \*Security is a continuous journey. Stay informed, keep your APIs up-to-date, and never stop improving your defences.\*
-
-\---
-
-\*Did you find this guide helpful? Share your thoughts or any questions in the comments below. Stay tuned for our next post, where we’ll explore the benefits of building a robust API Platform\!\*
-
