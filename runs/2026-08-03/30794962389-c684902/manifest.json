@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/ruff-0.16.1",
+  "commit": "c6849023ae9ab43b6e3239a87f925048f3c1bd8a",
+  "workflow": "ci-sast",
+  "run_id": "30794962389",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-08-03T07:49:19Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
