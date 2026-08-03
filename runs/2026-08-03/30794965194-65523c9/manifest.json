@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "27/merge",
+  "commit": "65523c9db6aa5a96c5974bd3f286d19222929cba",
+  "workflow": "ci-quality-gate",
+  "run_id": "30794965194",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-08-03T07:50:42Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
