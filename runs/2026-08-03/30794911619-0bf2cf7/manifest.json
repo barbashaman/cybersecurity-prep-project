@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "branch": "dependabot/pip/cyclonedx-bom-7.3.1",
+  "commit": "0bf2cf73bb2cf3f212fa79008d696646767065e8",
+  "workflow": "ci-supply-chain",
+  "run_id": "30794911619",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-08-03T07:48:26Z",
+  "totals": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 0
+  },
+  "suites": [],
+  "statuses": {
+    "tests": "passed"
+  }
+}
