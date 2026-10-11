@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "branch": "main",
+  "commit": "58957572dde7aad77c25ef54bd929a0575e23fa4",
+  "workflow": "ci-extended",
+  "run_id": "38131190946",
+  "iteration": "phase-1-bootstrap",
+  "generated_at": "2026-10-11T10:14:55Z",
+  "totals": {
+    "total": 34,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "duration_seconds": 1.795
+  },
+  "suites": [
+    {
+      "name": "pytest: pytest",
+      "framework": "pytest",
+      "total": 19,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.875,
+      "success_rate": 100.0
+    },
+    {
+      "name": "pytest: pytest",
+      "framework": "pytest",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.92,
+      "success_rate": 100.0
+    },
+    {
+      "name": "Robot Framework (e2e)",
+      "framework": "robot",
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.0,
+      "success_rate": 100.0
+    }
+  ],
+  "statuses": {
+    "tests": "passed"
+  }
+}
