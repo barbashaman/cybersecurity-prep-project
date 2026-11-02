@@ -3,16 +3,16 @@
   "branch": "main",
   "commit": "58957572dde7aad77c25ef54bd929a0575e23fa4",
   "workflow": "ci-extended",
-  "run_id": "41298714559",
+  "run_id": "41437678941",
   "iteration": "phase-1-bootstrap",
-  "generated_at": "2026-11-01T10:44:34Z",
+  "generated_at": "2026-11-02T11:34:07Z",
   "totals": {
     "total": 34,
     "passed": 34,
     "failed": 0,
     "skipped": 0,
     "success_rate": 100.0,
-    "duration_seconds": 1.953
+    "duration_seconds": 1.59
   },
   "suites": [
     {
@@ -22,7 +22,7 @@
       "passed": 19,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.979,
+      "duration_seconds": 0.805,
       "success_rate": 100.0
     },
     {
@@ -32,7 +32,7 @@
       "passed": 4,
       "failed": 0,
       "skipped": 0,
-      "duration_seconds": 0.974,
+      "duration_seconds": 0.785,
       "success_rate": 100.0
     },
     {
