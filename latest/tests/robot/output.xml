@@ -1,906 +1,906 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 7.1.1 (Python 3.12.16 on linux)" generated="2026-11-22T11:49:22.675685" rpa="false" schemaversion="5">
+<robot generator="Robot 7.1.1 (Python 3.12.16 on linux)" generated="2026-11-23T13:29:57.304642" rpa="false" schemaversion="5">
 <suite id="s1" name="E2E" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e">
 <kw name="Stack Must Be Healthy" owner="EcommerceLibrary" type="SETUP">
-<msg time="2026-11-22T11:49:22.777851" level="INFO">HTTP Request: GET http://localhost:8000/health "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:22.785581" level="INFO">HTTP Request: GET http://localhost:8080/health "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.397919" level="INFO">HTTP Request: GET http://localhost:8000/health "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.405536" level="INFO">HTTP Request: GET http://localhost:8080/health "HTTP/1.1 200 OK"</msg>
 <doc>Skip the suite when API or web health endpoints are unreachable.</doc>
-<status status="PASS" start="2026-11-22T11:49:22.768866" elapsed="0.016980"/>
+<status status="PASS" start="2026-11-23T13:29:57.389065" elapsed="0.016784"/>
 </kw>
 <suite id="s1-s1" name="Access Control Negative" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/access_control_negative.robot">
 <test id="s1-s1-t1" name="Cross Tenant Catalog Access Is Denied" line="6">
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:22.849254" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:22.853503" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:22.853797" level="INFO">${owner} = {'id': 4, 'email': 'owner2@example.com', 'role': 'store_owner', 'full_name': 'Owen Owner', 'store_id': 2}</msg>
+<msg time="2026-11-23T13:29:57.476387" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.480635" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.480949" level="INFO">${owner} = {'id': 4, 'email': 'owner2@example.com', 'role': 'store_owner', 'full_name': 'Owen Owner', 'store_id': 2}</msg>
 <var>${owner}</var>
 <arg>store_owner_secondary</arg>
-<status status="PASS" start="2026-11-22T11:49:22.787969" elapsed="0.065858"/>
+<status status="PASS" start="2026-11-23T13:29:57.408176" elapsed="0.072800"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:22.854241" level="INFO">${owner_store} = 2</msg>
+<msg time="2026-11-23T13:29:57.481348" level="INFO">${owner_store} = 2</msg>
 <var>${owner_store}</var>
 <arg>${owner}[store_id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:22.853997" elapsed="0.000267"/>
+<status status="PASS" start="2026-11-23T13:29:57.481156" elapsed="0.000233"/>
 </kw>
 <kw name="List Stores For Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:22.915626" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:22.921914" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:22.922183" level="INFO">${stores} = [{'id': 1, 'public_id': 'adbb8157-9744-4acd-9c86-3f3c59674908', 'name': 'Northwind Outfitters', 'owner_user_id': 3}, {'id': 2, 'public_id': 'cc4fc321-82cb-463d-a0cb-c2c02776ec04', 'name': 'Contoso Gad...</msg>
+<msg time="2026-11-23T13:29:57.548762" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.554916" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.555218" level="INFO">${stores} = [{'id': 1, 'public_id': '8e552da1-4519-4467-ad3a-6cb07bc02748', 'name': 'Northwind Outfitters', 'owner_user_id': 3}, {'id': 2, 'public_id': '333c2261-509f-4431-b130-e9fd17e0feef', 'name': 'Contoso Gad...</msg>
 <var>${stores}</var>
 <arg>admin</arg>
-<status status="PASS" start="2026-11-22T11:49:22.854363" elapsed="0.067852"/>
+<status status="PASS" start="2026-11-23T13:29:57.481473" elapsed="0.073767"/>
 </kw>
 <for flavor="IN">
 <iter>
 <if>
 <branch type="IF" condition="${store}[id] != ${owner_store}">
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:22.923018" level="INFO">${foreign_id} = 1</msg>
+<msg time="2026-11-23T13:29:57.556069" level="INFO">${foreign_id} = 1</msg>
 <var>${foreign_id}</var>
 <arg>${store}[id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:22.922862" elapsed="0.000177"/>
+<status status="PASS" start="2026-11-23T13:29:57.555926" elapsed="0.000161"/>
 </kw>
 <break>
-<status status="PASS" start="2026-11-22T11:49:22.923085" elapsed="0.000044"/>
+<status status="PASS" start="2026-11-23T13:29:57.556128" elapsed="0.000040"/>
 </break>
-<status status="PASS" start="2026-11-22T11:49:22.922628" elapsed="0.000552"/>
+<status status="PASS" start="2026-11-23T13:29:57.555692" elapsed="0.000505"/>
 </branch>
-<status status="PASS" start="2026-11-22T11:49:22.922609" elapsed="0.000600"/>
+<status status="PASS" start="2026-11-23T13:29:57.555674" elapsed="0.000541"/>
 </if>
-<var name="${store}">{'id': 1, 'public_id': 'adbb8157-9744-4acd-9c86-3f3c59674908', 'name': 'Northwind Outfitters', 'owner_user_id': 3}</var>
-<status status="PASS" start="2026-11-22T11:49:22.922568" elapsed="0.000671"/>
+<var name="${store}">{'id': 1, 'public_id': '8e552da1-4519-4467-ad3a-6cb07bc02748', 'name': 'Northwind Outfitters', 'owner_user_id': 3}</var>
+<status status="PASS" start="2026-11-23T13:29:57.555631" elapsed="0.000608"/>
 </iter>
 <var>${store}</var>
 <value>@{stores}</value>
-<status status="PASS" start="2026-11-22T11:49:22.922303" elapsed="0.000968"/>
+<status status="PASS" start="2026-11-23T13:29:57.555330" elapsed="0.000934"/>
 </for>
 <kw name="List Products For Store" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:22.926897" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 403 Forbidden"</msg>
+<msg time="2026-11-23T13:29:57.560245" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 403 Forbidden"</msg>
 <arg>store_owner_secondary</arg>
 <arg>${foreign_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:22.923352" elapsed="0.003725"/>
+<status status="PASS" start="2026-11-23T13:29:57.556330" elapsed="0.004195"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>403</arg>
-<status status="PASS" start="2026-11-22T11:49:22.927196" elapsed="0.000106"/>
+<status status="PASS" start="2026-11-23T13:29:57.560667" elapsed="0.000137"/>
 </kw>
 <kw name="Web Login As Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.034710" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
-<msg time="2026-11-22T11:49:23.054788" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.662439" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
+<msg time="2026-11-23T13:29:57.682140" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
 <arg>store_owner_secondary</arg>
 <doc>Authenticate via the Jinja login form and land on the dashboard.</doc>
-<status status="PASS" start="2026-11-22T11:49:22.927382" elapsed="0.127706"/>
+<status status="PASS" start="2026-11-23T13:29:57.560881" elapsed="0.121580"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.073729" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 403 Forbidden"</msg>
+<msg time="2026-11-23T13:29:57.700889" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 403 Forbidden"</msg>
 <arg>/stores/${foreign_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.055257" elapsed="0.018715"/>
+<status status="PASS" start="2026-11-23T13:29:57.682606" elapsed="0.018568"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>403</arg>
-<status status="PASS" start="2026-11-22T11:49:23.074105" elapsed="0.000167"/>
+<status status="PASS" start="2026-11-23T13:29:57.701317" elapsed="0.000164"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:catalog</tag>
 <tag>negative</tag>
 <tag>owasp:a01</tag>
-<status status="PASS" start="2026-11-22T11:49:22.787618" elapsed="0.286779"/>
+<status status="PASS" start="2026-11-23T13:29:57.407714" elapsed="0.293886"/>
 </test>
 <test id="s1-s1-t2" name="Customer Cannot Access Admin Directory" line="24">
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.139869" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.145100" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/admin/users "HTTP/1.1 403 Forbidden"</msg>
+<msg time="2026-11-23T13:29:57.766184" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.771642" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/admin/users "HTTP/1.1 403 Forbidden"</msg>
 <arg>/api/v1/admin/users</arg>
 <arg>customer</arg>
-<status status="PASS" start="2026-11-22T11:49:23.074949" elapsed="0.070407"/>
+<status status="PASS" start="2026-11-23T13:29:57.702113" elapsed="0.069772"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>403</arg>
-<status status="PASS" start="2026-11-22T11:49:23.145501" elapsed="0.000155"/>
+<status status="PASS" start="2026-11-23T13:29:57.772033" elapsed="0.000143"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:admin</tag>
 <tag>negative</tag>
 <tag>owasp:a01</tag>
-<status status="PASS" start="2026-11-22T11:49:23.074642" elapsed="0.071134"/>
+<status status="PASS" start="2026-11-23T13:29:57.701831" elapsed="0.070459"/>
 </test>
 <test id="s1-s1-t3" name="Store Owner Cannot Place Checkout Order" line="29">
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.206049" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.210333" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.211836" level="INFO">${owner} = {'id': 3, 'email': 'owner1@example.com', 'role': 'store_owner', 'full_name': 'Olivia Owner', 'store_id': 1}</msg>
+<msg time="2026-11-23T13:29:57.836320" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.840916" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.842632" level="INFO">${owner} = {'id': 3, 'email': 'owner1@example.com', 'role': 'store_owner', 'full_name': 'Olivia Owner', 'store_id': 1}</msg>
 <var>${owner}</var>
 <arg>store_owner_primary</arg>
-<status status="PASS" start="2026-11-22T11:49:23.146363" elapsed="0.065499"/>
+<status status="PASS" start="2026-11-23T13:29:57.772790" elapsed="0.069871"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.212204" level="INFO">${store_id} = 1</msg>
+<msg time="2026-11-23T13:29:57.842965" level="INFO">${store_id} = 1</msg>
 <var>${store_id}</var>
 <arg>${owner}[store_id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.212002" elapsed="0.000226"/>
+<status status="PASS" start="2026-11-23T13:29:57.842803" elapsed="0.000179"/>
 </kw>
 <kw name="List Products For Store" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.217307" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.217562" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
+<msg time="2026-11-23T13:29:57.848519" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.848813" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
 <var>${products}</var>
 <arg>store_owner_primary</arg>
 <arg>${store_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.212315" elapsed="0.005270"/>
+<status status="PASS" start="2026-11-23T13:29:57.843057" elapsed="0.005776"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.217673" elapsed="0.000098"/>
+<status status="PASS" start="2026-11-23T13:29:57.848975" elapsed="0.000127"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.217988" level="INFO">${product_id} = 1</msg>
+<msg time="2026-11-23T13:29:57.849304" level="INFO">${product_id} = 1</msg>
 <var>${product_id}</var>
 <arg>${products}[0][id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.217851" elapsed="0.000219"/>
+<status status="PASS" start="2026-11-23T13:29:57.849176" elapsed="0.000233"/>
 </kw>
 <kw name="Api Post" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.221865" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 403 Forbidden"</msg>
+<msg time="2026-11-23T13:29:57.853222" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 403 Forbidden"</msg>
 <arg>/api/v1/stores/${store_id}/orders/checkout</arg>
 <arg>store_owner_primary</arg>
 <arg>{"lines":[{"product_id":${product_id},"quantity":1}],"shipping_address":"owner-denied"}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.218152" elapsed="0.003890"/>
+<status status="PASS" start="2026-11-23T13:29:57.849482" elapsed="0.003966"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>403</arg>
-<status status="PASS" start="2026-11-22T11:49:23.222133" elapsed="0.000130"/>
+<status status="PASS" start="2026-11-23T13:29:57.853575" elapsed="0.000121"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:checkout</tag>
 <tag>negative</tag>
 <tag>owasp:a01</tag>
-<status status="PASS" start="2026-11-22T11:49:23.146026" elapsed="0.076330"/>
+<status status="PASS" start="2026-11-23T13:29:57.772520" elapsed="0.081266"/>
 </test>
 <test id="s1-s1-t4" name="Unauthenticated Api Access Is Rejected" line="40">
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.224707" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 401 Unauthorized"</msg>
+<msg time="2026-11-23T13:29:57.855996" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 401 Unauthorized"</msg>
 <arg>/api/v1/auth/me</arg>
-<status status="PASS" start="2026-11-22T11:49:23.222908" elapsed="0.001975"/>
+<status status="PASS" start="2026-11-23T13:29:57.854231" elapsed="0.001952"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>401</arg>
-<status status="PASS" start="2026-11-22T11:49:23.224967" elapsed="0.000096"/>
+<status status="PASS" start="2026-11-23T13:29:57.856291" elapsed="0.000140"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:auth</tag>
 <tag>negative</tag>
 <tag>owasp:a01</tag>
-<status status="PASS" start="2026-11-22T11:49:23.222560" elapsed="0.002586"/>
+<status status="PASS" start="2026-11-23T13:29:57.853961" elapsed="0.002564"/>
 </test>
 <doc>Negative E2E coverage for broken access control (OWASP A01).</doc>
-<status status="PASS" start="2026-11-22T11:49:22.785955" elapsed="0.439632"/>
+<status status="PASS" start="2026-11-23T13:29:57.405961" elapsed="0.450919"/>
 </suite>
 <suite id="s1-s2" name="Admin Governance" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/admin_governance.robot">
 <test id="s1-s2-t1" name="Admin Governs Across Stores" line="6">
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.231232" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.231445" level="INFO">${profile} = {'id': 1, 'email': 'admin@example.com', 'role': 'admin', 'full_name': 'Ada Admin', 'store_id': None}</msg>
+<msg time="2026-11-23T13:29:57.862382" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.862639" level="INFO">${profile} = {'id': 1, 'email': 'admin@example.com', 'role': 'admin', 'full_name': 'Ada Admin', 'store_id': None}</msg>
 <var>${profile}</var>
 <arg>admin</arg>
-<status status="PASS" start="2026-11-22T11:49:23.227971" elapsed="0.003496"/>
+<status status="PASS" start="2026-11-23T13:29:57.858904" elapsed="0.003756"/>
 </kw>
 <kw name="Should Be Equal" owner="BuiltIn">
 <arg>${profile}[role]</arg>
 <arg>admin</arg>
 <doc>Fails if the given objects are unequal.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.231558" elapsed="0.000158"/>
+<status status="PASS" start="2026-11-23T13:29:57.862766" elapsed="0.000159"/>
 </kw>
 <kw name="List Stores For Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.235603" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.235815" level="INFO">${stores} = [{'id': 1, 'public_id': 'adbb8157-9744-4acd-9c86-3f3c59674908', 'name': 'Northwind Outfitters', 'owner_user_id': 3}, {'id': 2, 'public_id': 'cc4fc321-82cb-463d-a0cb-c2c02776ec04', 'name': 'Contoso Gad...</msg>
+<msg time="2026-11-23T13:29:57.867268" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.867545" level="INFO">${stores} = [{'id': 1, 'public_id': '8e552da1-4519-4467-ad3a-6cb07bc02748', 'name': 'Northwind Outfitters', 'owner_user_id': 3}, {'id': 2, 'public_id': '333c2261-509f-4431-b130-e9fd17e0feef', 'name': 'Contoso Gad...</msg>
 <var>${stores}</var>
 <arg>admin</arg>
-<status status="PASS" start="2026-11-22T11:49:23.231798" elapsed="0.004039"/>
+<status status="PASS" start="2026-11-23T13:29:57.862996" elapsed="0.004570"/>
 </kw>
 <kw name="Get Length" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.236026" level="INFO">Length is 3.</msg>
-<msg time="2026-11-22T11:49:23.236082" level="INFO">${store_count} = 3</msg>
+<msg time="2026-11-23T13:29:57.867779" level="INFO">Length is 3.</msg>
+<msg time="2026-11-23T13:29:57.867827" level="INFO">${store_count} = 3</msg>
 <var>${store_count}</var>
 <arg>${stores}</arg>
 <doc>Returns and logs the length of the given item as an integer.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.235927" elapsed="0.000172"/>
+<status status="PASS" start="2026-11-23T13:29:57.867670" elapsed="0.000171"/>
 </kw>
 <kw name="Should Be True" owner="BuiltIn">
 <arg>${store_count} &gt;= 2</arg>
 <doc>Fails if the given condition is not true.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.236210" elapsed="0.000212"/>
+<status status="PASS" start="2026-11-23T13:29:57.867912" elapsed="0.000197"/>
 </kw>
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.241477" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/admin/users "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.241709" level="INFO">${users} = [{'id': 1, 'email': 'admin@example.com', 'role': 'admin', 'full_name': 'Ada Admin', 'store_id': None}, {'id': 2, 'email': 'delivery@example.com', 'role': 'delivery_manager', 'full_name': 'Dana Deliver...</msg>
+<msg time="2026-11-23T13:29:57.873875" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/admin/users "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.874129" level="INFO">${users} = [{'id': 1, 'email': 'admin@example.com', 'role': 'admin', 'full_name': 'Ada Admin', 'store_id': None}, {'id': 2, 'email': 'delivery@example.com', 'role': 'delivery_manager', 'full_name': 'Dana Deliver...</msg>
 <var>${users}</var>
 <arg>/api/v1/admin/users</arg>
 <arg>admin</arg>
-<status status="PASS" start="2026-11-22T11:49:23.236505" elapsed="0.005226"/>
+<status status="PASS" start="2026-11-23T13:29:57.868178" elapsed="0.005972"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.241817" elapsed="0.000126"/>
+<status status="PASS" start="2026-11-23T13:29:57.874253" elapsed="0.000103"/>
 </kw>
 <kw name="Should Not Be Empty" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.242147" level="INFO">Length is 6.</msg>
+<msg time="2026-11-23T13:29:57.874562" level="INFO">Length is 6.</msg>
 <arg>${users}</arg>
 <doc>Verifies that the given item is not empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.242045" elapsed="0.000164"/>
+<status status="PASS" start="2026-11-23T13:29:57.874461" elapsed="0.000128"/>
 </kw>
 <kw name="Create Store As Admin" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.246757" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores "HTTP/1.1 201 Created"</msg>
-<msg time="2026-11-22T11:49:23.246974" level="INFO">${created} = {'id': 4, 'public_id': 'eed856f7-4a89-4584-92cd-2a7654438149', 'name': 'E2E Store 2e72f5f8', 'owner_user_id': None}</msg>
+<msg time="2026-11-23T13:29:57.879707" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores "HTTP/1.1 201 Created"</msg>
+<msg time="2026-11-23T13:29:57.879947" level="INFO">${created} = {'id': 4, 'public_id': 'bc68517d-69f8-4538-896f-fa5db8b32a41', 'name': 'E2E Store ae2d90a6', 'owner_user_id': None}</msg>
 <var>${created}</var>
-<status status="PASS" start="2026-11-22T11:49:23.242290" elapsed="0.004706"/>
+<status status="PASS" start="2026-11-23T13:29:57.874655" elapsed="0.005320"/>
 </kw>
 <kw name="Should Be Equal" owner="BuiltIn">
 <arg>${created}[name]</arg>
 <arg>${created}[name]</arg>
 <doc>Fails if the given objects are unequal.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.247084" elapsed="0.000211"/>
+<status status="PASS" start="2026-11-23T13:29:57.880086" elapsed="0.000171"/>
 </kw>
 <kw name="Should Not Be Empty" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.247476" level="INFO">Length is 36.</msg>
+<msg time="2026-11-23T13:29:57.880443" level="INFO">Length is 36.</msg>
 <arg>${created}[public_id]</arg>
 <doc>Verifies that the given item is not empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.247377" elapsed="0.000132"/>
+<status status="PASS" start="2026-11-23T13:29:57.880329" elapsed="0.000142"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.247709" level="INFO">${store_one} = {'id': 1, 'public_id': 'adbb8157-9744-4acd-9c86-3f3c59674908', 'name': 'Northwind Outfitters', 'owner_user_id': 3}</msg>
+<msg time="2026-11-23T13:29:57.880646" level="INFO">${store_one} = {'id': 1, 'public_id': '8e552da1-4519-4467-ad3a-6cb07bc02748', 'name': 'Northwind Outfitters', 'owner_user_id': 3}</msg>
 <var>${store_one}</var>
 <arg>${stores}[0]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.247584" elapsed="0.000143"/>
+<status status="PASS" start="2026-11-23T13:29:57.880540" elapsed="0.000121"/>
 </kw>
 <kw name="Get Store Revenue" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.253809" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/adbb8157-9744-4acd-9c86-3f3c59674908/revenue "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.254021" level="INFO">${revenue} = {'store_public_id': 'adbb8157-9744-4acd-9c86-3f3c59674908', 'store_name': 'Northwind Outfitters', 'total_orders': 4, 'paid_orders': 4, 'gross_revenue_cents': 113990}</msg>
+<msg time="2026-11-23T13:29:57.887489" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/8e552da1-4519-4467-ad3a-6cb07bc02748/revenue "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.887733" level="INFO">${revenue} = {'store_public_id': '8e552da1-4519-4467-ad3a-6cb07bc02748', 'store_name': 'Northwind Outfitters', 'total_orders': 4, 'paid_orders': 4, 'gross_revenue_cents': 113990}</msg>
 <var>${revenue}</var>
 <arg>admin</arg>
 <arg>${store_one}[public_id]</arg>
-<status status="PASS" start="2026-11-22T11:49:23.247798" elapsed="0.006246"/>
+<status status="PASS" start="2026-11-23T13:29:57.880724" elapsed="0.007031"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.254132" elapsed="0.000140"/>
+<status status="PASS" start="2026-11-23T13:29:57.887856" elapsed="0.000108"/>
 </kw>
 <kw name="List Products For Store" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.259331" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.259575" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
+<msg time="2026-11-23T13:29:57.893545" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.893857" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
 <var>${products}</var>
 <arg>admin</arg>
 <arg>${store_one}[id]</arg>
-<status status="PASS" start="2026-11-22T11:49:23.254355" elapsed="0.005242"/>
+<status status="PASS" start="2026-11-23T13:29:57.888034" elapsed="0.005856"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.259684" elapsed="0.000098"/>
+<status status="PASS" start="2026-11-23T13:29:57.894145" elapsed="0.000166"/>
 </kw>
 <kw name="Web Login As Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.327917" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
-<msg time="2026-11-22T11:49:23.342033" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:57.970060" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
+<msg time="2026-11-23T13:29:57.983873" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
 <arg>admin</arg>
 <doc>Authenticate via the Jinja login form and land on the dashboard.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.259863" elapsed="0.082459"/>
+<status status="PASS" start="2026-11-23T13:29:57.894433" elapsed="0.089716"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>Stores</arg>
-<status status="PASS" start="2026-11-22T11:49:23.342465" elapsed="0.000133"/>
+<status status="PASS" start="2026-11-23T13:29:57.984318" elapsed="0.000149"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.367053" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.009208" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_one}[id]</arg>
-<status status="PASS" start="2026-11-22T11:49:23.342676" elapsed="0.024647"/>
+<status status="PASS" start="2026-11-23T13:29:57.984536" elapsed="0.025131"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.367440" elapsed="0.000123"/>
+<status status="PASS" start="2026-11-23T13:29:58.009818" elapsed="0.000144"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.404700" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.047925" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_one}[id]/orders</arg>
-<status status="PASS" start="2026-11-22T11:49:23.367643" elapsed="0.037304"/>
+<status status="PASS" start="2026-11-23T13:29:58.010031" elapsed="0.038174"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.405075" elapsed="0.000166"/>
+<status status="PASS" start="2026-11-23T13:29:58.048351" elapsed="0.000191"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:admin</tag>
 <tag>persona:admin</tag>
-<status status="PASS" start="2026-11-22T11:49:23.227642" elapsed="0.177709"/>
+<status status="PASS" start="2026-11-23T13:29:57.858637" elapsed="0.190009"/>
 </test>
 <doc>Admin cross-store governance journeys.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.226093" elapsed="0.179550"/>
+<status status="PASS" start="2026-11-23T13:29:57.857298" elapsed="0.191603"/>
 </suite>
 <suite id="s1-s3" name="Customer Purchase" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/customer_purchase.robot">
 <test id="s1-s3-t1" name="Customer Completes Purchase Lifecycle" line="6">
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.411615" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.411838" level="INFO">${profile} = {'id': 5, 'email': 'customer1@example.com', 'role': 'customer', 'full_name': 'Carla Customer', 'store_id': 1}</msg>
+<msg time="2026-11-23T13:29:58.055285" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.055578" level="INFO">${profile} = {'id': 5, 'email': 'customer1@example.com', 'role': 'customer', 'full_name': 'Carla Customer', 'store_id': 1}</msg>
 <var>${profile}</var>
 <arg>customer</arg>
-<status status="PASS" start="2026-11-22T11:49:23.407883" elapsed="0.003977"/>
+<status status="PASS" start="2026-11-23T13:29:58.050986" elapsed="0.004613"/>
 </kw>
 <kw name="Should Be Equal" owner="BuiltIn">
 <arg>${profile}[role]</arg>
 <arg>customer</arg>
 <doc>Fails if the given objects are unequal.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.411952" elapsed="0.000152"/>
+<status status="PASS" start="2026-11-23T13:29:58.055729" elapsed="0.000168"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.412357" level="INFO">${store_id} = 1</msg>
+<msg time="2026-11-23T13:29:58.056081" level="INFO">${store_id} = 1</msg>
 <var>${store_id}</var>
 <arg>${profile}[store_id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.412224" elapsed="0.000153"/>
+<status status="PASS" start="2026-11-23T13:29:58.055977" elapsed="0.000119"/>
 </kw>
 <kw name="Should Be True" owner="BuiltIn">
 <arg>${store_id} &gt; 0</arg>
 <doc>Fails if the given condition is not true.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.412456" elapsed="0.000147"/>
+<status status="PASS" start="2026-11-23T13:29:58.056163" elapsed="0.000137"/>
 </kw>
 <kw name="List Products For Store" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.417466" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.417758" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
+<msg time="2026-11-23T13:29:58.061576" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.061912" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
 <var>${products}</var>
 <arg>customer</arg>
 <arg>${store_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.412685" elapsed="0.005097"/>
+<status status="PASS" start="2026-11-23T13:29:58.056388" elapsed="0.005545"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.417873" elapsed="0.000101"/>
+<status status="PASS" start="2026-11-23T13:29:58.062052" elapsed="0.000117"/>
 </kw>
 <kw name="Should Not Be Empty" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.418175" level="INFO">Length is 12.</msg>
+<msg time="2026-11-23T13:29:58.062337" level="INFO">Length is 12.</msg>
 <arg>${products}</arg>
 <doc>Verifies that the given item is not empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.418055" elapsed="0.000165"/>
+<status status="PASS" start="2026-11-23T13:29:58.062238" elapsed="0.000152"/>
 </kw>
 <kw name="Find In Stock Product" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.423244" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.423545" level="INFO">${product} = {'id': 2, 'store_id': 1, 'name': 'NW Softshell Jacket', 'description': 'Wind-resistant layer for cool weather.', 'price_cents': 12999, 'is_active': True, 'stock_quantity': 25}</msg>
+<msg time="2026-11-23T13:29:58.067195" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.067605" level="INFO">${product} = {'id': 2, 'store_id': 1, 'name': 'NW Softshell Jacket', 'description': 'Wind-resistant layer for cool weather.', 'price_cents': 12999, 'is_active': True, 'stock_quantity': 25}</msg>
 <var>${product}</var>
 <arg>customer</arg>
 <arg>${store_id}</arg>
 <doc>Return an in-stock catalog item, creating one when the shelf is empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.418304" elapsed="0.005272"/>
+<status status="PASS" start="2026-11-23T13:29:58.062466" elapsed="0.005163"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.423811" level="INFO">${product_id} = 2</msg>
+<msg time="2026-11-23T13:29:58.067901" level="INFO">${product_id} = 2</msg>
 <var>${product_id}</var>
 <arg>${product}[id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.423673" elapsed="0.000157"/>
+<status status="PASS" start="2026-11-23T13:29:58.067755" elapsed="0.000162"/>
 </kw>
 <kw name="Get Shipping Quote" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.427586" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/shipping/quote "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.071650" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/shipping/quote "HTTP/1.1 200 OK"</msg>
 <arg>customer</arg>
-<status status="PASS" start="2026-11-22T11:49:23.423907" elapsed="0.003854"/>
+<status status="PASS" start="2026-11-23T13:29:58.067985" elapsed="0.003883"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.427848" elapsed="0.000098"/>
+<status status="PASS" start="2026-11-23T13:29:58.071986" elapsed="0.000121"/>
 </kw>
 <kw name="Checkout Product For Customer" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.438437" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 201 Created"</msg>
-<msg time="2026-11-22T11:49:23.438665" level="INFO">${checkout} = {'order': {'id': 9, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': 'E2E Purchase Way ...</msg>
+<msg time="2026-11-23T13:29:58.082144" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 201 Created"</msg>
+<msg time="2026-11-23T13:29:58.082483" level="INFO">${checkout} = {'order': {'id': 9, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': 'E2E Purchase Way ...</msg>
 <var>${checkout}</var>
 <arg>${store_id}</arg>
 <arg>${product_id}</arg>
 <arg>1</arg>
-<status status="PASS" start="2026-11-22T11:49:23.428023" elapsed="0.010666"/>
+<status status="PASS" start="2026-11-23T13:29:58.072176" elapsed="0.010330"/>
 </kw>
 <kw name="Should Be Equal As Integers" owner="BuiltIn">
 <arg>${checkout}[order][store_id]</arg>
 <arg>${store_id}</arg>
 <doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.438786" elapsed="0.000177"/>
+<status status="PASS" start="2026-11-23T13:29:58.082638" elapsed="0.000194"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.439219" level="INFO">${order_id} = 9</msg>
+<msg time="2026-11-23T13:29:58.083028" level="INFO">${order_id} = 9</msg>
 <var>${order_id}</var>
 <arg>${checkout}[order][id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.439051" elapsed="0.000190"/>
+<status status="PASS" start="2026-11-23T13:29:58.082915" elapsed="0.000129"/>
 </kw>
 <kw name="Catenate" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.439488" level="INFO">${order_marker} = #9</msg>
+<msg time="2026-11-23T13:29:58.083270" level="INFO">${order_marker} = #9</msg>
 <var>${order_marker}</var>
 <arg>SEPARATOR=</arg>
 <arg>\#</arg>
 <arg>${order_id}</arg>
 <doc>Catenates the given items together and returns the resulted string.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.439325" elapsed="0.000182"/>
+<status status="PASS" start="2026-11-23T13:29:58.083119" elapsed="0.000167"/>
 </kw>
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.446394" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/orders "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.446647" level="INFO">${orders} = [{'id': 1, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': '12 Pine Street, Seattle, W...</msg>
+<msg time="2026-11-23T13:29:58.090933" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/orders "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.091215" level="INFO">${orders} = [{'id': 1, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': '12 Pine Street, Seattle, W...</msg>
 <var>${orders}</var>
 <arg>/api/v1/stores/${store_id}/orders</arg>
 <arg>customer</arg>
-<status status="PASS" start="2026-11-22T11:49:23.439588" elapsed="0.007083"/>
+<status status="PASS" start="2026-11-23T13:29:58.083356" elapsed="0.007879"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.446763" elapsed="0.000099"/>
+<status status="PASS" start="2026-11-23T13:29:58.091353" elapsed="0.000164"/>
 </kw>
 <kw name="Should Not Be Empty" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.447106" level="INFO">Length is 5.</msg>
+<msg time="2026-11-23T13:29:58.091747" level="INFO">Length is 5.</msg>
 <arg>${orders}</arg>
 <doc>Verifies that the given item is not empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.447002" elapsed="0.000139"/>
+<status status="PASS" start="2026-11-23T13:29:58.091644" elapsed="0.000132"/>
 </kw>
 <kw name="Web Login As Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.515583" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
-<msg time="2026-11-22T11:49:23.529593" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.171775" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
+<msg time="2026-11-23T13:29:58.186847" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
 <arg>customer</arg>
 <doc>Authenticate via the Jinja login form and land on the dashboard.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.447258" elapsed="0.082616"/>
+<status status="PASS" start="2026-11-23T13:29:58.091852" elapsed="0.095270"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.530020" elapsed="0.000173"/>
+<status status="PASS" start="2026-11-23T13:29:58.187319" elapsed="0.000173"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>Stores</arg>
-<status status="PASS" start="2026-11-22T11:49:23.530288" elapsed="0.000091"/>
+<status status="PASS" start="2026-11-23T13:29:58.187565" elapsed="0.000069"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.554743" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.213448" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.530454" elapsed="0.024566"/>
+<status status="PASS" start="2026-11-23T13:29:58.187694" elapsed="0.026033"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.555140" elapsed="0.000157"/>
+<status status="PASS" start="2026-11-23T13:29:58.213874" elapsed="0.000159"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>Product catalog</arg>
-<status status="PASS" start="2026-11-22T11:49:23.555378" elapsed="0.000085"/>
+<status status="PASS" start="2026-11-23T13:29:58.214102" elapsed="0.000069"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.579733" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.245938" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_id}/orders</arg>
-<status status="PASS" start="2026-11-22T11:49:23.555536" elapsed="0.024446"/>
+<status status="PASS" start="2026-11-23T13:29:58.214226" elapsed="0.032024"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.580085" elapsed="0.000153"/>
+<status status="PASS" start="2026-11-23T13:29:58.246426" elapsed="0.000149"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>${order_marker}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.580322" elapsed="0.000127"/>
+<status status="PASS" start="2026-11-23T13:29:58.246653" elapsed="0.000118"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:checkout</tag>
 <tag>persona:customer</tag>
-<status status="PASS" start="2026-11-22T11:49:23.407583" elapsed="0.172960"/>
+<status status="PASS" start="2026-11-23T13:29:58.050713" elapsed="0.196139"/>
 </test>
 <doc>Customer purchase lifecycle across API checkout and web catalog.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.406038" elapsed="0.174787"/>
+<status status="PASS" start="2026-11-23T13:29:58.049280" elapsed="0.197827"/>
 </suite>
 <suite id="s1-s4" name="Delivery Privacy" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/delivery_privacy.robot">
 <test id="s1-s4-t1" name="Delivery Manager Sees Anonymized Orders Only" line="6">
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.586646" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.586869" level="INFO">${customer} = {'id': 5, 'email': 'customer1@example.com', 'role': 'customer', 'full_name': 'Carla Customer', 'store_id': 1}</msg>
+<msg time="2026-11-23T13:29:58.253520" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.253807" level="INFO">${customer} = {'id': 5, 'email': 'customer1@example.com', 'role': 'customer', 'full_name': 'Carla Customer', 'store_id': 1}</msg>
 <var>${customer}</var>
 <arg>customer</arg>
-<status status="PASS" start="2026-11-22T11:49:23.583277" elapsed="0.003615"/>
+<status status="PASS" start="2026-11-23T13:29:58.249395" elapsed="0.004432"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.587124" level="INFO">${store_id} = 1</msg>
+<msg time="2026-11-23T13:29:58.254091" level="INFO">${store_id} = 1</msg>
 <var>${store_id}</var>
 <arg>${customer}[store_id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.586985" elapsed="0.000158"/>
+<status status="PASS" start="2026-11-23T13:29:58.253950" elapsed="0.000155"/>
 </kw>
 <kw name="Find In Stock Product" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.591910" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.592149" level="INFO">${product} = {'id': 2, 'store_id': 1, 'name': 'NW Softshell Jacket', 'description': 'Wind-resistant layer for cool weather.', 'price_cents': 12999, 'is_active': True, 'stock_quantity': 24}</msg>
+<msg time="2026-11-23T13:29:58.260259" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.260738" level="INFO">${product} = {'id': 2, 'store_id': 1, 'name': 'NW Softshell Jacket', 'description': 'Wind-resistant layer for cool weather.', 'price_cents': 12999, 'is_active': True, 'stock_quantity': 24}</msg>
 <var>${product}</var>
 <arg>customer</arg>
 <arg>${store_id}</arg>
 <doc>Return an in-stock catalog item, creating one when the shelf is empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.587261" elapsed="0.004942"/>
+<status status="PASS" start="2026-11-23T13:29:58.254174" elapsed="0.006598"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.592450" level="INFO">${product_id} = 2</msg>
+<msg time="2026-11-23T13:29:58.261180" level="INFO">${product_id} = 2</msg>
 <var>${product_id}</var>
 <arg>${product}[id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.592301" elapsed="0.000168"/>
+<status status="PASS" start="2026-11-23T13:29:58.260966" elapsed="0.000239"/>
 </kw>
 <kw name="Checkout Product For Customer" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.602741" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 201 Created"</msg>
-<msg time="2026-11-22T11:49:23.602969" level="INFO">${checkout} = {'order': {'id': 10, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': 'E2E Purchase Way...</msg>
+<msg time="2026-11-23T13:29:58.272997" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 201 Created"</msg>
+<msg time="2026-11-23T13:29:58.273266" level="INFO">${checkout} = {'order': {'id': 10, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': 'E2E Purchase Way...</msg>
 <var>${checkout}</var>
 <arg>${store_id}</arg>
 <arg>${product_id}</arg>
 <arg>1</arg>
-<status status="PASS" start="2026-11-22T11:49:23.592548" elapsed="0.010444"/>
+<status status="PASS" start="2026-11-23T13:29:58.261319" elapsed="0.011968"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.603274" level="INFO">${order_id} = 10</msg>
+<msg time="2026-11-23T13:29:58.273596" level="INFO">${order_id} = 10</msg>
 <var>${order_id}</var>
 <arg>${checkout}[order][id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.603096" elapsed="0.000199"/>
+<status status="PASS" start="2026-11-23T13:29:58.273446" elapsed="0.000166"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.603512" level="INFO">${customer_email} = customer1@example.com</msg>
+<msg time="2026-11-23T13:29:58.273779" level="INFO">${customer_email} = customer1@example.com</msg>
 <var>${customer_email}</var>
 <arg>${customer}[email]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.603380" elapsed="0.000154"/>
+<status status="PASS" start="2026-11-23T13:29:58.273682" elapsed="0.000113"/>
 </kw>
 <kw name="Catenate" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.603763" level="INFO">${order_marker} = #10</msg>
+<msg time="2026-11-23T13:29:58.273971" level="INFO">${order_marker} = #10</msg>
 <var>${order_marker}</var>
 <arg>SEPARATOR=</arg>
 <arg>\#</arg>
 <arg>${order_id}</arg>
 <doc>Catenates the given items together and returns the resulted string.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.603613" elapsed="0.000168"/>
+<status status="PASS" start="2026-11-23T13:29:58.273856" elapsed="0.000127"/>
 </kw>
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.662353" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.669868" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/orders "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.670206" level="INFO">${orders} = [{'id': 1, 'store_id': 1, 'status': 'pending', 'lines': [{'id': 1, 'product_id': 1, 'quantity': 1, 'unit_price_cents': 8999}, {'id': 2, 'product_id': 2, 'quantity': 2, 'unit_price_cents': 12999}], 'no...</msg>
+<msg time="2026-11-23T13:29:58.343265" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/auth/login "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.351230" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/orders "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.351599" level="INFO">${orders} = [{'id': 1, 'store_id': 1, 'status': 'pending', 'lines': [{'id': 1, 'product_id': 1, 'quantity': 1, 'unit_price_cents': 8999}, {'id': 2, 'product_id': 2, 'quantity': 2, 'unit_price_cents': 12999}], 'no...</msg>
 <var>${orders}</var>
 <arg>/api/v1/stores/${store_id}/orders</arg>
 <arg>delivery_manager</arg>
-<status status="PASS" start="2026-11-22T11:49:23.603873" elapsed="0.066364"/>
+<status status="PASS" start="2026-11-23T13:29:58.274047" elapsed="0.077575"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.670380" elapsed="0.000142"/>
+<status status="PASS" start="2026-11-23T13:29:58.351769" elapsed="0.000140"/>
 </kw>
 <kw name="Should Not Be Empty" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.670718" level="INFO">Length is 6.</msg>
+<msg time="2026-11-23T13:29:58.352082" level="INFO">Length is 6.</msg>
 <arg>${orders}</arg>
 <doc>Verifies that the given item is not empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.670605" elapsed="0.000148"/>
+<status status="PASS" start="2026-11-23T13:29:58.351983" elapsed="0.000127"/>
 </kw>
 <kw name="Last Api Body Should Not Contain" owner="EcommerceLibrary">
 <arg>customer_email</arg>
-<status status="PASS" start="2026-11-22T11:49:23.670827" elapsed="0.000127"/>
+<status status="PASS" start="2026-11-23T13:29:58.352174" elapsed="0.000116"/>
 </kw>
 <kw name="Last Api Body Should Not Contain" owner="EcommerceLibrary">
 <arg>shipping_address</arg>
-<status status="PASS" start="2026-11-22T11:49:23.671030" elapsed="0.000089"/>
+<status status="PASS" start="2026-11-23T13:29:58.352357" elapsed="0.000086"/>
 </kw>
 <kw name="Last Api Body Should Not Contain" owner="EcommerceLibrary">
 <arg>${customer_email}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.671214" elapsed="0.000346"/>
+<status status="PASS" start="2026-11-23T13:29:58.352500" elapsed="0.000329"/>
 </kw>
 <kw name="Get Shipping Quote" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.675607" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/shipping/quote "HTTP/1.1 403 Forbidden"</msg>
+<msg time="2026-11-23T13:29:58.356769" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/shipping/quote "HTTP/1.1 403 Forbidden"</msg>
 <arg>delivery_manager</arg>
-<status status="PASS" start="2026-11-22T11:49:23.671686" elapsed="0.004105"/>
+<status status="PASS" start="2026-11-23T13:29:58.352939" elapsed="0.004063"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>403</arg>
-<status status="PASS" start="2026-11-22T11:49:23.675878" elapsed="0.000098"/>
+<status status="PASS" start="2026-11-23T13:29:58.357134" elapsed="0.000177"/>
 </kw>
 <kw name="Api Post" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.679873" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 403 Forbidden"</msg>
+<msg time="2026-11-23T13:29:58.361102" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 403 Forbidden"</msg>
 <arg>/api/v1/stores/${store_id}/orders/checkout</arg>
 <arg>delivery_manager</arg>
 <arg>{"lines":[{"product_id":${product_id},"quantity":1}],"shipping_address":"denied"}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.676050" elapsed="0.004003"/>
+<status status="PASS" start="2026-11-23T13:29:58.357403" elapsed="0.003913"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>403</arg>
-<status status="PASS" start="2026-11-22T11:49:23.680144" elapsed="0.000134"/>
+<status status="PASS" start="2026-11-23T13:29:58.361462" elapsed="0.000128"/>
 </kw>
 <kw name="Web Login As Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.754957" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
-<msg time="2026-11-22T11:49:23.768972" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.458749" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
+<msg time="2026-11-23T13:29:58.473781" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
 <arg>delivery_manager</arg>
 <doc>Authenticate via the Jinja login form and land on the dashboard.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.680360" elapsed="0.088911"/>
+<status status="PASS" start="2026-11-23T13:29:58.361663" elapsed="0.112426"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.795005" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.501111" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_id}/orders</arg>
-<status status="PASS" start="2026-11-22T11:49:23.769425" elapsed="0.025895"/>
+<status status="PASS" start="2026-11-23T13:29:58.474242" elapsed="0.027184"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.795452" elapsed="0.000138"/>
+<status status="PASS" start="2026-11-23T13:29:58.501584" elapsed="0.000144"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>(anonymized)</arg>
-<status status="PASS" start="2026-11-22T11:49:23.795668" elapsed="0.000081"/>
+<status status="PASS" start="2026-11-23T13:29:58.501795" elapsed="0.000068"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>${order_marker}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.795820" elapsed="0.000121"/>
+<status status="PASS" start="2026-11-23T13:29:58.501920" elapsed="0.000108"/>
 </kw>
 <kw name="Last Web Body Should Not Contain" owner="EcommerceLibrary">
 <arg>${customer_email}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.796011" elapsed="0.000104"/>
+<status status="PASS" start="2026-11-23T13:29:58.502083" elapsed="0.000083"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:orders</tag>
 <tag>persona:delivery_manager</tag>
-<status status="PASS" start="2026-11-22T11:49:23.582895" elapsed="0.213333"/>
+<status status="PASS" start="2026-11-23T13:29:58.249070" elapsed="0.253173"/>
 </test>
 <doc>Delivery-manager privacy-safe order visibility journeys.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.581246" elapsed="0.215263"/>
+<status status="PASS" start="2026-11-23T13:29:58.247529" elapsed="0.254996"/>
 </suite>
 <suite id="s1-s5" name="Security Misconfiguration" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/security_misconfiguration.robot">
 <test id="s1-s5-t1" name="Web Responses Emit CSP And HSTS" line="6">
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.802192" level="INFO">HTTP Request: GET http://localhost:8080/login "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.508877" level="INFO">HTTP Request: GET http://localhost:8080/login "HTTP/1.1 200 OK"</msg>
 <arg>/login</arg>
-<status status="PASS" start="2026-11-22T11:49:23.798850" elapsed="0.003565"/>
+<status status="PASS" start="2026-11-23T13:29:58.504785" elapsed="0.004338"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.802503" elapsed="0.000102"/>
+<status status="PASS" start="2026-11-23T13:29:58.509245" elapsed="0.000162"/>
 </kw>
 <kw name="Last Web Header Should Match" owner="EcommerceLibrary">
 <arg>content-security-policy</arg>
 <arg>default-src 'self'</arg>
-<status status="PASS" start="2026-11-22T11:49:23.802680" elapsed="0.000163"/>
+<status status="PASS" start="2026-11-23T13:29:58.509480" elapsed="0.000161"/>
 </kw>
 <kw name="Last Web Header Should Match" owner="EcommerceLibrary">
 <arg>content-security-policy</arg>
 <arg>object-src 'none'</arg>
-<status status="PASS" start="2026-11-22T11:49:23.802920" elapsed="0.000135"/>
+<status status="PASS" start="2026-11-23T13:29:58.509709" elapsed="0.000130"/>
 </kw>
 <kw name="Last Web Header Should Match" owner="EcommerceLibrary">
 <arg>strict-transport-security</arg>
 <arg>max-age=</arg>
-<status status="PASS" start="2026-11-22T11:49:23.803126" elapsed="0.000176"/>
+<status status="PASS" start="2026-11-23T13:29:58.509902" elapsed="0.000116"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:misconfig</tag>
 <tag>negative</tag>
 <tag>owasp:a02</tag>
-<status status="PASS" start="2026-11-22T11:49:23.798512" elapsed="0.004879"/>
+<status status="PASS" start="2026-11-23T13:29:58.504419" elapsed="0.005686"/>
 </test>
 <test id="s1-s5-t2" name="Web Session Cookie Is Marked Secure" line="14">
 <kw name="Capture Web Login Set Cookie" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.878905" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
-<msg time="2026-11-22T11:49:23.879509" level="INFO">${cookie} = session=eyJhY2Nlc3NfdG9rZW4iOiAiZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnpkV0lpT2lJMUlpd2laVzFoYVd3aU9pSmpkWE4wYjIxbGNqRkFaWGhoYlhCc1pTNWpiMjBpTENKeWIyeGxJam9pWTNWemRHOXRaWElpTENKcFlYUWlP...</msg>
+<msg time="2026-11-23T13:29:58.591963" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
+<msg time="2026-11-23T13:29:58.592585" level="INFO">${cookie} = session=eyJhY2Nlc3NfdG9rZW4iOiAiZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnpkV0lpT2lJMUlpd2laVzFoYVd3aU9pSmpkWE4wYjIxbGNqRkFaWGhoYlhCc1pTNWpiMjBpTENKeWIyeGxJam9pWTNWemRHOXRaWElpTENKcFlYUWlP...</msg>
 <var>${cookie}</var>
 <arg>customer</arg>
 <doc>Login without following redirects so Set-Cookie can be inspected.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.803843" elapsed="0.075705"/>
+<status status="PASS" start="2026-11-23T13:29:58.510651" elapsed="0.081971"/>
 </kw>
 <kw name="Should Contain" owner="BuiltIn">
 <arg>${cookie.lower()}</arg>
 <arg>secure</arg>
 <doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.879729" elapsed="0.000520"/>
+<status status="PASS" start="2026-11-23T13:29:58.592801" elapsed="0.000489"/>
 </kw>
 <kw name="Should Contain" owner="BuiltIn">
 <arg>${cookie.lower()}</arg>
 <arg>httponly</arg>
 <doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.880344" elapsed="0.000345"/>
+<status status="PASS" start="2026-11-23T13:29:58.593402" elapsed="0.000420"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:misconfig</tag>
 <tag>negative</tag>
 <tag>owasp:a02</tag>
-<status status="PASS" start="2026-11-22T11:49:23.803578" elapsed="0.077208"/>
+<status status="PASS" start="2026-11-23T13:29:58.510276" elapsed="0.083642"/>
 </test>
 <test id="s1-s5-t3" name="Api Health Remains Public While Auth Stays Protected" line="20">
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.882803" level="INFO">HTTP Request: GET http://localhost:8000/health "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.883016" level="INFO">${health} = {'status': 'ok', 'version': '0.1.0'}</msg>
+<msg time="2026-11-23T13:29:58.596264" level="INFO">HTTP Request: GET http://localhost:8000/health "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.596542" level="INFO">${health} = {'status': 'ok', 'version': '0.1.0'}</msg>
 <var>${health}</var>
 <arg>/health</arg>
-<status status="PASS" start="2026-11-22T11:49:23.881315" elapsed="0.001722"/>
+<status status="PASS" start="2026-11-23T13:29:58.594504" elapsed="0.002058"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.883122" elapsed="0.000139"/>
+<status status="PASS" start="2026-11-23T13:29:58.596670" elapsed="0.000111"/>
 </kw>
 <kw name="Should Be Equal" owner="BuiltIn">
 <arg>${health}[status]</arg>
 <arg>ok</arg>
 <doc>Fails if the given objects are unequal.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.883353" elapsed="0.000144"/>
+<status status="PASS" start="2026-11-23T13:29:58.596860" elapsed="0.000128"/>
 </kw>
 <kw name="Api Get" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.885499" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/admin/users "HTTP/1.1 401 Unauthorized"</msg>
+<msg time="2026-11-23T13:29:58.598966" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/admin/users "HTTP/1.1 401 Unauthorized"</msg>
 <arg>/api/v1/admin/users</arg>
-<status status="PASS" start="2026-11-22T11:49:23.883572" elapsed="0.002104"/>
+<status status="PASS" start="2026-11-23T13:29:58.597050" elapsed="0.002105"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>401</arg>
-<status status="PASS" start="2026-11-22T11:49:23.885761" elapsed="0.000097"/>
+<status status="PASS" start="2026-11-23T13:29:58.599254" elapsed="0.000108"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:misconfig</tag>
 <tag>owasp:a02</tag>
-<status status="PASS" start="2026-11-22T11:49:23.880995" elapsed="0.004947"/>
+<status status="PASS" start="2026-11-23T13:29:58.594103" elapsed="0.005380"/>
 </test>
 <doc>E2E checks for security misconfiguration hardening (OWASP A02).</doc>
-<status status="PASS" start="2026-11-22T11:49:23.796907" elapsed="0.089321"/>
+<status status="PASS" start="2026-11-23T13:29:58.502946" elapsed="0.096777"/>
 </suite>
 <suite id="s1-s6" name="Store Owner Catalog" source="/home/runner/work/cybersecurity-prep-project/cybersecurity-prep-project/tests/e2e/store_owner_catalog.robot">
 <test id="s1-s6-t1" name="Store Owner Manages Own Catalog And Orders" line="6">
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.892119" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.892361" level="INFO">${profile} = {'id': 3, 'email': 'owner1@example.com', 'role': 'store_owner', 'full_name': 'Olivia Owner', 'store_id': 1}</msg>
+<msg time="2026-11-23T13:29:58.605804" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.606049" level="INFO">${profile} = {'id': 3, 'email': 'owner1@example.com', 'role': 'store_owner', 'full_name': 'Olivia Owner', 'store_id': 1}</msg>
 <var>${profile}</var>
 <arg>store_owner_primary</arg>
-<status status="PASS" start="2026-11-22T11:49:23.888422" elapsed="0.003962"/>
+<status status="PASS" start="2026-11-23T13:29:58.601924" elapsed="0.004145"/>
 </kw>
 <kw name="Should Be Equal" owner="BuiltIn">
 <arg>${profile}[role]</arg>
 <arg>store_owner</arg>
 <doc>Fails if the given objects are unequal.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.892515" elapsed="0.000146"/>
+<status status="PASS" start="2026-11-23T13:29:58.606222" elapsed="0.000179"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.892869" level="INFO">${store_id} = 1</msg>
+<msg time="2026-11-23T13:29:58.606592" level="INFO">${store_id} = 1</msg>
 <var>${store_id}</var>
 <arg>${profile}[store_id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.892745" elapsed="0.000142"/>
+<status status="PASS" start="2026-11-23T13:29:58.606484" elapsed="0.000126"/>
 </kw>
 <kw name="Should Be True" owner="BuiltIn">
 <arg>${store_id} &gt; 0</arg>
 <doc>Fails if the given condition is not true.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.892962" elapsed="0.000144"/>
+<status status="PASS" start="2026-11-23T13:29:58.606689" elapsed="0.000127"/>
 </kw>
 <kw name="Create Product For Owner" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.900995" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 201 Created"</msg>
-<msg time="2026-11-22T11:49:23.901246" level="INFO">${product} = {'id': 25, 'store_id': 1, 'name': 'E2E Widget ab5001d2', 'description': 'e2e catalog item', 'price_cents': 1500, 'is_active': True, 'stock_quantity': 25}</msg>
+<msg time="2026-11-23T13:29:58.614825" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 201 Created"</msg>
+<msg time="2026-11-23T13:29:58.615071" level="INFO">${product} = {'id': 25, 'store_id': 1, 'name': 'E2E Widget 0d9e29e2', 'description': 'e2e catalog item', 'price_cents': 1500, 'is_active': True, 'stock_quantity': 25}</msg>
 <var>${product}</var>
 <arg>store_owner_primary</arg>
 <arg>${store_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.893217" elapsed="0.008054"/>
+<status status="PASS" start="2026-11-23T13:29:58.606885" elapsed="0.008206"/>
 </kw>
 <kw name="Should Be Equal As Integers" owner="BuiltIn">
 <arg>${product}[store_id]</arg>
 <arg>${store_id}</arg>
 <doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.901370" elapsed="0.000171"/>
+<status status="PASS" start="2026-11-23T13:29:58.615204" elapsed="0.000201"/>
 </kw>
 <kw name="Should Be Equal" owner="BuiltIn">
 <arg>${product}[name]</arg>
 <arg>${product}[name]</arg>
 <doc>Fails if the given objects are unequal.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.901627" elapsed="0.000154"/>
+<status status="PASS" start="2026-11-23T13:29:58.615487" elapsed="0.000136"/>
 </kw>
 <kw name="List Products For Store" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.906940" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.907216" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
+<msg time="2026-11-23T13:29:58.620758" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.621076" level="INFO">${products} = [{'id': 1, 'store_id': 1, 'name': 'NW Trail Backpack', 'description': 'Durable daypack for daily carry.', 'price_cents': 8999, 'is_active': True, 'stock_quantity': 0}, {'id': 2, 'store_id': 1, 'name':...</msg>
 <var>${products}</var>
 <arg>store_owner_primary</arg>
 <arg>${store_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:23.901861" elapsed="0.005382"/>
+<status status="PASS" start="2026-11-23T13:29:58.615692" elapsed="0.005410"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.907332" elapsed="0.000100"/>
+<status status="PASS" start="2026-11-23T13:29:58.621221" elapsed="0.000124"/>
 </kw>
 <kw name="Should Not Be Empty" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.907610" level="INFO">Length is 13.</msg>
+<msg time="2026-11-23T13:29:58.621564" level="INFO">Length is 13.</msg>
 <arg>${products}</arg>
 <doc>Verifies that the given item is not empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.907512" elapsed="0.000132"/>
+<status status="PASS" start="2026-11-23T13:29:58.621452" elapsed="0.000148"/>
 </kw>
 <kw name="Get Current User Profile" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.911086" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.911335" level="INFO">${customer_profile} = {'id': 5, 'email': 'customer1@example.com', 'role': 'customer', 'full_name': 'Carla Customer', 'store_id': 1}</msg>
+<msg time="2026-11-23T13:29:58.625115" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/auth/me "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.625345" level="INFO">${customer_profile} = {'id': 5, 'email': 'customer1@example.com', 'role': 'customer', 'full_name': 'Carla Customer', 'store_id': 1}</msg>
 <var>${customer_profile}</var>
 <arg>customer</arg>
-<status status="PASS" start="2026-11-22T11:49:23.907725" elapsed="0.003632"/>
+<status status="PASS" start="2026-11-23T13:29:58.621678" elapsed="0.003708"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.911583" level="INFO">${customer_store} = 1</msg>
+<msg time="2026-11-23T13:29:58.625636" level="INFO">${customer_store} = 1</msg>
 <var>${customer_store}</var>
 <arg>${customer_profile}[store_id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.911445" elapsed="0.000157"/>
+<status status="PASS" start="2026-11-23T13:29:58.625501" elapsed="0.000150"/>
 </kw>
 <kw name="Find In Stock Product" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.916323" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
-<msg time="2026-11-22T11:49:23.916558" level="INFO">${product} = {'id': 2, 'store_id': 1, 'name': 'NW Softshell Jacket', 'description': 'Wind-resistant layer for cool weather.', 'price_cents': 12999, 'is_active': True, 'stock_quantity': 23}</msg>
+<msg time="2026-11-23T13:29:58.630417" level="INFO">HTTP Request: GET http://localhost:8000/api/v1/stores/1/products "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.630681" level="INFO">${product} = {'id': 2, 'store_id': 1, 'name': 'NW Softshell Jacket', 'description': 'Wind-resistant layer for cool weather.', 'price_cents': 12999, 'is_active': True, 'stock_quantity': 23}</msg>
 <var>${product}</var>
 <arg>customer</arg>
 <arg>${customer_store}</arg>
 <doc>Return an in-stock catalog item, creating one when the shelf is empty.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.911681" elapsed="0.004899"/>
+<status status="PASS" start="2026-11-23T13:29:58.625720" elapsed="0.004981"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.916810" level="INFO">${customer_product_id} = 2</msg>
+<msg time="2026-11-23T13:29:58.630947" level="INFO">${customer_product_id} = 2</msg>
 <var>${customer_product_id}</var>
 <arg>${product}[id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.916673" elapsed="0.000156"/>
+<status status="PASS" start="2026-11-23T13:29:58.630812" elapsed="0.000150"/>
 </kw>
 <kw name="Checkout Product For Customer" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.927445" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 201 Created"</msg>
-<msg time="2026-11-22T11:49:23.927675" level="INFO">${checkout} = {'order': {'id': 11, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': 'E2E Purchase Way...</msg>
+<msg time="2026-11-23T13:29:58.641016" level="INFO">HTTP Request: POST http://localhost:8000/api/v1/stores/1/orders/checkout "HTTP/1.1 201 Created"</msg>
+<msg time="2026-11-23T13:29:58.641283" level="INFO">${checkout} = {'order': {'id': 11, 'store_id': 1, 'customer_user_id': 5, 'status': 'pending', 'customer_email': 'customer1@example.com', 'customer_full_name': 'Carla Customer', 'shipping_address': 'E2E Purchase Way...</msg>
 <var>${checkout}</var>
 <arg>${customer_store}</arg>
 <arg>${customer_product_id}</arg>
 <arg>1</arg>
-<status status="PASS" start="2026-11-22T11:49:23.916907" elapsed="0.010793"/>
+<status status="PASS" start="2026-11-23T13:29:58.631030" elapsed="0.010272"/>
 </kw>
 <kw name="Set Variable" owner="BuiltIn">
-<msg time="2026-11-22T11:49:23.927949" level="INFO">${order_id} = 11</msg>
+<msg time="2026-11-23T13:29:58.641606" level="INFO">${order_id} = 11</msg>
 <var>${order_id}</var>
 <arg>${checkout}[order][id]</arg>
 <doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.927799" elapsed="0.000169"/>
+<status status="PASS" start="2026-11-23T13:29:58.641449" elapsed="0.000174"/>
 </kw>
 <if>
 <branch type="IF" condition="${store_id} == ${customer_store}">
 <kw name="Update Order Status" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:23.937371" level="INFO">HTTP Request: PATCH http://localhost:8000/api/v1/orders/11/status "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.651406" level="INFO">HTTP Request: PATCH http://localhost:8000/api/v1/orders/11/status "HTTP/1.1 200 OK"</msg>
 <arg>store_owner_primary</arg>
 <arg>${order_id}</arg>
 <arg>confirmed</arg>
-<status status="PASS" start="2026-11-22T11:49:23.928272" elapsed="0.009296"/>
+<status status="PASS" start="2026-11-23T13:29:58.641888" elapsed="0.009757"/>
 </kw>
 <kw name="Last Api Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:23.937665" elapsed="0.000105"/>
+<status status="PASS" start="2026-11-23T13:29:58.651764" elapsed="0.000120"/>
 </kw>
-<status status="PASS" start="2026-11-22T11:49:23.928054" elapsed="0.009746"/>
+<status status="PASS" start="2026-11-23T13:29:58.641711" elapsed="0.010200"/>
 </branch>
-<status status="PASS" start="2026-11-22T11:49:23.928027" elapsed="0.009806"/>
+<status status="PASS" start="2026-11-23T13:29:58.641681" elapsed="0.010266"/>
 </if>
 <kw name="Web Login As Persona" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:24.005854" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
-<msg time="2026-11-22T11:49:24.025278" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.725401" level="INFO">HTTP Request: POST http://localhost:8080/login "HTTP/1.1 303 See Other"</msg>
+<msg time="2026-11-23T13:29:58.744716" level="INFO">HTTP Request: GET http://localhost:8080/dashboard "HTTP/1.1 200 OK"</msg>
 <arg>store_owner_primary</arg>
 <doc>Authenticate via the Jinja login form and land on the dashboard.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.937909" elapsed="0.087632"/>
+<status status="PASS" start="2026-11-23T13:29:58.652021" elapsed="0.092977"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:24.050780" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.770014" level="INFO">HTTP Request: GET http://localhost:8080/stores/1 "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_id}</arg>
-<status status="PASS" start="2026-11-22T11:49:24.025688" elapsed="0.025392"/>
+<status status="PASS" start="2026-11-23T13:29:58.745145" elapsed="0.025136"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:24.051258" elapsed="0.000148"/>
+<status status="PASS" start="2026-11-23T13:29:58.770472" elapsed="0.000146"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>${product}[name]</arg>
-<status status="PASS" start="2026-11-22T11:49:24.051489" elapsed="0.000134"/>
+<status status="PASS" start="2026-11-23T13:29:58.770692" elapsed="0.000122"/>
 </kw>
 <kw name="Web Open Path" owner="EcommerceLibrary">
-<msg time="2026-11-22T11:49:24.078187" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
+<msg time="2026-11-23T13:29:58.796715" level="INFO">HTTP Request: GET http://localhost:8080/stores/1/orders "HTTP/1.1 200 OK"</msg>
 <arg>/stores/${store_id}/orders</arg>
-<status status="PASS" start="2026-11-22T11:49:24.051697" elapsed="0.026732"/>
+<status status="PASS" start="2026-11-23T13:29:58.770875" elapsed="0.026145"/>
 </kw>
 <kw name="Last Web Status Should Be" owner="EcommerceLibrary">
 <arg>200</arg>
-<status status="PASS" start="2026-11-22T11:49:24.078551" elapsed="0.000130"/>
+<status status="PASS" start="2026-11-23T13:29:58.797157" elapsed="0.000195"/>
 </kw>
 <kw name="Last Web Body Should Contain" owner="EcommerceLibrary">
 <arg>Orders</arg>
-<status status="PASS" start="2026-11-22T11:49:24.078810" elapsed="0.000088"/>
+<status status="PASS" start="2026-11-23T13:29:58.797492" elapsed="0.000077"/>
 </kw>
 <tag>e2e</tag>
 <tag>feature:catalog</tag>
 <tag>persona:store_owner</tag>
-<status status="PASS" start="2026-11-22T11:49:23.888116" elapsed="0.190890"/>
+<status status="PASS" start="2026-11-23T13:29:58.601584" elapsed="0.196084"/>
 </test>
 <doc>Store-owner catalog and order management journeys.</doc>
-<status status="PASS" start="2026-11-22T11:49:23.886665" elapsed="0.192635"/>
+<status status="PASS" start="2026-11-23T13:29:58.600161" elapsed="0.197754"/>
 </suite>
 <doc>E2E suite root: require a healthy seeded API + web stack.</doc>
-<status status="PASS" start="2026-11-22T11:49:22.676501" elapsed="1.403308"/>
+<status status="PASS" start="2026-11-23T13:29:57.305415" elapsed="1.493066"/>
 </suite>
 <statistics>
 <total>
