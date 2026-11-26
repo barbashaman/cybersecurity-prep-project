@@ -1,41 +1,35 @@
-database-1  | The files belonging to this database system will be owned by user "postgres".
-database-1  | This user must also own the server process.
-database-1  | 
-database-1  | The database cluster will be initialized with locale "en_US.utf8".
-database-1  | The default database encoding has accordingly been set to "UTF8".
-database-1  | The default text search configuration will be set to "english".
-database-1  | 
-database-1  | Data page checksums are disabled.
-database-1  | 
-database-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
-database-1  | creating subdirectories ... ok
-database-1  | selecting dynamic shared memory implementation ... posix
-database-1  | selecting default max_connections ... 100
-database-1  | selecting default shared_buffers ... 128MB
-database-1  | selecting default time zone ... UTC
-database-1  | creating configuration files ... ok
-database-1  | running bootstrap script ... ok
-database-1  | sh: locale: not found
-database-1  | 2026-11-25 13:20:44.722 UTC [37] WARNING:  no usable system locales were found
-database-1  | performing post-bootstrap initialization ... ok
-database-1  | initdb: warning: enabling "trust" authentication for local connections
-database-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
-database-1  | syncing data to disk ... ok
-database-1  | 
-api-1       | [api-entrypoint] Preparing database (alembic upgrade + optional seed)...
 web-1       | INFO:     Started server process [7]
 web-1       | INFO:     Waiting for application startup.
 web-1       | INFO:     Application startup complete.
 web-1       | INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
-web-1       | INFO:     172.18.0.1:35128 - "GET /health HTTP/1.1" 200 OK
-web-1       | INFO:     127.0.0.1:43644 - "GET /health HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35132 - "GET /health HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "POST /login HTTP/1.1" 303 See Other
-web-1       | INFO:     172.18.0.1:35140 - "GET /dashboard HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1 HTTP/1.1" 403 Forbidden
-web-1       | INFO:     172.18.0.1:35140 - "POST /login HTTP/1.1" 303 See Other
-web-1       | INFO:     172.18.0.1:35140 - "GET /dashboard HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1 HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42376 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     127.0.0.1:35140 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42384 - "GET /health HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "POST /login HTTP/1.1" 303 See Other
+web-1       | INFO:     172.18.0.1:42396 - "GET /dashboard HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1 HTTP/1.1" 403 Forbidden
+web-1       | INFO:     172.18.0.1:42396 - "POST /login HTTP/1.1" 303 See Other
+web-1       | INFO:     172.18.0.1:42396 - "GET /dashboard HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1 HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1/orders HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "POST /login HTTP/1.1" 303 See Other
+web-1       | INFO:     172.18.0.1:42396 - "GET /dashboard HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1 HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1/orders HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "POST /login HTTP/1.1" 303 See Other
+web-1       | INFO:     172.18.0.1:42396 - "GET /dashboard HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1/orders HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /login HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:59788 - "POST /login HTTP/1.1" 303 See Other
+web-1       | INFO:     172.18.0.1:42396 - "POST /login HTTP/1.1" 303 See Other
+web-1       | INFO:     172.18.0.1:42396 - "GET /dashboard HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1 HTTP/1.1" 200 OK
+web-1       | INFO:     172.18.0.1:42396 - "GET /stores/1/orders HTTP/1.1" 200 OK
+api-1       | [api-entrypoint] Preparing database (alembic upgrade + optional seed)...
+database-1  | The files belonging to this database system will be owned by user "postgres".
+database-1  | This user must also own the server process.
+database-1  | 
+database-1  | The database cluster will be initialized with locale "en_US.utf8".
 api-1       | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
 api-1       | INFO  [alembic.runtime.migration] Will assume transactional DDL.
 api-1       | INFO  [alembic.runtime.migration] Running upgrade  -> 20260726_0001, Phase 1b baseline schema: users, stores, products, orders.
@@ -50,18 +44,35 @@ api-1       | INFO:     Started server process [1]
 api-1       | INFO:     Waiting for application startup.
 api-1       | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
 api-1       | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+database-1  | The default database encoding has accordingly been set to "UTF8".
+database-1  | The default text search configuration will be set to "english".
+database-1  | 
+database-1  | Data page checksums are disabled.
+database-1  | 
+database-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+database-1  | creating subdirectories ... ok
+database-1  | selecting dynamic shared memory implementation ... posix
+database-1  | selecting default max_connections ... 100
+database-1  | selecting default shared_buffers ... 128MB
+database-1  | selecting default time zone ... UTC
+database-1  | creating configuration files ... ok
+database-1  | running bootstrap script ... ok
+database-1  | sh: locale: not found
+database-1  | 2026-11-26 13:00:03.612 UTC [37] WARNING:  no usable system locales were found
+database-1  | performing post-bootstrap initialization ... ok
+database-1  | syncing data to disk ... ok
+database-1  | 
 database-1  | 
 database-1  | Success. You can now start the database server using:
 database-1  | 
 database-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
 database-1  | 
-database-1  | waiting for server to start....2026-11-25 13:20:45.085 UTC [43] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1/orders HTTP/1.1" 200 OK
-database-1  | 2026-11-25 13:20:45.086 UTC [43] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
-database-1  | 2026-11-25 13:20:45.088 UTC [46] LOG:  database system was shut down at 2026-11-25 13:20:45 UTC
-web-1       | INFO:     172.18.0.1:35140 - "POST /login HTTP/1.1" 303 See Other
-database-1  | 2026-11-25 13:20:45.091 UTC [43] LOG:  database system is ready to accept connections
-web-1       | INFO:     172.18.0.1:35140 - "GET /dashboard HTTP/1.1" 200 OK
+database-1  | initdb: warning: enabling "trust" authentication for local connections
+database-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+database-1  | waiting for server to start....2026-11-26 13:00:03.855 UTC [43] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+database-1  | 2026-11-26 13:00:03.856 UTC [43] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+database-1  | 2026-11-26 13:00:03.857 UTC [46] LOG:  database system was shut down at 2026-11-26 13:00:03 UTC
+database-1  | 2026-11-26 13:00:03.860 UTC [43] LOG:  database system is ready to accept connections
 database-1  |  done
 database-1  | server started
 database-1  | CREATE DATABASE
@@ -69,32 +80,21 @@ database-1  |
 database-1  | 
 database-1  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
 database-1  | 
-database-1  | waiting for server to shut down....2026-11-25 13:20:45.206 UTC [43] LOG:  received fast shutdown request
-database-1  | 2026-11-25 13:20:45.206 UTC [43] LOG:  aborting any active transactions
-database-1  | 2026-11-25 13:20:45.208 UTC [43] LOG:  background worker "logical replication launcher" (PID 49) exited with exit code 1
-database-1  | 2026-11-25 13:20:45.209 UTC [44] LOG:  shutting down
-database-1  | 2026-11-25 13:20:45.209 UTC [44] LOG:  checkpoint starting: shutdown immediate
-database-1  | 2026-11-25 13:20:45.215 UTC [44] LOG:  checkpoint complete: wrote 935 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.005 s, sync=0.001 s, total=0.006 s; sync files=301, longest=0.001 s, average=0.000 s; distance=4355 kB, estimate=4355 kB; lsn=0/1949CE0, redo lsn=0/1949CE0
-database-1  | 2026-11-25 13:20:45.219 UTC [43] LOG:  database system is shut down
+database-1  | waiting for server to shut down....2026-11-26 13:00:03.972 UTC [43] LOG:  received fast shutdown request
+database-1  | 2026-11-26 13:00:03.972 UTC [43] LOG:  aborting any active transactions
+database-1  | 2026-11-26 13:00:03.974 UTC [43] LOG:  background worker "logical replication launcher" (PID 49) exited with exit code 1
+database-1  | 2026-11-26 13:00:03.975 UTC [44] LOG:  shutting down
+database-1  | 2026-11-26 13:00:03.975 UTC [44] LOG:  checkpoint starting: shutdown immediate
+database-1  | 2026-11-26 13:00:03.979 UTC [44] LOG:  checkpoint complete: wrote 935 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.001 s, total=0.005 s; sync files=301, longest=0.001 s, average=0.000 s; distance=4355 kB, estimate=4355 kB; lsn=0/1949CE0, redo lsn=0/1949CE0
+database-1  | 2026-11-26 13:00:03.982 UTC [43] LOG:  database system is shut down
 database-1  |  done
 database-1  | server stopped
 database-1  | 
 database-1  | PostgreSQL init process complete; ready for start up.
 database-1  | 
-database-1  | 2026-11-25 13:20:45.322 UTC [1] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
-database-1  | 2026-11-25 13:20:45.322 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
-database-1  | 2026-11-25 13:20:45.322 UTC [1] LOG:  listening on IPv6 address "::", port 5432
-database-1  | 2026-11-25 13:20:45.324 UTC [1] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
-database-1  | 2026-11-25 13:20:45.325 UTC [59] LOG:  database system was shut down at 2026-11-25 13:20:45 UTC
-database-1  | 2026-11-25 13:20:45.328 UTC [1] LOG:  database system is ready to accept connections
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1 HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1/orders HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "POST /login HTTP/1.1" 303 See Other
-web-1       | INFO:     172.18.0.1:35140 - "GET /dashboard HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1/orders HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /login HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35142 - "POST /login HTTP/1.1" 303 See Other
-web-1       | INFO:     172.18.0.1:35140 - "POST /login HTTP/1.1" 303 See Other
-web-1       | INFO:     172.18.0.1:35140 - "GET /dashboard HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1 HTTP/1.1" 200 OK
-web-1       | INFO:     172.18.0.1:35140 - "GET /stores/1/orders HTTP/1.1" 200 OK
+database-1  | 2026-11-26 13:00:04.086 UTC [1] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+database-1  | 2026-11-26 13:00:04.086 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+database-1  | 2026-11-26 13:00:04.086 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+database-1  | 2026-11-26 13:00:04.086 UTC [1] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+database-1  | 2026-11-26 13:00:04.088 UTC [59] LOG:  database system was shut down at 2026-11-26 13:00:03 UTC
+database-1  | 2026-11-26 13:00:04.090 UTC [1] LOG:  database system is ready to accept connections
